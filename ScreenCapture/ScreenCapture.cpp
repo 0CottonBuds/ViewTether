@@ -116,26 +116,15 @@ int main() {
     }
     pDesktopTexture->GetDesc(&desktopTextureDesc);
 
-    IDXGISurface* pSurface = nullptr;
-    hr = pOutput->GetDisplaySurfaceData(pSurface);
+
+    DXGI_MAPPED_RECT mappedResource = {};
+    hr = pOutputDuplication->MapDesktopSurface(&mappedResource);
     if (FAILED(hr)) {
-        std::cerr << "Failed to get surface from output" << std::endl;
-        DestroyWindow(hWnd);
+        std::cerr << "Failed to map desktop surface to mapped resource" << std::endl;
+        pDesktopTexture->Release();
+        pOutputDuplication->ReleaseFrame();
         return 1;
     }
-
-
-
-    
-
-//    DXGI_MAPPED_RECT mappedResource = {};
-//    hr = pOutputDuplication->MapDesktopSurface(&mappedResource);
-//    if (FAILED(hr)) {
-//        std::cerr << "Failed to map desktop surface to mapped resource" << std::endl;
-//        pDesktopTexture->Release();
-//        pOutputDuplication->ReleaseFrame();
-//        return 1;
-//    }
 
     // unmap texture
     pOutputDuplication->UnMapDesktopSurface();
