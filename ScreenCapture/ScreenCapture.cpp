@@ -71,6 +71,7 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     pAdapter->Release();
     pFactory->Release();
 
+    std::cout << "Successfully Created DXGI Output Duplicator" << std::endl;
     return hr;
 }
 
@@ -89,21 +90,42 @@ int main() {
         DestroyWindow(hWnd);
         return 1;
     }
-    std::cout << "Successfully Created DXGI Output Duplicator" << std::endl;
 
-    std::cout << "Getting frame data" << std::endl;
+    // Get Frame
     UINT timeOutInMilliseconds = 100;
-    IDXGIResource* pResoure = nullptr;
+    IDXGIResource* pDesktopResoure = nullptr;
     DXGI_OUTDUPL_FRAME_INFO pFrameInfo;
-    hr = pOutputDuplication->AcquireNextFrame(timeOutInMilliseconds, &pFrameInfo, &pResoure);
+    hr = pOutputDuplication->AcquireNextFrame(timeOutInMilliseconds, &pFrameInfo, &pDesktopResoure);
     if (FAILED(hr)) {
         std::cout << "Failed to get Frame Data" << std::endl;
-        pResoure->Release();
+        pDesktopResoure->Release();
         pOutputDuplication->Release();
         DestroyWindow(hWnd);
         return 1;
     }
 
+    ID3D11Texture2D* pDesktopTexture = nullptr;
+    D3D11_TEXTURE2D_DESC desktopTextureDesc;
+
+    hr = pDesktopResoure->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
+    if (FAILED(hr)) {
+        std::cout << "Failed to Query texture interface from desktop resource" << std::endl;
+        pOutputDuplication->ReleaseFrame();
+    }
+    pDesktopTexture->GetDesc(&desktopTextureDesc);
+
+    DXGI_MAPPED_RECT mappedResource = {};
+    hr = pOutputDuplication->MapDesktopSurface(&mappedResource);
+    if (FAILED(hr)) {
+        std::cout << "Failed to map desktop surface to mapped resource" << std::endl;
+        pDesktopTexture->Release();
+        pOutputDuplication->ReleaseFrame();
+    }
+
+    // unmap texture
+    pOutputDuplication->UnMapDesktopSurface();
+    pDesktopTexture->Release();
+    pOutputDuplication->ReleaseFrame();
 
     // Release resources
     pOutputDuplication->Release();
