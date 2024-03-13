@@ -89,7 +89,21 @@ int main() {
         DestroyWindow(hWnd);
         return 1;
     }
-    std::cout << "Successfully Created DXGI Output Duplicator";
+    std::cout << "Successfully Created DXGI Output Duplicator" << std::endl;
+
+    std::cout << "Getting frame data" << std::endl;
+    UINT timeOutInMilliseconds = 100;
+    IDXGIResource* pResoure = nullptr;
+    DXGI_OUTDUPL_FRAME_INFO pFrameInfo;
+    hr = pOutputDuplication->AcquireNextFrame(timeOutInMilliseconds, &pFrameInfo, &pResoure);
+    if (FAILED(hr)) {
+        std::cout << "Failed to get Frame Data" << std::endl;
+        pResoure->Release();
+        pOutputDuplication->Release();
+        DestroyWindow(hWnd);
+        return 1;
+    }
+
 
     // Release resources
     pOutputDuplication->Release();
