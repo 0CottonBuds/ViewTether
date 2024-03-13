@@ -1,20 +1,44 @@
-// ScreenCapture.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-#include <dxdiag.h>
+#include <Windows.h>
+#include <dxgi.h>
+#include <d3d11.h>
+#include <dxgi1_2.h>
+#include <iostream>
+#pragma comment(lib, "dxgi.lib")
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	// Step 1: Create DXGI Factory
+	IDXGIFactory* pFactory = nullptr;
+	HRESULT hr = CreateDXGIFactory(__uuidof(IDXGIFactory), reinterpret_cast<void**>(&pFactory));
+	if (FAILED(hr)) {
+		// Handle error
+	}
+
+		// Step 2: Enumerate Adapters (Optional)
+	IDXGIAdapter* pAdapter = nullptr;
+	hr = pFactory->EnumAdapters(0, &pAdapter); // You may need to loop through adapters to choose the desired one
+	if (FAILED(hr)) {
+		// Handle error
+	}
+
+	// Step 3: Get DXGI Output
+	IDXGIOutput* pOutput = nullptr;
+	hr = pAdapter->EnumOutputs(0, &pOutput); // You may need to loop through outputs to choose the desired one
+	if (FAILED(hr)) {
+		// Handle error
+	}
+
+	IDXGIOutput1* pOutput1 = nullptr;
+	hr = pOutput->QueryInterface(__uuidof(IDXGIOutput1), reinterpret_cast<void**>(&pOutput1)); // You may need to loop through outputs to choose the desired one
+	if (FAILED(hr)) {
+		// Handle error
+	}
+
+	// Step 4: Create Output Duplication
+	IDXGIOutputDuplication* pDuplication = nullptr;
+	hr = pOutput1->DuplicateOutput(pAdapter, &pDuplication);
+	if (FAILED(hr)) {
+		// Handle error
+	}
+		
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
