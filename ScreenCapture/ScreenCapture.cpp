@@ -5,12 +5,18 @@
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3d11.lib")
 
+IDXGIFactory1* pFactory = nullptr;
+IDXGIAdapter1* pAdapter = nullptr;
+ID3D11Device* pDevice = nullptr;
+ID3D11DeviceContext* pContext = nullptr;
+IDXGIOutput* pOutput = nullptr;
+IDXGIOutput1* pOutput1 = nullptr;
+
 // Function to initialize DXGI and set up components for window duplication
 HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) {
     HRESULT hr = S_OK;
 
     // Create DXGI Factory
-    IDXGIFactory1* pFactory = nullptr;
     hr = CreateDXGIFactory1(__uuidof(IDXGIFactory), (void**)&pFactory);
     if (FAILED(hr)) {
         std::cerr << "Failed to create DXGI factory!" << std::endl;
@@ -18,7 +24,6 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     }
 
     // Get primary adapter
-    IDXGIAdapter1* pAdapter = nullptr;
     hr = pFactory->EnumAdapters1(0, &pAdapter);
     if (FAILED(hr)) {
         std::cerr << "Failed to get primary adapter!" << std::endl;
@@ -27,7 +32,6 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     }
 
     // Get DXGI device
-    ID3D11Device* pDevice = nullptr;
     hr = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, NULL, 0, D3D11_SDK_VERSION, &pDevice, NULL, NULL);
     if (FAILED(hr)) {
         std::cerr << "Failed to create DXGI device!" << std::endl;
@@ -37,11 +41,9 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     }
 
     // Get DXGI device context
-    ID3D11DeviceContext* pContext = nullptr;
     pDevice->GetImmediateContext(&pContext);
 
     // Get output
-    IDXGIOutput* pOutput = nullptr;
     hr = pAdapter->EnumOutputs(0, &pOutput);
     if (FAILED(hr)) {
         std::cerr << "Failed to get output!" << std::endl;
@@ -51,7 +53,6 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
         return hr;
     }
 
-    IDXGIOutput1* pOutput1 = nullptr;
     hr = pOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)&pOutput1);
 
     // Create duplication interface
@@ -115,16 +116,26 @@ int main() {
     }
     pDesktopTexture->GetDesc(&desktopTextureDesc);
 
-    //this is supposed to be a fix for mapping the resources
-    SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
-    DXGI_MAPPED_RECT mappedResource = {};
-    hr = pOutputDuplication->MapDesktopSurface(&mappedResource);
+    IDXGISurface* pSurface = nullptr;
+    hr = pOutput->GetDisplaySurfaceData(pSurface);
     if (FAILED(hr)) {
-        std::cerr << "Failed to map desktop surface to mapped resource" << std::endl;
-        pDesktopTexture->Release();
-        pOutputDuplication->ReleaseFrame();
+        std::cerr << "Failed to get surface from output" << std::endl;
+        DestroyWindow(hWnd);
         return 1;
     }
+
+
+
+    
+
+//    DXGI_MAPPED_RECT mappedResource = {};
+//    hr = pOutputDuplication->MapDesktopSurface(&mappedResource);
+//    if (FAILED(hr)) {
+//        std::cerr << "Failed to map desktop surface to mapped resource" << std::endl;
+//        pDesktopTexture->Release();
+//        pOutputDuplication->ReleaseFrame();
+//        return 1;
+//    }
 
     // unmap texture
     pOutputDuplication->UnMapDesktopSurface();
