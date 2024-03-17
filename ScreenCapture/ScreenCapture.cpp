@@ -75,7 +75,7 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     return hr;
 }
 
-int main() {
+int maint() {
 
     // Create window
     HWND hWnd = CreateWindow(L"STATIC", L"DXGI Window Duplication", WS_OVERLAPPEDWINDOW, 100, 100, 800, 600, nullptr, nullptr, nullptr, nullptr);
