@@ -2,8 +2,16 @@
 
 HRESULT ScreenDuplicator::Initialize()
 {
-
+	initializeFactory();
+	initializeAdapters();
+	initializeAdapterDescription();
+	initualizeOutputs();
     return E_NOTIMPL;
+}
+
+HRESULT ScreenDuplicator::initializeFactory()
+{
+	return E_NOTIMPL;
 }
 
 HRESULT ScreenDuplicator::initializeAdapters()

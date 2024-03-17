@@ -26,6 +26,7 @@ private:
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
 
+	HRESULT initializeFactory(); 
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();
 	HRESULT initualizeOutputs();
