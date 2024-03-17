@@ -128,7 +128,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ScreenCapture.cpp" />
+    <ClCompile Include="ScreenDupliactor.cpp" />
     <ClCompile Include="Test.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ScreenDupliactor.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

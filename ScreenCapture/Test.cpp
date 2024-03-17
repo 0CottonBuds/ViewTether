@@ -30,7 +30,7 @@ int main() {
 		cerr << "enumarating adapters failed" << endl;
 		return 1;
 	}
-
+ 
 	DXGI_ADAPTER_DESC1 adapterDesc;
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc;
 	for (int i = 0; i < vAdapters.size(); i++) {
