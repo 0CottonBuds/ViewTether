@@ -17,14 +17,14 @@ int main() {
 		return 1;
 	}
 
-	
-	UINT i = 0; 
-	IDXGIAdapter1 * pAdapter; 
+
+	UINT i = 0;
+	IDXGIAdapter1* pAdapter;
 	vector <IDXGIAdapter1*> vAdapters;
-	while(hr = pFactory->EnumAdapters1(i, &pAdapter) != DXGI_ERROR_NOT_FOUND) 
-	{ 
-		vAdapters.push_back(pAdapter); 
-		++i; 
+	while (hr = pFactory->EnumAdapters1(i, &pAdapter) != DXGI_ERROR_NOT_FOUND)
+	{
+		vAdapters.push_back(pAdapter);
+		++i;
 	}
 	if (FAILED(hr)) {
 		cerr << "enumarating adapters failed" << endl;
@@ -46,6 +46,20 @@ int main() {
 			vAdapters[i]->Release();
 		}
 		pFactory->Release();
+	}
+
+	vector<vector<IDXGIOutput1*>> vvOutputs;
+	for (int i = 0; i < vAdapters.size(); i++) {
+		UINT j = 0;
+		IDXGIOutput* pOutput = nullptr;
+		IDXGIOutput1* pOutput1 = nullptr;
+		vector<IDXGIOutput1*> vOutputs;
+		while (hr = vAdapters[i]->EnumOutputs(j, &pOutput) != DXGI_ERROR_NOT_FOUND) {
+			hr = pOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)& pOutput1);
+			vOutputs.push_back(pOutput1);
+			++j;
+		}
+		vvOutputs.push_back(vOutputs);
 	}
 
 	cout << "program ended successfuly" << endl;
