@@ -72,7 +72,6 @@ HRESULT InitializeDXGI(HWND hWnd, IDXGIOutputDuplication** ppOutputDuplication) 
     pAdapter->Release();
     pFactory->Release();
 
-    std::cout << "Successfully Created DXGI Output Duplicator" << std::endl;
     return hr;
 }
 
