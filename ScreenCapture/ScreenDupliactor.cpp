@@ -108,20 +108,28 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 HRESULT ScreenDuplicator::releaseMemory()
 {
 	try {
-		pFactory->Release();
-		pAdapter1->Release();
-		pOutput->Release();
-		pOutput1->Release();
-		pDevice->Release();
-		pDeviceContext->Release();
+		if(pFactory != nullptr)
+			pFactory->Release();
+		if(pAdapter1 != nullptr)
+			pAdapter1->Release();
+		if(pOutput != nullptr)
+			pOutput->Release();
+		if(pOutput1 != nullptr)
+			pOutput1->Release();
+		if(pDevice != nullptr)
+			pDevice->Release();
+		if(pDeviceContext != nullptr)
+			pDeviceContext->Release();
 
-		for (IDXGIAdapter1* adapter : vAdapters) {
-			adapter->Release();
+		for (IDXGIAdapter1* tAdapter : vAdapters) {
+			if(tAdapter != nullptr)
+				tAdapter->Release();
 		}
 
 		for (vector<IDXGIOutput1*> tvOutputs : vvOutputs) {
 			for (IDXGIOutput1* tpOutput : tvOutputs) {
-				tpOutput->Release();
+				if(tpOutput != nullptr)
+					tpOutput->Release();
 			}
 		}
 		return S_OK;
