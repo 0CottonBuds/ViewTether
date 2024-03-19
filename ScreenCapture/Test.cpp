@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int main() {
+int mainte1() {
 	IDXGIFactory2* pFactory = nullptr;
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
 	if (FAILED(hr)) {

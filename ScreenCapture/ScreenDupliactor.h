@@ -22,6 +22,9 @@ private:
 	DXGI_ADAPTER_DESC1 adapterDesc;
 	IDXGIOutput* pOutput = nullptr;
 	IDXGIOutput1* pOutput1 = nullptr;
+	ID3D11Device* pDevice = nullptr;
+	D3D_FEATURE_LEVEL featureLevel;
+	ID3D11DeviceContext* pDeviceContext = nullptr;
 	vector <IDXGIAdapter1*> vAdapters; // available adapters 
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
@@ -30,6 +33,7 @@ private:
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();
 	HRESULT initualizeOutputs();
+	HRESULT initializeD3D11Device();
 	HRESULT releaseMemory();
 	HRESULT HR;
 };
