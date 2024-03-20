@@ -15,6 +15,7 @@ public:
 
 
 	HRESULT Initialize();
+	HRESULT getNextFrame();
 
 private:
 	IDXGIFactory2* pFactory = nullptr; 
@@ -23,10 +24,12 @@ private:
 	IDXGIOutput* pOutput = nullptr;
 	IDXGIOutput1* pOutput1 = nullptr;
 	ID3D11Device* pDevice = nullptr;
+	D3D_FEATURE_LEVEL featureLevel;
 	IDXGIOutputDuplication* pOutputDuplication;
 	DXGI_OUTDUPL_DESC outputDuplicationDesc;
-	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
+	DXGI_OUTDUPL_FRAME_INFO frameInfo;
+	IDXGIResource* pResource = nullptr;
 	vector <IDXGIAdapter1*> vAdapters; // available adapters 
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 

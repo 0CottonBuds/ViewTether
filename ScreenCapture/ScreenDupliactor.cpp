@@ -18,6 +18,76 @@ HRESULT ScreenDuplicator::Initialize()
     return S_OK;
 }
 
+HRESULT ScreenDuplicator::getNextFrame()
+{
+	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+	HRESULT hr;
+	hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
+	if (FAILED(hr)) {
+		cerr << "Failed to get next frame" << endl;
+		return hr;
+	}
+
+    ID3D11Texture2D* pDesktopTexture = nullptr;
+    D3D11_TEXTURE2D_DESC desktopTextureDesc;
+
+    hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
+    if (FAILED(hr)) {
+        std::cerr << "Failed to Query texture interface from desktop resource" << std::endl;
+        pOutputDuplication->ReleaseFrame();
+    }
+    pDesktopTexture->GetDesc(&desktopTextureDesc);
+
+	IDXGIResource* tpResource = nullptr;
+
+    ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
+
+	// >QueryInterface for ID3D11Texture2D
+	hr = pResource->QueryInterface(IID_PPV_ARGS(&pAcquiredDesktopImage));
+	pResource->Release();
+	
+	// create an empty texture
+	ID3D11Texture2D* pDestImage = nullptr;
+	hr = pDevice->CreateTexture2D(&desktopTextureDesc, nullptr, &pDestImage);
+
+	// Copy image into GDI drawing texture
+	pDeviceContext->CopyResource(pDestImage,pAcquiredDesktopImage);
+	pAcquiredDesktopImage->Release();
+
+	// Copy GPU Resource to CPU
+	D3D11_TEXTURE2D_DESC desc;
+	pDestImage->GetDesc(&desc);
+	D3D11_MAPPED_SUBRESOURCE resource;
+	UINT subresource = D3D11CalcSubresource(0, 0, 0);
+	// TODO: Error HERE ################################################################################
+	hr = pDeviceContext->Map(pDestImage, 0, D3D11_MAP_READ_WRITE, D3D11_MAP_WRITE_DISCARD, &resource);
+	// TODO: Error HERE ################################################################################
+
+	std::unique_ptr<BYTE> pBuf(new BYTE[resource.RowPitch*desc.Height]);
+	UINT lBmpRowPitch = outputDuplicationDesc.ModeDesc.Width * 4;
+	BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData);
+	BYTE* dptr = pBuf.get() + resource.RowPitch*desc.Height - lBmpRowPitch;
+	UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
+
+	for (size_t h = 0; h < outputDuplicationDesc.ModeDesc.Height; ++h)
+	{
+		memcpy_s(dptr, lBmpRowPitch, sptr, lRowPitch);
+		sptr += resource.RowPitch;
+		dptr -= lBmpRowPitch;
+	}
+
+	UCHAR* g_iMageBuffer = nullptr;
+	pDeviceContext->Unmap(pDestImage, subresource);
+	long g_captureSize=lRowPitch*desc.Height;
+	g_iMageBuffer= new UCHAR[g_captureSize];
+	g_iMageBuffer = (UCHAR*)malloc(g_captureSize);
+
+	//Copying to UCHAR buffer 
+	memcpy(g_iMageBuffer, pBuf.get(), g_captureSize);
+		
+	return S_OK;
+}
+
 HRESULT ScreenDuplicator::initializeFactory()
 { 
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
