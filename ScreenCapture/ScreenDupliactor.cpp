@@ -114,6 +114,15 @@ HRESULT ScreenDuplicator::initializeOutputDuplication()
 		cerr << "Failed to initialize Output Duplication" << endl;
 		return hr;
 	}
+
+	try {
+		pOutputDuplication->GetDesc(&outputDuplicationDesc);
+	}
+	catch (exception e) {
+		cerr << "Failed to get Output Duplication Description" << endl;
+		return E_FAIL;
+	}
+
 	return S_OK;
 }
 

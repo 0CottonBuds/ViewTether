@@ -24,6 +24,7 @@ private:
 	IDXGIOutput1* pOutput1 = nullptr;
 	ID3D11Device* pDevice = nullptr;
 	IDXGIOutputDuplication* pOutputDuplication;
+	DXGI_OUTDUPL_DESC outputDuplicationDesc;
 	D3D_FEATURE_LEVEL featureLevel;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 	vector <IDXGIAdapter1*> vAdapters; // available adapters 
