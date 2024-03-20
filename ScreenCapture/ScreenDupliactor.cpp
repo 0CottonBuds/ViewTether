@@ -13,6 +13,8 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
+	if (FAILED(hr = initializeOutputDuplication()))
+		return hr;
     return S_OK;
 }
 
@@ -95,11 +97,21 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 		D3D_FEATURE_LEVEL_9_2,
 		D3D_FEATURE_LEVEL_9_1,
 	};
-    //hr = D3D11CreateDevice(pAdapter, D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, NULL, 0, D3D11_SDK_VERSION, &pDevice, NULL, NULL);
 	hr = D3D11CreateDevice(vAdapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, D3DFeatureLevel, 6, D3D11_SDK_VERSION, &pDevice, &featureLevel, &pDeviceContext);
 	if (FAILED(hr)) {
 		cerr << "failed to initialize D3D device" << endl;
 		releaseMemory();
+		return hr;
+	}
+	return S_OK;
+}
+
+HRESULT ScreenDuplicator::initializeOutputDuplication()
+{
+	HRESULT hr;
+	hr = vvOutputs[0][0]->DuplicateOutput(pDevice, &pOutputDuplication);
+	if (FAILED(hr)) {
+		cerr << "Failed to initialize Output Duplication" << endl;
 		return hr;
 	}
 	return S_OK;
