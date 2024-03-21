@@ -61,34 +61,27 @@ HRESULT ScreenDuplicator::getNextFrame()
 	// Copy GPU Resource to CPU
 	D3D11_MAPPED_SUBRESOURCE resource;
 	UINT subresource = D3D11CalcSubresource(0, 0, 0);
-	// TODO: Error HERE ################################################################################
 	hr = pDeviceContext->Map(pDestImage, subresource, D3D11_MAP_READ_WRITE, NULL, &resource);
-	// TODO: Error HERE ################################################################################
-
-	D3D11_TEXTURE2D_DESC desc;
-	pDestImage->GetDesc(&desc);	
-	std::unique_ptr<BYTE> pBuf(new BYTE[resource.RowPitch*desc.Height]);
-	UINT lBmpRowPitch = outputDuplicationDesc.ModeDesc.Width * 4;
-	BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* dptr = pBuf.get() + resource.RowPitch*desc.Height - lBmpRowPitch;
-	UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
-
-	for (size_t h = 0; h < outputDuplicationDesc.ModeDesc.Height; ++h)
-	{
-		memcpy_s(dptr, lBmpRowPitch, sptr, lRowPitch);
-		sptr += resource.RowPitch;
-		dptr -= lBmpRowPitch;
+	if (FAILED(hr)) {
+		cerr << "Failed to map desktop image to resource" << endl;
+		return hr;
 	}
 
-	UCHAR* g_iMageBuffer = nullptr;
-	pDeviceContext->Unmap(pDestImage, subresource);
-	long g_captureSize=lRowPitch*desc.Height;
-	g_iMageBuffer= new UCHAR[g_captureSize];
-	g_iMageBuffer = (UCHAR*)malloc(g_captureSize);
+	for (int x = 0; x < 1920; x++) {
+		for (int y = 0; y < 1080; x++) {
+			// Calculate the offset to the texel at position (x, y)
+			UINT offset = y * resource.RowPitch + x * 4; // 4 bytes per texel (RGBA)
 
-	//Copying to UCHAR buffer 
-	memcpy(g_iMageBuffer, pBuf.get(), g_captureSize);
-		
+			// Access the color components of the texel
+			BYTE* texel = reinterpret_cast<BYTE*>(resource.pData) + offset;
+			BYTE red = texel[0];   // Red component
+			BYTE green = texel[1]; // Green component
+			BYTE blue = texel[2];  // Blue component
+			BYTE alpha = texel[3]; // Alpha component
+		}
+	}
+
+
 	return S_OK;
 }
 
