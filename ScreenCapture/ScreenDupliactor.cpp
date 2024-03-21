@@ -48,6 +48,10 @@ HRESULT ScreenDuplicator::getNextFrame()
 	
 	// create an empty texture
 	ID3D11Texture2D* pDestImage = nullptr;
+	desktopTextureDesc.Usage = D3D11_USAGE_STAGING;
+	desktopTextureDesc.BindFlags = 0;
+	desktopTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
+	desktopTextureDesc.MiscFlags = 0;
 	hr = pDevice->CreateTexture2D(&desktopTextureDesc, nullptr, &pDestImage);
 
 	// Copy image into GDI drawing texture
@@ -55,14 +59,14 @@ HRESULT ScreenDuplicator::getNextFrame()
 	pAcquiredDesktopImage->Release();
 
 	// Copy GPU Resource to CPU
-	D3D11_TEXTURE2D_DESC desc;
-	pDestImage->GetDesc(&desc);
 	D3D11_MAPPED_SUBRESOURCE resource;
 	UINT subresource = D3D11CalcSubresource(0, 0, 0);
 	// TODO: Error HERE ################################################################################
-	hr = pDeviceContext->Map(pDestImage, 0, D3D11_MAP_READ_WRITE, D3D11_MAP_WRITE_DISCARD, &resource);
+	hr = pDeviceContext->Map(pDestImage, subresource, D3D11_MAP_READ_WRITE, NULL, &resource);
 	// TODO: Error HERE ################################################################################
 
+	D3D11_TEXTURE2D_DESC desc;
+	pDestImage->GetDesc(&desc);	
 	std::unique_ptr<BYTE> pBuf(new BYTE[resource.RowPitch*desc.Height]);
 	UINT lBmpRowPitch = outputDuplicationDesc.ModeDesc.Width * 4;
 	BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData);
