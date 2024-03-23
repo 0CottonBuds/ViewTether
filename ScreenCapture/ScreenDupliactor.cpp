@@ -15,7 +15,7 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initializeOutputDuplication()))
 		return hr;
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT ScreenDuplicator::getNextFrame()
@@ -37,19 +37,19 @@ HRESULT ScreenDuplicator::getNextFrame()
 		break;
 	}
 
-    ID3D11Texture2D* pDesktopTexture = nullptr;
-    D3D11_TEXTURE2D_DESC desktopTextureDesc;
+	ID3D11Texture2D* pDesktopTexture = nullptr;
+	D3D11_TEXTURE2D_DESC desktopTextureDesc;
 
-    hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
-    if (FAILED(hr)) {
-        std::cerr << "Failed to Query texture interface from desktop resource" << std::endl;
-        pOutputDuplication->ReleaseFrame();
-    }
-    pDesktopTexture->GetDesc(&desktopTextureDesc);
+	hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
+	if (FAILED(hr)) {
+		std::cerr << "Failed to Query texture interface from desktop resource" << std::endl;
+		pOutputDuplication->ReleaseFrame();
+	}
+	pDesktopTexture->GetDesc(&desktopTextureDesc);
 
 	IDXGIResource* tpResource = nullptr;
 
-    ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
+	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
 
 	// >QueryInterface for ID3D11Texture2D
 	hr = pResource->QueryInterface(IID_PPV_ARGS(&pAcquiredDesktopImage));
@@ -143,7 +143,7 @@ HRESULT ScreenDuplicator::initializeAdapters()
 		releaseMemory();
 		return hr;
 	}
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT ScreenDuplicator::initializeAdapterDescription()
@@ -158,7 +158,7 @@ HRESULT ScreenDuplicator::initializeAdapterDescription()
 			return hr;
 		}
 	}
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT ScreenDuplicator::initualizeOutputs()
@@ -181,7 +181,7 @@ HRESULT ScreenDuplicator::initualizeOutputs()
 		vvOutputs.push_back(tvOutputs);
 	}
 
-    return S_OK;
+	return S_OK;
 }
 
 HRESULT ScreenDuplicator::initializeD3D11Device()
