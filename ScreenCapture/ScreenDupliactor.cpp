@@ -22,10 +22,19 @@ HRESULT ScreenDuplicator::getNextFrame()
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
-	hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
-	if (FAILED(hr)) {
-		cerr << "Failed to get next frame" << endl;
-		return hr;
+
+	while (true) {
+		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
+		if (FAILED(hr)) {
+			cerr << "Failed to get next frame" << endl;
+			return hr;
+		}
+		if (frameInfo.LastPresentTime.QuadPart == 0) {
+			pResource->Release();
+			hr = pOutputDuplication->ReleaseFrame();
+			continue;
+		}
+		break;
 	}
 
     ID3D11Texture2D* pDesktopTexture = nullptr;
@@ -77,10 +86,33 @@ HRESULT ScreenDuplicator::getNextFrame()
 			BYTE red = texel[0];   // Red component
 			BYTE green = texel[1]; // Green component
 			BYTE blue = texel[2];  // Blue component
-			BYTE alpha = texel[3]; // Alpha component
 		}
 	}
 
+	
+	// Copy from texture to bitmap buffer.
+	std::unique_ptr<BYTE> pBuf(new BYTE[resource.RowPitch * desktopTextureDesc.Height]);
+	UINT lBmpRowPitch = desktopTextureDesc.Width * 4;
+	BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData);
+	BYTE* dptr = pBuf.get() + resource.RowPitch * desktopTextureDesc.Height - lBmpRowPitch;
+	UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
+
+	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
+	{
+		memcpy_s(dptr, lBmpRowPitch, sptr, lRowPitch);
+		sptr += resource.RowPitch;
+		dptr -= lBmpRowPitch;
+	}
+
+	pDeviceContext->Unmap(pDestImage, subresource);
+	long g_captureSize = lRowPitch * desktopTextureDesc.Height;
+	UCHAR* g_iMageBuffer = nullptr;
+	g_iMageBuffer = new UCHAR[g_captureSize];
+	g_iMageBuffer = (UCHAR*)malloc(g_captureSize);
+
+	//Copying to UCHAR buffer 
+	memcpy(g_iMageBuffer, pBuf.get(), g_captureSize);
+	std::cout << pBuf<< std::endl;
 
 	return S_OK;
 }
@@ -121,7 +153,7 @@ HRESULT ScreenDuplicator::initializeAdapterDescription()
 		hr = vAdapters[i]->GetDesc1(&adapterDesc);
 		vAdapterDesc.push_back(adapterDesc);
 		if (FAILED(hr)) {
-			cerr << "Failed to get adapter " << i << " description" << endl;
+			cerr << "Failed to get adapter " << i << " pdesktopTextureDescription" << endl;
 			releaseMemory();
 			return hr;
 		}
