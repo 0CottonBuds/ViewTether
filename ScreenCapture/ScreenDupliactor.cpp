@@ -75,44 +75,31 @@ HRESULT ScreenDuplicator::getNextFrame()
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
 	}
-
-	for (int x = 0; x < 1920; x++) {
-		for (int y = 0; y < 1080; x++) {
-			// Calculate the offset to the texel at position (x, y)
-			UINT offset = y * resource.RowPitch + x * 4; // 4 bytes per texel (RGBA)
-
-			// Access the color components of the texel
-			BYTE* texel = reinterpret_cast<BYTE*>(resource.pData) + offset;
-			BYTE red = texel[0];   // Red component
-			BYTE green = texel[1]; // Green component
-			BYTE blue = texel[2];  // Blue component
-		}
-	}
-
 	
 	// Copy from texture to bitmap buffer.
-	std::unique_ptr<BYTE> pBuf(new BYTE[resource.RowPitch * desktopTextureDesc.Height]);
-	UINT lBmpRowPitch = desktopTextureDesc.Width * 4;
-	BYTE* sptr = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* dptr = pBuf.get() + resource.RowPitch * desktopTextureDesc.Height - lBmpRowPitch;
-	UINT lRowPitch = std::min<UINT>(lBmpRowPitch, resource.RowPitch);
+	std::unique_ptr<BYTE> pBytePixelDataBuffer(new BYTE[resource.RowPitch * desktopTextureDesc.Height]);
+	UINT textureRowPitch = desktopTextureDesc.Width * 4;
+	UINT lowestRowPitch = std::min<UINT>(textureRowPitch, resource.RowPitch);
+
+	BYTE* pBytePixelData = reinterpret_cast<BYTE*>(resource.pData);
+	BYTE* dptr = pBytePixelDataBuffer.get() + resource.RowPitch * desktopTextureDesc.Height - textureRowPitch;
 
 	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
 	{
-		memcpy_s(dptr, lBmpRowPitch, sptr, lRowPitch);
-		sptr += resource.RowPitch;
-		dptr -= lBmpRowPitch;
+		memcpy_s(dptr, textureRowPitch, pBytePixelData, lowestRowPitch);
+		pBytePixelData += resource.RowPitch;
+		dptr -= textureRowPitch;
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
-	long g_captureSize = lRowPitch * desktopTextureDesc.Height;
-	UCHAR* g_iMageBuffer = nullptr;
-	g_iMageBuffer = new UCHAR[g_captureSize];
-	g_iMageBuffer = (UCHAR*)malloc(g_captureSize);
+	long g_captureSize = lowestRowPitch * desktopTextureDesc.Height;
+	UCHAR* pUcharPixelDataBuffer = nullptr;
+	pUcharPixelDataBuffer = new UCHAR[g_captureSize];
+	pUcharPixelDataBuffer = (UCHAR*)malloc(g_captureSize);
 
 	//Copying to UCHAR buffer 
-	memcpy(g_iMageBuffer, pBuf.get(), g_captureSize);
-	std::cout << pBuf<< std::endl;
+	memcpy(pUcharPixelDataBuffer, pBytePixelDataBuffer.get(), g_captureSize);
+	std::cout << pBytePixelDataBuffer << std::endl;
 
 	return S_OK;
 }
