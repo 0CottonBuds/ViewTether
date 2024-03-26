@@ -25,6 +25,7 @@ private:
 	IDXGIOutputDuplication* pOutputDuplication;
 	DXGI_OUTDUPL_DESC outputDuplicationDesc;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
+
 	vector <IDXGIAdapter1*> vAdapters; // available adapters 
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 

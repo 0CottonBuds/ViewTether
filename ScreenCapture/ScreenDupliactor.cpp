@@ -23,6 +23,10 @@ HRESULT ScreenDuplicator::getNextFrame()
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
 
+	IDXGIResource* pResource = nullptr;
+	DXGI_OUTDUPL_FRAME_INFO frameInfo;
+
+	// loop until we get a frame
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
 		if (FAILED(hr)) {
@@ -47,23 +51,30 @@ HRESULT ScreenDuplicator::getNextFrame()
 	}
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
 
-	IDXGIResource* tpResource = nullptr;
-
-	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
 
 	// >QueryInterface for ID3D11Texture2D
+	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
 	hr = pResource->QueryInterface(IID_PPV_ARGS(&pAcquiredDesktopImage));
+	if (FAILED(hr)) {
+		cerr << "Failed to Query interface for desktop texture" << endl;
+		return hr;
+	}
 	pResource->Release();
 	
-	// create an empty texture
+	// create an empty texture that has CPU read and write access.
 	ID3D11Texture2D* pDestImage = nullptr;
 	desktopTextureDesc.Usage = D3D11_USAGE_STAGING;
 	desktopTextureDesc.BindFlags = 0;
 	desktopTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 	desktopTextureDesc.MiscFlags = 0;
 	hr = pDevice->CreateTexture2D(&desktopTextureDesc, nullptr, &pDestImage);
+	if (FAILED(hr)) {
+		cerr << "Failed to create empty texture" << endl;
+		releaseMemory();
+		return hr;
+	}
 
-	// Copy image into GDI drawing texture
+	// Copy image into CPU read write abled texture
 	pDeviceContext->CopyResource(pDestImage,pAcquiredDesktopImage);
 	pAcquiredDesktopImage->Release();
 
