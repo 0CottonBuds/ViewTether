@@ -7,7 +7,8 @@ int main()
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();
 	screenDuplicator.Initialize();
 
-	HRESULT hr = screenDuplicator.getNextFrame();
+	UCHAR* pixelData = nullptr;
+	HRESULT hr = screenDuplicator.getNextFrame(pixelData);
 
 	cout << "program ended successfully" << endl;
 	return 0;

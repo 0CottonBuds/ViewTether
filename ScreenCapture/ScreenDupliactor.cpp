@@ -18,7 +18,7 @@ HRESULT ScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getNextFrame()
+HRESULT ScreenDuplicator::getNextFrame(UCHAR *out_ucharPixelData)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
@@ -101,19 +101,19 @@ HRESULT ScreenDuplicator::getNextFrame()
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
-	UCHAR* pUcharPixelDataBuffer = nullptr;
-	pUcharPixelDataBuffer = new UCHAR[resource.DepthPitch];
-	pUcharPixelDataBuffer = (UCHAR*)malloc(resource.DepthPitch);
+	out_ucharPixelData = nullptr;
+	out_ucharPixelData = new UCHAR[resource.DepthPitch];
+	out_ucharPixelData = (UCHAR*)malloc(resource.DepthPitch);
 
 	//Copying to UCHAR buffer 
-	memcpy(pUcharPixelDataBuffer, pSourcePosBuffer.get(), resource.DepthPitch);
-	std::cout << pUcharPixelDataBuffer << std::endl;
+	memcpy(out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
+	std::cout << out_ucharPixelData << std::endl;
 
 	return S_OK;
 }
 
 HRESULT ScreenDuplicator::initializeFactory()
-{ 
+{	
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
 	if (FAILED(hr)) {
 		cerr << "Failed to initialize DXGI Factory 1" << endl;

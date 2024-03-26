@@ -15,7 +15,7 @@ public:
 
 
 	HRESULT Initialize();
-	HRESULT getNextFrame();
+	HRESULT getNextFrame(UCHAR *out_ucharPixelData);
 
 private:
 	IDXGIFactory2* pFactory = nullptr; 
