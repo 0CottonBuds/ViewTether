@@ -77,29 +77,26 @@ HRESULT ScreenDuplicator::getNextFrame()
 	}
 	
 	// Copy from texture to bitmap buffer.
-	std::unique_ptr<BYTE> pBytePixelDataBuffer(new BYTE[resource.RowPitch * desktopTextureDesc.Height]);
-	UINT textureRowPitch = desktopTextureDesc.Width * 4;
-	UINT lowestRowPitch = std::min<UINT>(textureRowPitch, resource.RowPitch);
+	std::unique_ptr<BYTE> pSourcePosBuffer(new BYTE[resource.DepthPitch]);
 
-	BYTE* pBytePixelData = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* dptr = pBytePixelDataBuffer.get() + resource.RowPitch * desktopTextureDesc.Height - textureRowPitch;
+	BYTE* pSourcePos = reinterpret_cast<BYTE*>(resource.pData);
+	BYTE* pDestinationPos = pSourcePosBuffer.get() + resource.RowPitch * desktopTextureDesc.Height - resource.RowPitch;
 
 	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
 	{
-		memcpy_s(dptr, textureRowPitch, pBytePixelData, lowestRowPitch);
-		pBytePixelData += resource.RowPitch;
-		dptr -= textureRowPitch;
+		memcpy_s(pDestinationPos, resource.RowPitch, pSourcePos, resource.RowPitch);
+		pSourcePos += resource.RowPitch;
+		pDestinationPos -= resource.RowPitch;
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
-	long g_captureSize = lowestRowPitch * desktopTextureDesc.Height;
 	UCHAR* pUcharPixelDataBuffer = nullptr;
-	pUcharPixelDataBuffer = new UCHAR[g_captureSize];
-	pUcharPixelDataBuffer = (UCHAR*)malloc(g_captureSize);
+	pUcharPixelDataBuffer = new UCHAR[resource.DepthPitch];
+	pUcharPixelDataBuffer = (UCHAR*)malloc(resource.DepthPitch);
 
 	//Copying to UCHAR buffer 
-	memcpy(pUcharPixelDataBuffer, pBytePixelDataBuffer.get(), g_captureSize);
-	std::cout << pBytePixelDataBuffer << std::endl;
+	memcpy(pUcharPixelDataBuffer, pSourcePosBuffer.get(), resource.DepthPitch);
+	std::cout << pUcharPixelDataBuffer << std::endl;
 
 	return S_OK;
 }
