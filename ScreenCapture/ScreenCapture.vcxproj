@@ -134,7 +134,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="ScreenCapture.cpp" />
     <ClCompile Include="ScreenDupliactor.cpp" />
   </ItemGroup>
   <ItemGroup>

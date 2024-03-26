@@ -10,12 +10,20 @@
 
 using namespace std;
 
+struct RGBA {
+	UINT red;
+	UINT green;
+	UINT blue;
+	UINT alpha;
+};
+
 class ScreenDuplicator {
 public:
 
 
 	HRESULT Initialize();
-	HRESULT getNextFrame(UCHAR *out_ucharPixelData);
+	HRESULT getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize);
+	HRESULT processUCharFrame(UCHAR ** uCharPixelData, UINT pixelDataSize);
 
 private:
 	IDXGIFactory2* pFactory = nullptr; 

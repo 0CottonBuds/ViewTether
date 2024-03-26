@@ -18,7 +18,7 @@ HRESULT ScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getNextFrame(UCHAR *out_ucharPixelData)
+HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
@@ -101,14 +101,38 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR *out_ucharPixelData)
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
-	out_ucharPixelData = nullptr;
-	out_ucharPixelData = new UCHAR[resource.DepthPitch];
-	out_ucharPixelData = (UCHAR*)malloc(resource.DepthPitch);
+	*out_ucharPixelData = nullptr;
+	*out_ucharPixelData = new UCHAR[resource.DepthPitch];
+	*out_ucharPixelData = (UCHAR*)malloc(resource.DepthPitch);
+	out_pixelDataSize = resource.DepthPitch;
 
 	//Copying to UCHAR buffer 
-	memcpy(out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
-	std::cout << out_ucharPixelData << std::endl;
+	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
+	std::cout << pSourcePosBuffer << std::endl;
 
+	return S_OK;
+}
+
+HRESULT ScreenDuplicator::processUCharFrame(UCHAR ** uCharPixelData, UINT pixelDataSize)
+{
+	
+	vector<RGBA> pixelData;
+	
+	for (int i = 0; i < pixelDataSize / 4; i += 4) {
+		try {
+			RGBA pixel;
+			pixel.blue = UINT8(uCharPixelData[i]);
+			pixel.green = UINT8(uCharPixelData[i + 1]);
+			pixel.red = UINT8(uCharPixelData[i + 2]);
+			pixel.alpha = UINT8(uCharPixelData[i + 3]);
+
+			pixelData.push_back(pixel);
+		}
+		catch (exception e) {
+			cerr << "error getting pixel " << i << endl;
+			return E_FAIL;
+		}
+	}
 	return S_OK;
 }
 
