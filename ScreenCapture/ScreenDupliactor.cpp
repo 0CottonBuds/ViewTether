@@ -127,6 +127,8 @@ HRESULT ScreenDuplicator::initializeAdapters()
 		releaseMemory();
 		return hr;
 	}
+
+	pFactory->Release();
 	return S_OK;
 }
 
@@ -162,6 +164,10 @@ HRESULT ScreenDuplicator::initualizeOutputs()
 			tvOutputs.push_back(tpOutput1);
 			++j;
 		}
+		if(tpOutput != nullptr)
+			tpOutput->Release();
+		if(tpOutput1 != nullptr)
+			tpOutput1->Release();
 		vvOutputs.push_back(tvOutputs);
 	}
 
@@ -214,12 +220,6 @@ HRESULT ScreenDuplicator::releaseMemory()
 	try {
 		if(pFactory != nullptr)
 			pFactory->Release();
-		if(pAdapter1 != nullptr)
-			pAdapter1->Release();
-		if(pOutput != nullptr)
-			pOutput->Release();
-		if(pOutput1 != nullptr)
-			pOutput1->Release();
 		if(pDevice != nullptr)
 			pDevice->Release();
 		if(pDeviceContext != nullptr)
