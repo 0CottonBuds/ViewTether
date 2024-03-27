@@ -1,7 +1,4 @@
 ﻿  ScreenDupliactor.cpp
-C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(121,20): warning C4018: '<': signed/unsigned mismatch
-C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(124,22): warning C4302: '<function-style-cast>': truncation from 'UCHAR *' to 'UINT8'
-C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(125,23): warning C4302: '<function-style-cast>': truncation from 'UCHAR *' to 'UINT8'
-C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(126,21): warning C4302: '<function-style-cast>': truncation from 'UCHAR *' to 'UINT8'
-C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(127,23): warning C4302: '<function-style-cast>': truncation from 'UCHAR *' to 'UINT8'
+C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(115,20): warning C4018: '<': signed/unsigned mismatch
+C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(139,20): warning C4018: '<': signed/unsigned mismatch
   ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe
