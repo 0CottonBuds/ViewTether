@@ -115,13 +115,13 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	for (int i = 0; i < resource.DepthPitch; i += 4) {
 		try {
 			RGBA pixel;
-			pixel.blue = UINT8(**out_ucharPixelData);
-			pixel.green = UINT8(**out_ucharPixelData + 1);
-			pixel.red = UINT8(**out_ucharPixelData + 2);
-			pixel.alpha = UINT8(**out_ucharPixelData + 3);
+			pixel.blue = **out_ucharPixelData;
+			pixel.green = *(*out_ucharPixelData + 1);
+			pixel.red = *(*out_ucharPixelData + 2);
+			pixel.alpha = *(*out_ucharPixelData + 3);
 
 			pixelData.push_back(pixel);
-			**out_ucharPixelData += 4;
+			*out_ucharPixelData += 4;
 		}
 		catch (exception e) {
 			cerr << "error getting pixel " << i << endl;
