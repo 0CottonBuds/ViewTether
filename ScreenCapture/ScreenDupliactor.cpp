@@ -115,7 +115,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	for (int i = 0; i < resource.DepthPitch; i += 4) {
 		try {
 			RGBA pixel;
-			pixel.blue = **out_ucharPixelData;
+			pixel.blue = *(*out_ucharPixelData);
 			pixel.green = *(*out_ucharPixelData + 1);
 			pixel.red = *(*out_ucharPixelData + 2);
 			pixel.alpha = *(*out_ucharPixelData + 3);
@@ -128,6 +128,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 			return E_FAIL;
 		}
 	}
+
 
 	return S_OK;
 }

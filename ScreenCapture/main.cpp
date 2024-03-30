@@ -1,8 +1,13 @@
 #include "ScreenDupliactor.h"
+#include <QApplication> 
+#include <qwidget.h>
+#include <ui_MainWindow.h>
+#include <QtWidgets/QPushButton>
 
 using namespace std;
+using namespace Ui;
 
-int main()
+int main(int argc, char **argv)
 {
 	HRESULT hr;
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();
@@ -13,6 +18,15 @@ int main()
 	hr = screenDuplicator.getNextFrame(&pixelData, pixelDataSize);
 	hr = screenDuplicator.processUCharFrame(&pixelData, pixelDataSize);
 
-	cout << "program ended successfully" << endl;
-	return 0;
+	QApplication app (argc, argv);
+	QWidget window;
+	
+	Ui::MainWidget main = MainWidget();
+	main.setupUi(&window);
+
+
+	window.show();
+
+	return app.exec();
 }
+
