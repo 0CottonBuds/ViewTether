@@ -96,13 +96,13 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	std::unique_ptr<BYTE> pSourcePosBuffer(new BYTE[resource.DepthPitch]);
 
 	BYTE* pSourcePos = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* pDestinationPos = pSourcePosBuffer.get() + resource.RowPitch * desktopTextureDesc.Height - resource.RowPitch;
+	BYTE* pDestinationPos = pSourcePosBuffer.get();
 
 	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
 	{
 		memcpy_s(pDestinationPos, resource.RowPitch, pSourcePos, resource.RowPitch);
 		pSourcePos += resource.RowPitch;
-		pDestinationPos -= resource.RowPitch;
+		pDestinationPos += resource.RowPitch;
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
@@ -113,7 +113,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 
 	//Copying to UCHAR buffer 
 	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
-	//std::cout << pSourcePosBuffer << std::endl;
+	std::cout << pSourcePosBuffer << std::endl;
 
 	return S_OK;
 }

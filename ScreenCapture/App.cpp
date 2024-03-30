@@ -40,6 +40,8 @@ void App::test() {
 	pScreenShot = pScreenShot.rgbSwapped();
 	QLabel* imageLabel = new QLabel("");
 	imageLabel->setPixmap(QPixmap::fromImage(pScreenShot));
+	imageLabel->setScaledContents(true);
+	imageLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
 
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 	layout->addWidget(imageLabel);
