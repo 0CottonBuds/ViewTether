@@ -1,5 +1,10 @@
 #include "ScreenDupliactor.h"
 
+ScreenDuplicator::~ScreenDuplicator()
+{
+	releaseMemory();
+}
+
 HRESULT ScreenDuplicator::Initialize()
 {
 	HRESULT hr;

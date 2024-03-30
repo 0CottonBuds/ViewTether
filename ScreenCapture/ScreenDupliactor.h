@@ -19,7 +19,7 @@ struct RGBA {
 
 class ScreenDuplicator {
 public:
-
+	~ScreenDuplicator();
 
 	HRESULT Initialize();
 	HRESULT getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize);
