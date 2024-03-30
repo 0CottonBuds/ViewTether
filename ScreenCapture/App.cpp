@@ -1,7 +1,10 @@
 #include "App.h"
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QLabel>
+#include <QImage>
 #include <QObject>
+#include <QLayout>
 
 App::App()
 {
@@ -29,5 +32,17 @@ void App::exec_ui(int argc, char **argv)
 }
 
 void App::test() {
+	UCHAR* pPixelData = nullptr;
+	UINT pixelDataSize = 0;
+	screenDuplicator.getNextFrame(&pPixelData, pixelDataSize);
+
+	QImage pScreenShot =  QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
+	pScreenShot = pScreenShot.rgbSwapped();
+	QLabel* imageLabel = new QLabel("");
+	imageLabel->setPixmap(QPixmap::fromImage(pScreenShot));
+
+	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
+	layout->addWidget(imageLabel);
+
 	cout << "you pressed a button" << endl;
 }

@@ -14,6 +14,7 @@ public:
 
 public slots:
 	void test();
+
 private:
 	ScreenDuplicator screenDuplicator;
 	Ui::MainWidget* mainWidget;

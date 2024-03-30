@@ -113,27 +113,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 
 	//Copying to UCHAR buffer 
 	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
-	std::cout << pSourcePosBuffer << std::endl;
-
-	vector<RGBA> pixelData;
-	
-	for (int i = 0; i < resource.DepthPitch; i += 4) {
-		try {
-			RGBA pixel;
-			pixel.blue = *(*out_ucharPixelData);
-			pixel.green = *(*out_ucharPixelData + 1);
-			pixel.red = *(*out_ucharPixelData + 2);
-			pixel.alpha = *(*out_ucharPixelData + 3);
-
-			pixelData.push_back(pixel);
-			*out_ucharPixelData += 4;
-		}
-		catch (exception e) {
-			cerr << "error getting pixel " << i << endl;
-			return E_FAIL;
-		}
-	}
-
+	//std::cout << pSourcePosBuffer << std::endl;
 
 	return S_OK;
 }
@@ -141,24 +121,27 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 HRESULT ScreenDuplicator::processUCharFrame(UCHAR ** uCharPixelData, UINT pixelDataSize)
 {
 	vector<RGBA> pixelData;
-
+	
 	for (int i = 0; i < pixelDataSize; i += 4) {
 		try {
 			RGBA pixel;
-			pixel.blue = UINT8(**uCharPixelData);
-			pixel.green = UINT8(**uCharPixelData + 1);
-			pixel.red = UINT8(**uCharPixelData + 2);
-			pixel.alpha = UINT8(**uCharPixelData + 3);
+			pixel.blue = *(*uCharPixelData);
+			pixel.green = *(*uCharPixelData + 1);
+			pixel.red = *(*uCharPixelData + 2);
+			pixel.alpha = *(*uCharPixelData + 3);
 
 			pixelData.push_back(pixel);
-			**uCharPixelData += 4;
+			*uCharPixelData += 4;
 		}
 		catch (exception e) {
 			cerr << "error getting pixel " << i << endl;
 			return E_FAIL;
 		}
 	}
+
+
 	return S_OK;
+
 }
 
 HRESULT ScreenDuplicator::initializeFactory()

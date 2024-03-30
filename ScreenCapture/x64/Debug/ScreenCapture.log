@@ -1,5 +1,3 @@
-﻿  moc App.h
-  App.cpp
-  main.cpp
-  moc_App.cpp
+﻿  ScreenDupliactor.cpp
+C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\ScreenDupliactor.cpp(125,20): warning C4018: '<': signed/unsigned mismatch
   ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe
