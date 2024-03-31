@@ -113,7 +113,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 
 	//Copying to UCHAR buffer 
 	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
-	std::cout << pSourcePosBuffer << std::endl;
+	//std::cout << pSourcePosBuffer << std::endl;
 
 	return S_OK;
 }

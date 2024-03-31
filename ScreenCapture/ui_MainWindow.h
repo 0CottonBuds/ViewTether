@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'MainWindowYAwzGk.ui'
+** Form generated from reading UI file 'MainWindowJmpJxW.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.12.12
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef MAINWINDOWYAWZGK_H
-#define MAINWINDOWYAWZGK_H
+#ifndef MAINWINDOWJMPJXW_H
+#define MAINWINDOWJMPJXW_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -29,8 +29,9 @@ public:
     {
         if (MainWidget->objectName().isEmpty())
             MainWidget->setObjectName(QString::fromUtf8("MainWidget"));
-        MainWidget->resize(1000, 600);
-        MainWidget->setMinimumSize(QSize(1000, 600));
+        MainWidget->resize(1000, 700);
+        MainWidget->setMinimumSize(QSize(1000, 700));
+        MainWidget->setMaximumSize(QSize(1000, 700));
         verticalLayout = new QVBoxLayout(MainWidget);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         previewContainer = new QWidget(MainWidget);
@@ -40,6 +41,7 @@ public:
 
         controlContainers = new QWidget(MainWidget);
         controlContainers->setObjectName(QString::fromUtf8("controlContainers"));
+        controlContainers->setMinimumSize(QSize(0, 150));
         controlContainers->setMaximumSize(QSize(16777215, 150));
         pushButton = new QPushButton(controlContainers);
         pushButton->setObjectName(QString::fromUtf8("pushButton"));
@@ -67,4 +69,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // MAINWINDOWYAWZGK_H
+#endif // MAINWINDOWJMPJXW_H

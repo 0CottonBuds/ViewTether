@@ -39,9 +39,10 @@ void App::test() {
 	QImage pScreenShot =  QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
 	pScreenShot = pScreenShot.rgbSwapped();
 	QLabel* imageLabel = new QLabel("");
-	imageLabel->setPixmap(QPixmap::fromImage(pScreenShot));
+	QPixmap pix = QPixmap::fromImage(pScreenShot);
+	imageLabel->setPixmap(pix.scaled(1920, 1080, Qt::KeepAspectRatio));
 	imageLabel->setScaledContents(true);
-	imageLabel->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Ignored);
+	imageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 	layout->addWidget(imageLabel);
