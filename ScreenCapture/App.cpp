@@ -6,10 +6,19 @@
 #include <QObject>
 #include <QLayout>
 
-App::App()
+App::App(int argc, char **argv)
 {
 	screenDuplicator.Initialize();
 	mainWidget = new Ui::MainWidget();
+	QApplication app(argc, argv);
+	QWidget* widget = new QWidget();
+	mainWidget->setupUi(widget);
+	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
+	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(test()));
+
+	widget->show();
+	app.exec();
+
 }
 
 App::~App()
@@ -19,18 +28,7 @@ App::~App()
 App::App(const App&)
 {
 }
-
-void App::exec_ui(int argc, char **argv)
-{
-	QApplication app(argc, argv);
-	QWidget* widget = new QWidget();
-	mainWidget->setupUi(widget);
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(test()));
-
-	widget->show();
-	app.exec();
-}
-
+	
 void App::test() {
 	UCHAR* pPixelData = nullptr;
 	UINT pixelDataSize = 0;
@@ -44,8 +42,11 @@ void App::test() {
 	imageLabel->setScaledContents(true);
 	imageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
+	QLayout* layout = mainWidget->previewContainer->layout();
+	delete layout->takeAt(0);
 	layout->addWidget(imageLabel);
+
+	imageLabel = nullptr;
 
 	cout << "you pressed a button" << endl;
 }

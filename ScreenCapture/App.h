@@ -7,10 +7,9 @@
 class App: QObject{
 	Q_OBJECT;
 public:
-	App();
+	App(int argc, char **argv);
 	App(const App&);
 	~App();
-	void exec_ui(int argc, char** argv);
 
 public slots:
 	void test();

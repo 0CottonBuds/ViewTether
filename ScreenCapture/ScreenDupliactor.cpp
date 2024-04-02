@@ -31,6 +31,8 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	IDXGIResource* pResource = nullptr;
 	DXGI_OUTDUPL_FRAME_INFO frameInfo;
 
+	pOutputDuplication->ReleaseFrame();
+
 	// loop until we get a frame
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
@@ -114,7 +116,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	//Copying to UCHAR buffer 
 	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
 	//std::cout << pSourcePosBuffer << std::endl;
-
+	
 	return S_OK;
 }
 

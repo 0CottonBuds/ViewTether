@@ -14,9 +14,8 @@ int main(int argc, char **argv)
 	//hr = screenDuplicator.getNextFrame(&pixelData, pixelDataSize);
 	//hr = screenDuplicator.processUCharFrame(&pixelData, pixelDataSize);
 
-	App app = App();
+	App app = App(argc, argv);
 
-	app.exec_ui(argc, argv);
 	return 0;
 }
 
