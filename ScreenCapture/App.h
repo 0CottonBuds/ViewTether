@@ -12,9 +12,11 @@ public:
 	~App();
 
 public slots:
+	void previewSwitch();
 	void test();
 
 private:
+	QTimer* previewTimer;
 	ScreenDuplicator screenDuplicator;
 	Ui::MainWidget* mainWidget;
 };

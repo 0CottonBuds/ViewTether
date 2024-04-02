@@ -5,6 +5,7 @@
 #include <QImage>
 #include <QObject>
 #include <QLayout>
+#include <QTimer>
 
 App::App(int argc, char **argv)
 {
@@ -13,8 +14,17 @@ App::App(int argc, char **argv)
 	QApplication app(argc, argv);
 	QWidget* widget = new QWidget();
 	mainWidget->setupUi(widget);
+
+	// extra initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(test()));
+	previewTimer = new QTimer();
+	previewTimer->setInterval(33);
+
+	//connects
+	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+	QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
+
+	previewTimer->stop();
 
 	widget->show();
 	app.exec();
@@ -27,6 +37,18 @@ App::~App()
 
 App::App(const App&)
 {
+}
+
+void App::previewSwitch() 
+{
+	if (previewTimer->isActive()) {
+		previewTimer->stop();
+		mainWidget->pushButton->setText("Start Preview");
+	}
+	else {
+		previewTimer->start();
+		mainWidget->pushButton->setText("Stop Preview");
+	}
 }
 	
 void App::test() {
