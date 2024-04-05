@@ -21,8 +21,8 @@ App::App(int argc, char **argv)
 	previewTimer->setInterval(33);
 
 	//connects
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
-	QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
+	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(test()));
+	//QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
 
 	previewTimer->stop();
 
@@ -51,24 +51,31 @@ void App::previewSwitch()
 	}
 }
 	
+	
 void App::test() {
 	UCHAR* pPixelData = nullptr;
 	UINT pixelDataSize = 0;
 	screenDuplicator.getNextFrame(&pPixelData, pixelDataSize);
 
-	QImage pScreenShot =  QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
-	pScreenShot = pScreenShot.rgbSwapped();
-	QLabel* imageLabel = new QLabel("");
-	QPixmap pix = QPixmap::fromImage(pScreenShot);
-	imageLabel->setPixmap(pix.scaled(1920, 1080, Qt::KeepAspectRatio));
-	imageLabel->setScaledContents(true);
-	imageLabel->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+	QImage *pScreenShot =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
+	pScreenShot = new QImage(pScreenShot->rgbSwapped());
+
+	QPixmap *pix = new QPixmap(QPixmap::fromImage(*pScreenShot));
+	delete pScreenShot;
+	delete backFrame;
+	backFrame = new QLabel("");
+	backFrame->setPixmap(pix->scaled(1920, 1080, Qt::KeepAspectRatio));
+	delete pix;
+
+	backFrame->setScaledContents(true);
+	backFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
 	QLayout* layout = mainWidget->previewContainer->layout();
 	delete layout->takeAt(0);
-	layout->addWidget(imageLabel);
+	layout->addWidget(backFrame);
 
-	imageLabel = nullptr;
+	layout = nullptr;
+	delete pPixelData;
 
 	cout << "you pressed a button" << endl;
 }

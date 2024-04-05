@@ -57,7 +57,7 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 		pOutputDuplication->ReleaseFrame();
 	}
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
-
+	pDesktopTexture->Release();
 
 	// >QueryInterface for ID3D11Texture2D
 	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
@@ -93,12 +93,13 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
 	}
+	pDestImage->Release();
 	
 	// Copy from texture to bitmap buffer.
-	std::unique_ptr<BYTE> pSourcePosBuffer(new BYTE[resource.DepthPitch]);
+	BYTE* pBytePixelDataBuffer = new BYTE[resource.DepthPitch];
 
 	BYTE* pSourcePos = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* pDestinationPos = pSourcePosBuffer.get();
+	BYTE* pDestinationPos = pBytePixelDataBuffer;
 
 	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
 	{
@@ -108,15 +109,15 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	}
 
 	pDeviceContext->Unmap(pDestImage, subresource);
-	*out_ucharPixelData = nullptr;
+
 	*out_ucharPixelData = new UCHAR[resource.DepthPitch];
-	*out_ucharPixelData = (UCHAR*)malloc(resource.DepthPitch);
 	out_pixelDataSize = resource.DepthPitch;
 
 	//Copying to UCHAR buffer 
-	memcpy(*out_ucharPixelData, pSourcePosBuffer.get(), resource.DepthPitch);
-	//std::cout << pSourcePosBuffer << std::endl;
+	memcpy(*out_ucharPixelData, pBytePixelDataBuffer, resource.DepthPitch);
+	//std::cout << pBytePixelDataBuffer << std::endl;
 	
+	delete pBytePixelDataBuffer;
 	return S_OK;
 }
 

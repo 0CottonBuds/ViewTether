@@ -2,6 +2,7 @@
 #include "ScreenDupliactor.h"
 #include "ui_MainWindow.h"
 #include <QObject>
+#include <QLabel>
 #include <iostream>
 
 class App: QObject{
@@ -18,5 +19,7 @@ public slots:
 private:
 	QTimer* previewTimer;
 	ScreenDuplicator screenDuplicator;
+	QLabel* frontFrame = nullptr;
+	QLabel* backFrame = nullptr;
 	Ui::MainWidget* mainWidget;
 };
