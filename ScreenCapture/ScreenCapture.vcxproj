@@ -172,7 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="App.h" />
-    <ClInclude Include="ScreenDupliactor.h" />
+    <QtMoc Include="ScreenDupliactor.h" />
     <ClInclude Include="ui_MainWindow.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,10 @@
 #include "ScreenDupliactor.h"
 
+ScreenDuplicator::ScreenDuplicator()
+{
+	Initialize();
+}
+
 ScreenDuplicator::~ScreenDuplicator()
 {
 	releaseMemory();
@@ -25,7 +30,6 @@ HRESULT ScreenDuplicator::Initialize()
 
 HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize)
 {
-	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
 
 	IDXGIResource* pResource = nullptr;

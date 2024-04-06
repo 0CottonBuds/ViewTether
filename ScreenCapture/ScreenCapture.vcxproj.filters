@@ -29,9 +29,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ScreenDupliactor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ui_MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -43,6 +40,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="App.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="ScreenDupliactor.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

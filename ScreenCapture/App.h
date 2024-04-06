@@ -3,9 +3,10 @@
 #include "ui_MainWindow.h"
 #include <QObject>
 #include <QLabel>
+#include <QThread>
 #include <iostream>
 
-class App: QObject{
+class App: public QObject{
 	Q_OBJECT;
 public:
 	App(int argc, char **argv);
@@ -14,11 +15,12 @@ public:
 
 public slots:
 	void previewSwitch();
-	void test();
+	void test(UCHAR* pPixelData);
 
 private:
+	QThread screenDuplicatorThread;
+	QScreenDuplicatorWorker* screenDuplicatorWorker = new QScreenDuplicatorWorker();
 	QTimer* previewTimer;
-	ScreenDuplicator screenDuplicator;
 	QLabel* frontFrame = nullptr;
 	QLabel* backFrame = nullptr;
 	Ui::MainWidget* mainWidget;

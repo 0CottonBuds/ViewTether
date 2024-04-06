@@ -4,6 +4,7 @@
 #include <d3d11.h>
 #include <iostream>
 #include <vector>
+#include <QObject>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3d11.lib")
@@ -11,9 +12,9 @@
 using namespace std;
 class ScreenDuplicator {
 public:
+	ScreenDuplicator();
 	~ScreenDuplicator();
 
-	HRESULT Initialize();
 	HRESULT getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize);
 
 private:
@@ -29,6 +30,7 @@ private:
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
 
+	HRESULT Initialize();
 	HRESULT initializeFactory(); 
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();
@@ -37,4 +39,21 @@ private:
 	HRESULT initializeOutputDuplication();
 	HRESULT releaseMemory();
 	HRESULT HR;
+};
+
+class QScreenDuplicatorWorker : public QObject {
+	Q_OBJECT
+public slots:
+	void getFrame() {
+		UCHAR* pPixelData = nullptr;
+		UINT pixelDataSize = 0;
+		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
+		emit frameReady(pPixelData);
+	}
+
+signals:
+	void frameReady(UCHAR* pPixelData);
+
+private:
+	ScreenDuplicator screenDuplicator = ScreenDuplicator();
 };
