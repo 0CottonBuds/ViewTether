@@ -15,14 +15,14 @@ App::App(int argc, char **argv)
 	QWidget* widget = new QWidget();
 	mainWidget->setupUi(widget);
 
-	// extra initialization
+	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 	previewTimer = new QTimer();
 	previewTimer->setInterval(33);
 
 	//connects
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(test()));
-	//QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
+	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+	QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
 
 	previewTimer->stop();
 
@@ -55,7 +55,7 @@ void App::previewSwitch()
 void App::test() {
 	UCHAR* pPixelData = nullptr;
 	UINT pixelDataSize = 0;
-	screenDuplicator.getNextFrame(&pPixelData, pixelDataSize);
+	screenDuplicator.getFrame(&pPixelData, pixelDataSize);
 
 	QImage *pScreenShot =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
 	pScreenShot = new QImage(pScreenShot->rgbSwapped());
@@ -76,6 +76,4 @@ void App::test() {
 
 	layout = nullptr;
 	delete pPixelData;
-
-	cout << "you pressed a button" << endl;
 }

@@ -23,7 +23,7 @@ HRESULT ScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize)
+HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize)
 {
 	SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 	HRESULT hr;
@@ -119,32 +119,6 @@ HRESULT ScreenDuplicator::getNextFrame(UCHAR ** out_ucharPixelData, UINT& out_pi
 	
 	delete pBytePixelDataBuffer;
 	return S_OK;
-}
-
-HRESULT ScreenDuplicator::processUCharFrame(UCHAR ** uCharPixelData, UINT pixelDataSize)
-{
-	vector<RGBA> pixelData;
-	
-	for (int i = 0; i < pixelDataSize; i += 4) {
-		try {
-			RGBA pixel;
-			pixel.blue = *(*uCharPixelData);
-			pixel.green = *(*uCharPixelData + 1);
-			pixel.red = *(*uCharPixelData + 2);
-			pixel.alpha = *(*uCharPixelData + 3);
-
-			pixelData.push_back(pixel);
-			*uCharPixelData += 4;
-		}
-		catch (exception e) {
-			cerr << "error getting pixel " << i << endl;
-			return E_FAIL;
-		}
-	}
-
-
-	return S_OK;
-
 }
 
 HRESULT ScreenDuplicator::initializeFactory()
