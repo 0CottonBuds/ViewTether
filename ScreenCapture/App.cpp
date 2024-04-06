@@ -28,7 +28,6 @@ App::App(int argc, char **argv)
 
 	//connects
 	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
-	//QObject::connect(previewTimer, SIGNAL(timeout()), this, SLOT(test()));
 
 	previewTimer->stop();
 

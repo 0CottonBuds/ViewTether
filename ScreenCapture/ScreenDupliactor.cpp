@@ -114,6 +114,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 
 	pDeviceContext->Unmap(pDestImage, subresource);
 
+	delete *out_ucharPixelData;
 	*out_ucharPixelData = new UCHAR[resource.DepthPitch];
 	out_pixelDataSize = resource.DepthPitch;
 

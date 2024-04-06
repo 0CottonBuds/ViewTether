@@ -45,7 +45,7 @@ class QScreenDuplicatorWorker : public QObject {
 	Q_OBJECT
 public slots:
 	void getFrame() {
-		UCHAR* pPixelData = nullptr;
+		UCHAR* pPixelData = new UCHAR();
 		UINT pixelDataSize = 0;
 		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
 		emit frameReady(pPixelData);
