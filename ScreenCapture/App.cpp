@@ -18,6 +18,7 @@ App::App(int argc, char **argv)
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000/60);
+	previewTimer->stop();
 
 	// testing
 	videoWidget = new VideoWidget(mainWidget->previewContainer);
@@ -29,14 +30,9 @@ App::App(int argc, char **argv)
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	QObject::connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 	QObject::connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
-	//QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, this, &App::test);
 	QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
-	screenDuplicatorThread.start();
-
-	//connects
 	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
-
-	previewTimer->stop();
+	screenDuplicatorThread.start();
 
 	widget->show();
 	app.exec();
@@ -65,33 +61,6 @@ void App::previewSwitch()
 	}
 }
 
-void App::test(UCHAR* pPixelData) {
-	try {
-		QImage *pScreenShot =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
-		pScreenShot = new QImage(pScreenShot->rgbSwapped());
-
-		QPixmap *pix = new QPixmap(QPixmap::fromImage(*pScreenShot));
-		delete pScreenShot;
-		delete backFrame;
-		backFrame = new QLabel("");
-		backFrame->setPixmap(pix->scaled(1920, 1080, Qt::KeepAspectRatio));
-		delete pix;
-
-		backFrame->setScaledContents(true);
-		backFrame->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-
-		QLayout* layout = mainWidget->previewContainer->layout();
-		delete layout->takeAt(0);
-		layout->addWidget(backFrame);
-
-		layout = nullptr;
-		delete pPixelData;
-	}
-	catch(exception e) {
-		cerr << "Failed to get frame" << endl;
-		return;
-	}
-}
 void App::test1(QImage *img)
 {
 	videoWidget->updateImage(img);

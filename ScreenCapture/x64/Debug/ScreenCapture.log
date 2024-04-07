@@ -1,2 +1,7 @@
-﻿  ScreenDupliactor.cpp
+﻿  moc ScreenDupliactor.h
+  App.cpp
+  ScreenDupliactor.cpp
+  main.cpp
+  moc_App.cpp
+  moc_ScreenDupliactor.cpp
   ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe

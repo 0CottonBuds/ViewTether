@@ -66,4 +66,5 @@ signals:
 
 private:
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();
+	UCHAR* ppixelData = nullptr;
 };

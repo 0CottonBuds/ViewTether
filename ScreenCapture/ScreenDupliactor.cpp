@@ -63,7 +63,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
 	pDesktopTexture->Release();
 
-	// >QueryInterface for ID3D11Texture2D
+	// QueryInterface for ID3D11Texture2D
 	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
 	hr = pResource->QueryInterface(IID_PPV_ARGS(&pAcquiredDesktopImage));
 	if (FAILED(hr)) {
@@ -121,7 +121,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 	//Copying to UCHAR buffer 
 	memcpy(*out_ucharPixelData, pBytePixelDataBuffer, resource.DepthPitch);
 	//std::cout << pBytePixelDataBuffer << std::endl;
-	
+
 	delete pBytePixelDataBuffer;
 	return S_OK;
 }

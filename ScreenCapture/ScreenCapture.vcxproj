@@ -171,6 +171,7 @@
     <ClCompile Include="ScreenDupliactor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />
     <QtMoc Include="ScreenDupliactor.h" />
     <ClInclude Include="ui_MainWindow.h" />
