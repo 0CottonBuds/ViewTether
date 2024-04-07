@@ -5,6 +5,28 @@
 #include <QLabel>
 #include <QThread>
 #include <iostream>
+#include <QVideoWidget>
+#include <QPainter>
+
+class VideoWidget : public QWidget {
+public:
+    VideoWidget(QWidget *parent = nullptr) : QWidget(parent) {
+    }
+
+    void updateImage(const QImage *image) {
+        currentImage = *image;
+        update(); // Schedule a repaint
+    }
+
+protected:
+    void paintEvent(QPaintEvent *event) override {
+		QPainter painter = QPainter(this);
+        painter.drawImage(rect(), currentImage, currentImage.rect());
+    }
+
+private:
+    QImage currentImage;
+};
 
 class App: public QObject{
 	Q_OBJECT;
@@ -16,6 +38,7 @@ public:
 public slots:
 	void previewSwitch();
 	void test(UCHAR* pPixelData);
+	void test1(QImage* img);
 
 private:
 	QThread screenDuplicatorThread;
@@ -24,4 +47,7 @@ private:
 	QLabel* frontFrame = nullptr;
 	QLabel* backFrame = nullptr;
 	Ui::MainWidget* mainWidget;
+
+	//test
+	VideoWidget *videoWidget;
 };

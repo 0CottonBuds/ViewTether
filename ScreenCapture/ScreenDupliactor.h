@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <QObject>
+#include <QImage>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3d11.lib")
@@ -49,10 +50,19 @@ public slots:
 		UINT pixelDataSize = 0;
 		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
 		emit frameReady(pPixelData);
+
+		QImage *img =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
+		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
+		delete img;
+
+		emit imageReady(rgbSwappedImg);
+		// TODO:: in the future when I use the  frame ready signal move the deletion of pPixelData there
+		delete pPixelData;
 	}
 
 signals:
 	void frameReady(UCHAR* pPixelData);
+	void imageReady(QImage* img);
 
 private:
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();

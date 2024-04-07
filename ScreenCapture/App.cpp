@@ -17,13 +17,20 @@ App::App(int argc, char **argv)
 	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 	previewTimer = new QTimer();
-	previewTimer->setInterval(33);
+	previewTimer->setInterval(1000/60);
+
+	// testing
+	videoWidget = new VideoWidget(mainWidget->previewContainer);
+	videoWidget->show();
+
+	layout->addWidget(videoWidget);
 
 	//Thread
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	QObject::connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 	QObject::connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
-	QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, this, &App::test);
+	//QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, this, &App::test);
+	QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
 	screenDuplicatorThread.start();
 
 	//connects
@@ -57,8 +64,7 @@ void App::previewSwitch()
 		mainWidget->pushButton->setText("Stop Preview");
 	}
 }
-	
-	
+
 void App::test(UCHAR* pPixelData) {
 	try {
 		QImage *pScreenShot =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
@@ -85,4 +91,9 @@ void App::test(UCHAR* pPixelData) {
 		cerr << "Failed to get frame" << endl;
 		return;
 	}
+}
+void App::test1(QImage *img)
+{
+	videoWidget->updateImage(img);
+	delete img;
 }
