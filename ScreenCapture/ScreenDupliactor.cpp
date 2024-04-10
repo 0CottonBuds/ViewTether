@@ -114,7 +114,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 
 	pDeviceContext->Unmap(pDestImage, subresource);
 
-	delete *out_ucharPixelData;
+	delete[] *out_ucharPixelData;
 	*out_ucharPixelData = new UCHAR[resource.DepthPitch];
 	out_pixelDataSize = resource.DepthPitch;
 
@@ -122,7 +122,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 	memcpy(*out_ucharPixelData, pBytePixelDataBuffer, resource.DepthPitch);
 	//std::cout << pBytePixelDataBuffer << std::endl;
 
-	delete pBytePixelDataBuffer;
+	delete[] pBytePixelDataBuffer;
 	return S_OK;
 }
 
