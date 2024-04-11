@@ -6,6 +6,7 @@
 #include <vector>
 #include <QObject>
 #include <QImage>
+#include <QMutexLocker>
 
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3d11.lib")
@@ -46,6 +47,8 @@ class QScreenDuplicatorWorker : public QObject {
 	Q_OBJECT
 public slots:
 	void getFrame() {
+		QMutexLocker locker(&mutex);
+
 		UCHAR* pPixelData = new UCHAR[1];
 		UINT pixelDataSize = 0;
 		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
@@ -65,6 +68,7 @@ signals:
 	void imageReady(QImage* img);
 
 private:
+	QMutex mutex = QMutex();
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();
 	UCHAR* ppixelData = nullptr;
 };
