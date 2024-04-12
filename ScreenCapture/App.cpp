@@ -52,8 +52,10 @@ App::App(const App&)
 void App::previewSwitch() 
 {
 	if (previewTimer->isActive()) {
-		previewTimer->stop();
-		mainWidget->pushButton->setText("Start Preview");
+		while (previewTimer->isActive()) {
+			previewTimer->stop();
+			mainWidget->pushButton->setText("Start Preview");
+		}
 	}
 	else {
 		previewTimer->start();
