@@ -49,18 +49,18 @@ public slots:
 	void getFrame() {
 		QMutexLocker locker(&mutex);
 
-		UCHAR* pPixelData = new UCHAR[1];
+		UCHAR* pPixelData = nullptr;
 		UINT pixelDataSize = 0;
 		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
-		emit frameReady(pPixelData);
 
 		QImage *img =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
 		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
 		delete img;
 
+		emit frameReady(pPixelData);
 		emit imageReady(rgbSwappedImg);
 		// TODO:: in the future when I use the  frame ready signal move the deletion of pPixelData there
-		delete pPixelData;
+		delete[] pPixelData;
 	}
 
 signals:

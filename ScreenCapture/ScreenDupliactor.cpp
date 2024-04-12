@@ -97,6 +97,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
 	}
+	pDeviceContext->Unmap(pDestImage, subresource);
 	pDestImage->Release();
 	
 	// Copy from texture to bitmap buffer.
@@ -112,17 +113,10 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 		pDestinationPos += resource.RowPitch;
 	}
 
-	pDeviceContext->Unmap(pDestImage, subresource);
 
-	delete[] *out_ucharPixelData;
-	*out_ucharPixelData = new UCHAR[resource.DepthPitch];
+	*out_ucharPixelData = pBytePixelDataBuffer;
 	out_pixelDataSize = resource.DepthPitch;
 
-	//Copying to UCHAR buffer 
-	memcpy(*out_ucharPixelData, pBytePixelDataBuffer, resource.DepthPitch);
-	//std::cout << pBytePixelDataBuffer << std::endl;
-
-	delete[] pBytePixelDataBuffer;
 	return S_OK;
 }
 
