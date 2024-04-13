@@ -2,9 +2,14 @@
 #include <QWidget>
 #include <QPainter>
 
-class VideoWidget : public QWidget {
+class VideoWidget : public QWidget { 
 public:
     VideoWidget(QWidget *parent = nullptr) : QWidget(parent) {
+    }
+
+    void removeCurrentImage() {
+        currentImage = blankImage;
+        update();
     }
 
     void updateImage(const QImage *image) {
@@ -20,5 +25,6 @@ protected:
 
 private:
     QImage currentImage;
+    QImage blankImage = QImage();
 };
 

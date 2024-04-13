@@ -56,10 +56,12 @@ void App::previewSwitch()
 			previewTimer->stop();
 			mainWidget->pushButton->setText("Start Preview");
 		}
+		videoWidget->hide();
 	}
 	else {
 		previewTimer->start();
 		mainWidget->pushButton->setText("Stop Preview");
+		videoWidget->show();
 	}
 }
 
