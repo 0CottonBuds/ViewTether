@@ -20,9 +20,10 @@ App::App(int argc, char **argv)
 	previewTimer->setInterval(1000/60);
 	previewTimer->stop();
 
-	// testing
+	// preview video widget
 	videoWidget = new VideoWidget(mainWidget->previewContainer);
 	videoWidget->show();
+
 
 	layout->addWidget(videoWidget);
 
@@ -35,6 +36,10 @@ App::App(int argc, char **argv)
 	screenDuplicatorThread.start();
 
 	widget->show();
+	
+	// TEST: server
+	DisplayStreamServer server = DisplayStreamServer();
+
 	app.exec();
 
 }

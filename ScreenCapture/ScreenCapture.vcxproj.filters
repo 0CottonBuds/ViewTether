@@ -27,6 +27,9 @@
     <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DisplayStreamServer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui_MainWindow.h">
@@ -46,6 +49,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="ScreenDupliactor.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DisplayStreamServer.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

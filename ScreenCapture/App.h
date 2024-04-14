@@ -7,6 +7,7 @@
 #include "ui_MainWindow.h"
 #include "VIdeoWidget.h"
 #include "ScreenDupliactor.h"
+#include "DisplayStreamServer.h"
 
 class App : public QObject {
 	Q_OBJECT;
@@ -22,6 +23,8 @@ public slots:
 private:
 	QThread screenDuplicatorThread;
 	QScreenDuplicatorWorker* screenDuplicatorWorker = new QScreenDuplicatorWorker();
+	QThread pixelDataBroadcastThread;
+
 
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;

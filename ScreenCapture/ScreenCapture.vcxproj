@@ -62,11 +62,11 @@
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <QtModules>core;gui;multimedia;widgets;multimediawidgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtInstall>5.12.12_msvc2017_64</QtInstall>
   </PropertyGroup>
   <PropertyGroup Label="QtSettings" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <QtModules>core;gui;multimedia;widgets;multimediawidgets</QtModules>
+    <QtModules>core;network;gui;widgets</QtModules>
     <QtInstall>5.12.12_msvc2017_64</QtInstall>
   </PropertyGroup>
   <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') OR !Exists('$(QtMsBuild)\Qt.props')">
@@ -167,10 +167,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
+    <ClCompile Include="DisplayStreamServer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ScreenDupliactor.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <QtMoc Include="DisplayStreamServer.h" />
     <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />
     <QtMoc Include="ScreenDupliactor.h" />
