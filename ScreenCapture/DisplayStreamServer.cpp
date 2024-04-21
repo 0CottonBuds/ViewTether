@@ -6,15 +6,16 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-	QHostAddress serverAddr = server->serverAddress();
 
     if(!server->listen(QHostAddress::Any, 9999))
     {
+		QHostAddress serverAddr = server->serverAddress();
         qDebug() << "Server could not start";
         qDebug() << serverAddr.toString();
     }
     else
     {
+		QHostAddress serverAddr = server->serverAddress();
         qDebug() << "Server started!";
         qDebug() << serverAddr.toString();
     }
@@ -22,28 +23,21 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 
 void DisplayStreamServer::newConnection()
 {
-    // need to grab the socket
     QTcpSocket* socket = server->nextPendingConnection();
 
     socket->write("Hello client\r\n");
-    socket->write("How are you doin I am you are connected to the local host server\r\n");
+    socket->write("You are now connected to Screen Capture server\r\n");
 
-    socket->waitForBytesWritten(3000);
+    connect(socket, &QTcpSocket::readyRead, this, [this, socket]()->void { readyRead(socket); });
 
-    while (true) {
-		socket->waitForReadyRead();
 
-		QString data = QString();
-		while (socket->bytesAvailable()) {
+    m_connections.push_back(socket);
+}
 
-			data.append(socket->readAll());
-		}
-
-        if (data.toStdString() == "end\n")
-            break;
-
-		qDebug() << "User response: " << data << endl;
+void DisplayStreamServer::readyRead(QTcpSocket* socket) {
+	QString data;
+    while (socket->bytesAvailable()) {
+        data.append(socket->readAll());
     }
-
-    socket->close();
+    qDebug() << "Client Response: " << data << endl;
 }

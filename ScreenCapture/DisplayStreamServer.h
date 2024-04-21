@@ -2,6 +2,9 @@
 #include <QObject>
 #include <QTcpServer>
 #include <QTcpSocket>
+#include <vector>
+
+using namespace std;
 
 class DisplayStreamServer : QObject {
 	Q_OBJECT
@@ -12,7 +15,9 @@ signals:
 
 public slots:
 	void newConnection();
+	void readyRead(QTcpSocket* socket);
 
 private:
 	QTcpServer *server;
+	vector<QTcpSocket*> m_connections;
 };
