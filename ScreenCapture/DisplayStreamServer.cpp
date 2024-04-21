@@ -26,23 +26,23 @@ void DisplayStreamServer::newConnection()
     QTcpSocket* socket = server->nextPendingConnection();
 
     socket->write("Hello client\r\n");
-    socket->write("How are you doin I am you are connected to the local host server");
+    socket->write("How are you doin I am you are connected to the local host server\r\n");
 
     socket->waitForBytesWritten(3000);
 
-    socket->waitForReadyRead();
+    while (true) {
+		socket->waitForReadyRead();
 
-    char* data = nullptr;
-    qint64 responseCode = socket->read(data, 30000);
+		QString data = QString();
+		while (socket->bytesAvailable()) {
 
-    if (responseCode == -1) {
-        qDebug() << "An error has occurred" << endl;
-    }
-    else if (data == nullptr) {
-        qDebug() << "User didn't give any data back" << endl;
-    }
-    else {
-        qDebug() << "User response: " << data << endl;
+			data.append(socket->readAll());
+		}
+
+        if (data.toStdString() == "end\n")
+            break;
+
+		qDebug() << "User response: " << data << endl;
     }
 
     socket->close();

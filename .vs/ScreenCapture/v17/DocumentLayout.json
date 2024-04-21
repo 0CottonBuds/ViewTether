@@ -51,8 +51,7 @@
               "ViewState": "AQIAAAwAAAAAAAAAAAAAACkAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-02T10:10:57.812Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Bookmark",
@@ -80,9 +79,9 @@
               "Title": "DisplayStreamServer.cpp",
               "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp",
               "RelativeDocumentMoniker": "ScreenCapture\\DisplayStreamServer.cpp",
-              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp*",
-              "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.cpp*",
-              "ViewState": "AQIAABoAAAAAAAAAAAAYwCcAAAAFAAAA",
+              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp",
+              "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.cpp",
+              "ViewState": "AQIAABEAAAAAAAAAAAAwwCUAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-13T07:53:26.624Z",
               "EditorCaption": ""
@@ -109,8 +108,7 @@
               "RelativeToolTip": "ScreenCapture\\ScreenDupliactor.h",
               "ViewState": "AQIAAC8AAAAAAAAAAAAAwC0AAAAcAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-04-07T06:34:14.037Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-04-07T06:34:14.037Z"
             },
             {
               "$type": "Document",
@@ -122,8 +120,7 @@
               "RelativeToolTip": "ScreenCapture\\ScreenDupliactor.cpp",
               "ViewState": "AQIAAFIAAAAAAAAAAAAAAFcAAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-03-30T06:40:23.643Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-30T06:40:23.643Z"
             },
             {
               "$type": "Document",
@@ -135,8 +132,7 @@
               "RelativeToolTip": "ScreenCapture\\main.cpp",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAYAAAAfAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-03-30T00:07:32.453Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-30T00:07:32.453Z"
             }
           ]
         }
