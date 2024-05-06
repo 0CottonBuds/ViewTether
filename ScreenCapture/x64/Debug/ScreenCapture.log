@@ -1,2 +1,13 @@
 ﻿  DisplayStreamServer.cpp
-  ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe
+C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\include\QtCore\qobject.h(251,28): error C2243: 'type cast': conversion from 'const DisplayStreamServer *' to 'const QObject *' exists, but is inaccessible
+  (compiling source file 'DisplayStreamServer.cpp')
+  C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\include\QtCore\qobject.h(251,28):
+  the template instantiation context (the oldest one first) is
+  	C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\DisplayStreamServer.cpp(31,5):
+  	see reference to function template instantiation 'QMetaObject::Connection QObject::connect<void(__cdecl QIODevice::* )(void),void(__cdecl DisplayStreamServer::* )(void)>(const QIODevice *,Func1,const DisplayStreamServer *,Func2,Qt::ConnectionType)' being compiled
+          with
+          [
+              Func1=void (__cdecl QIODevice::* )(void),
+              Func2=void (__cdecl DisplayStreamServer::* )(void)
+          ]
+  
