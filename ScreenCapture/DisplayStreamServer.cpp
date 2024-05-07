@@ -28,7 +28,7 @@ void DisplayStreamServer::newConnection()
     socket->write("Hello client\r\n");
     socket->write("You are now connected to Screen Capture server\r\n");
 
-    connect(socket, &QTcpSocket::readyRead, this, &DisplayStreamServer:: readWhenReady);
+    connect(socket, &QTcpSocket::readyRead, this, [this, socket]{readWhenReady(socket);});
     connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
 
     m_connections.push_back(socket);
@@ -36,17 +36,22 @@ void DisplayStreamServer::newConnection()
 
 void DisplayStreamServer::sendDataToAll(const char data) {
 
-    for (QTcpSocket* socket : m_connections) {
-        socket->write(&data);
-        socket->waitForBytesWritten();
-    }
-    qDebug() << "Finished sending packets to all clients" << endl;
+    for (int i = 0; i < m_connections.size(); i++) {
+        try {
+            QTcpSocket* socket = m_connections[i];
+			socket->write(&data);
+			socket->waitForBytesWritten();
+        }
+        catch (exception e) {
+            qDebug() << "Error at socket " << i << ".";
+            qDebug() << e.what();
+        }
+	}
+	qDebug() << "Finished sending packets to all clients" << endl;
+    
 }
 
-void DisplayStreamServer::readWhenReady() {
-
-    QTcpSocket* socket = qobject_cast<QTcpSocket*> (sender());
-
+void DisplayStreamServer::readWhenReady(QTcpSocket* socket) {
 	QString data;
     while (socket->bytesAvailable()) {
         data.append(socket->readAll());

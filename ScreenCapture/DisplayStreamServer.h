@@ -15,7 +15,7 @@ signals:
 
 public slots:
 	void newConnection();
-	void readWhenReady();
+	void readWhenReady(QTcpSocket* socket);
 	void sendDataToAll(const char data);
 
 private:
