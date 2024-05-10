@@ -3,9 +3,13 @@
 DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 {
 	server = new QTcpServer(this);
+    sendTimer = new QTimer();
+    sendTimer->setInterval(1000 / 30);
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    connect(sendTimer, SIGNAL(timeout()), this, SLOT(sendDataToAll()));
+    sendTimer->start();
 
     if(!server->listen(QHostAddress::Any, 9999))
     {
@@ -34,12 +38,12 @@ void DisplayStreamServer::newConnection()
     m_connections.push_back(socket);
 }
 
-void DisplayStreamServer::sendDataToAll(const char data) {
+void DisplayStreamServer::sendDataToAll() {
 
     for (int i = 0; i < m_connections.size(); i++) {
         try {
             QTcpSocket* socket = m_connections[i];
-			socket->write(&data);
+			socket->write("Tick Tock!!");
 			socket->waitForBytesWritten();
         }
         catch (exception e) {

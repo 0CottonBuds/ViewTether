@@ -3,6 +3,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <vector>
+#include <QTimer>
 
 using namespace std;
 
@@ -11,14 +12,13 @@ class DisplayStreamServer : QObject {
 public:
 	explicit DisplayStreamServer(QObject* parent = 0);
 
-signals:
-
 public slots:
 	void newConnection();
 	void readWhenReady(QTcpSocket* socket);
-	void sendDataToAll(const char data);
+	void sendDataToAll();
 
 private:
+	QTimer* sendTimer;
 	QTcpServer *server;
 	vector<QTcpSocket*> m_connections;
 };

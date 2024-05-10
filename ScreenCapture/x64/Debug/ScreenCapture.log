@@ -1,7 +1,2 @@
-﻿  moc DisplayStreamServer.h
-  App.cpp
-  DisplayStreamServer.cpp
-  main.cpp
-  moc_App.cpp
-  moc_DisplayStreamServer.cpp
+﻿  DisplayStreamServer.cpp
   ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe
