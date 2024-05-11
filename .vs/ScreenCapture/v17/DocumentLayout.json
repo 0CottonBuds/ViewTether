@@ -50,8 +50,7 @@
               "RelativeToolTip": "ScreenCapture\\App.cpp",
               "ViewState": "AQIAAA8AAAAAAAAAAAAAAAkAAAAHAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-10T15:20:48.425Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-10T15:20:48.425Z"
             },
             {
               "$type": "Document",
@@ -63,8 +62,7 @@
               "RelativeToolTip": "ScreenCapture\\App.h",
               "ViewState": "AQIAAAMAAAAAAAAAAAAAAA4AAAABAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-04-02T05:49:56.079Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-04-02T05:49:56.079Z"
             },
             {
               "$type": "Document",
@@ -74,7 +72,7 @@
               "RelativeDocumentMoniker": "ScreenCapture\\DisplayStreamServer.cpp",
               "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp",
               "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.cpp",
-              "ViewState": "AQIAAAMAAAAAAAAAAAAAAAoAAAAeAAAA",
+              "ViewState": "AQIAACEAAAAAAAAAAAAAACoAAAAqAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-13T07:53:26.624Z",
               "EditorCaption": ""
@@ -89,8 +87,7 @@
               "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.h",
               "ViewState": "AQIAAAkAAAAAAAAAAAAAAA4AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-04-13T07:49:45.222Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-04-13T07:49:45.222Z"
             },
             {
               "$type": "Document",
@@ -102,8 +99,7 @@
               "RelativeToolTip": "ScreenCapture\\main.cpp",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAKAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-03-30T00:07:32.453Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-30T00:07:32.453Z"
             }
           ]
         }

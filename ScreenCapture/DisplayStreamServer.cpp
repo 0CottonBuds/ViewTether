@@ -43,6 +43,10 @@ void DisplayStreamServer::sendDataToAll() {
     for (int i = 0; i < m_connections.size(); i++) {
         try {
             QTcpSocket* socket = m_connections[i];
+
+            if (socket == nullptr) 
+                continue;
+
 			socket->write("Tick Tock!!");
 			socket->waitForBytesWritten();
         }
