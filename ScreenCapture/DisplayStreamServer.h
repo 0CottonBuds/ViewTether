@@ -14,11 +14,11 @@ public:
 
 public slots:
 	void newConnection();
-	void readWhenReady(QTcpSocket* socket);
-	void sendDataToAll();
+	void readWhenReady();
+	void sendDataToClient();
 
 private:
 	QTimer* sendTimer;
-	QTcpServer *server;
-	vector<QTcpSocket*> m_connections;
+	QTcpServer* server;
+	QTcpSocket* client = nullptr;
 };

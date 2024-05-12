@@ -8,7 +8,7 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    connect(sendTimer, SIGNAL(timeout()), this, SLOT(sendDataToAll()));
+    connect(sendTimer, SIGNAL(timeout()), this, SLOT(sendDataToClient()));
     sendTimer->start();
 
     if(!server->listen(QHostAddress::Any, 9999))
@@ -27,42 +27,39 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 
 void DisplayStreamServer::newConnection()
 {
-    QTcpSocket* socket = server->nextPendingConnection();
+    // if there is a client connected
+    if (client != nullptr) {
+		QTcpSocket* socket = server->nextPendingConnection();
+        socket->write("Sorry there is currently a connected client to the server!");
+        socket->waitForBytesWritten();
+        socket->disconnectFromHost();
+        return;
+    }
 
-    socket->write("Hello client\r\n");
-    socket->write("You are now connected to Screen Capture server\r\n");
+    client = server->nextPendingConnection();
 
-    connect(socket, &QTcpSocket::readyRead, this, [this, socket]{readWhenReady(socket);});
-    connect(socket, &QTcpSocket::disconnected, socket, &QTcpSocket::deleteLater);
+    client->write("Hello client\r\n");
+    client->write("You are now connected to Screen Capture server\r\n");
 
-    m_connections.push_back(socket);
+    connect(client, SIGNAL(readyRead()), this, SLOT(readWhenReady()));
+
+    // handle client disconnect
+    connect(client, &QTcpSocket::disconnected, client, &QTcpSocket::deleteLater);
+    connect(client, &QTcpSocket::disconnected, client, [this] {client = nullptr; });
 }
 
-void DisplayStreamServer::sendDataToAll() {
+void DisplayStreamServer::sendDataToClient() {
+    if (client == nullptr) 
+		return;
 
-    for (int i = 0; i < m_connections.size(); i++) {
-        try {
-            QTcpSocket* socket = m_connections[i];
-
-            if (socket == nullptr) 
-                continue;
-
-			socket->write("Tick Tock!!");
-			socket->waitForBytesWritten();
-        }
-        catch (exception e) {
-            qDebug() << "Error at socket " << i << ".";
-            qDebug() << e.what();
-        }
-	}
-	qDebug() << "Finished sending packets to all clients" << endl;
-    
+	client->write("Tick Tock!!");
+	client->waitForBytesWritten();
 }
 
-void DisplayStreamServer::readWhenReady(QTcpSocket* socket) {
+void DisplayStreamServer::readWhenReady() {
 	QString data;
-    while (socket->bytesAvailable()) {
-        data.append(socket->readAll());
+    while (client->bytesAvailable()) {
+        data.append(client->readAll());
     }
     qDebug() << "Client Response: " << data << endl;
 }
