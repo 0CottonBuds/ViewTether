@@ -7,7 +7,7 @@
 
 using namespace std;
 
-class DisplayStreamServer : QObject {
+class DisplayStreamServer : public QObject {
 	Q_OBJECT
 public:
 	explicit DisplayStreamServer(QObject* parent = 0);
@@ -18,7 +18,6 @@ public slots:
 	void sendDataToClient();
 
 private:
-	QTimer* sendTimer;
 	QTcpServer* server;
 	QTcpSocket* client = nullptr;
 };

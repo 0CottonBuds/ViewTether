@@ -2,14 +2,10 @@
 
 DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 {
-	server = new QTcpServer(this);
-    sendTimer = new QTimer();
-    sendTimer->setInterval(1000 / 30);
+    server = new QTcpServer();
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-    connect(sendTimer, SIGNAL(timeout()), this, SLOT(sendDataToClient()));
-    sendTimer->start();
 
     if(!server->listen(QHostAddress::Any, 9999))
     {

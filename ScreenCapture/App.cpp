@@ -27,19 +27,23 @@ App::App(int argc, char **argv)
 
 	layout->addWidget(videoWidget);
 
-	//Thread
+	// Screen Duplicator Thread
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
-	QObject::connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
-	QObject::connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
-	QObject::connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
+	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
 	screenDuplicatorThread.start();
 
-	widget->show();
-	
-	// TEST: server
-	DisplayStreamServer server = DisplayStreamServer();
+	// Display Stream Server Thread
+	displayStreamServerWorker.moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::finished, &displayStreamServerWorker, &QObject::deleteLater);
+	connect(previewTimer, &QTimer::timeout, &displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	displayStreamServerThread.start();
 
+	// other connects
+	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+
+	widget->show();
 	app.exec();
 
 }

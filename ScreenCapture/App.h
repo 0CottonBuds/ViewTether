@@ -23,8 +23,8 @@ public slots:
 private:
 	QThread screenDuplicatorThread;
 	QScreenDuplicatorWorker* screenDuplicatorWorker = new QScreenDuplicatorWorker();
-	QThread pixelDataBroadcastThread;
-
+	QThread displayStreamServerThread;
+	DisplayStreamServer displayStreamServerWorker = DisplayStreamServer();
 
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;
