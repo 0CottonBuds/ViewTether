@@ -16,6 +16,7 @@ App::App(int argc, char **argv)
 
 	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
+	displayStreamServerWorker = new DisplayStreamServer();
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000/60);
 	previewTimer->stop();
@@ -35,10 +36,10 @@ App::App(int argc, char **argv)
 	screenDuplicatorThread.start();
 
 	// Display Stream Server Thread
-	displayStreamServerWorker.moveToThread(&displayStreamServerThread);
-	connect(&displayStreamServerThread, &QThread::finished, &displayStreamServerWorker, &QObject::deleteLater);
-	connect(previewTimer, &QTimer::timeout, &displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
-	displayStreamServerThread.start();
+	//displayStreamServerWorker.moveToThread(&displayStreamServerThread);
+	//connect(&displayStreamServerThread, &QThread::finished, &displayStreamServerWorker, &QObject::deleteLater);
+	connect(previewTimer, &QTimer::timeout, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	//displayStreamServerThread.start();
 
 	// other connects
 	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
@@ -52,6 +53,8 @@ App::~App()
 {
 	screenDuplicatorThread.quit();
 	screenDuplicatorThread.wait();
+	displayStreamServerThread.quit();
+	displayStreamServerThread.wait();
 }
 
 App::App(const App&)

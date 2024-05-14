@@ -24,7 +24,7 @@ private:
 	QThread screenDuplicatorThread;
 	QScreenDuplicatorWorker* screenDuplicatorWorker = new QScreenDuplicatorWorker();
 	QThread displayStreamServerThread;
-	DisplayStreamServer displayStreamServerWorker = DisplayStreamServer();
+	DisplayStreamServer* displayStreamServerWorker;
 
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;

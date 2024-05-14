@@ -45,8 +45,10 @@ void DisplayStreamServer::newConnection()
 }
 
 void DisplayStreamServer::sendDataToClient() {
-    if (client == nullptr) 
+    if (client == nullptr) {
+        qDebug() << "There is no client connected" << endl;
 		return;
+    }
 
 	client->write("Tick Tock!!");
 	client->waitForBytesWritten();
