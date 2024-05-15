@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <vector>
 #include <QTimer>
+#include <Windows.h>
 
 using namespace std;
 
@@ -15,7 +16,7 @@ public:
 public slots:
 	void newConnection();
 	void readWhenReady();
-	void sendDataToClient();
+	void sendDataToClient(UCHAR* pData);
 
 private:
 	QTcpServer* server;

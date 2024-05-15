@@ -44,14 +44,15 @@ void DisplayStreamServer::newConnection()
     connect(client, &QTcpSocket::disconnected, client, [this] {client = nullptr; });
 }
 
-void DisplayStreamServer::sendDataToClient() {
+void DisplayStreamServer::sendDataToClient(UCHAR* pData) {
     if (client == nullptr) {
         qDebug() << "There is no client connected" << endl;
 		return;
     }
 
-	client->write("Tick Tock!!");
+	client->write((char*) pData);
 	client->waitForBytesWritten();
+    delete[] pData;
 }
 
 void DisplayStreamServer::readWhenReady() {

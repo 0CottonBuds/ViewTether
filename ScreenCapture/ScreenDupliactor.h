@@ -57,10 +57,9 @@ public slots:
 		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
 		delete img;
 
+		// handle deletion of pixel data on slots
 		emit frameReady(pPixelData);
 		emit imageReady(rgbSwappedImg);
-		// TODO:: in the future when I use the  frame ready signal move the deletion of pPixelData there
-		delete[] pPixelData;
 	}
 
 signals:

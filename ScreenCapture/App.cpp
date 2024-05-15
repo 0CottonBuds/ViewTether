@@ -35,11 +35,7 @@ App::App(int argc, char **argv)
 	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
 	screenDuplicatorThread.start();
 
-	// Display Stream Server Thread
-	//displayStreamServerWorker.moveToThread(&displayStreamServerThread);
-	//connect(&displayStreamServerThread, &QThread::finished, &displayStreamServerWorker, &QObject::deleteLater);
-	connect(previewTimer, &QTimer::timeout, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
-	//displayStreamServerThread.start();
+	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	// other connects
 	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
@@ -53,8 +49,6 @@ App::~App()
 {
 	screenDuplicatorThread.quit();
 	screenDuplicatorThread.wait();
-	displayStreamServerThread.quit();
-	displayStreamServerThread.wait();
 }
 
 App::App(const App&)
