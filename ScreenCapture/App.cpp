@@ -38,7 +38,10 @@ App::App(int argc, char **argv)
 	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	// other connects
-	QObject::connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+	connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+
+	connect(displayStreamServerWorker, &DisplayStreamServer::connected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Connected"); });
+	connect(displayStreamServerWorker, &DisplayStreamServer::disconnected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Not Connected"); });
 
 	widget->show();
 	app.exec();

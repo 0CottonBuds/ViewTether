@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'MainWindowGFXVyi.ui'
+** Form generated from reading UI file 'MainWindowPUJzTE.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.12.12
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef MAINWINDOWGFXVYI_H
-#define MAINWINDOWGFXVYI_H
+#ifndef MAINWINDOWPUJZTE_H
+#define MAINWINDOWPUJZTE_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -27,9 +27,9 @@ public:
     QWidget *controlContainers;
     QPushButton *pushButton;
     QLabel *label;
-    QLabel *label_2;
-    QLabel *label_3;
-    QLabel *label_4;
+    QLabel *ip_label;
+    QLabel *port_label;
+    QLabel *connected_status_label;
     QLineEdit *lineEdit;
     QLabel *label_5;
 
@@ -57,15 +57,15 @@ public:
         label = new QLabel(controlContainers);
         label->setObjectName(QString::fromUtf8("label"));
         label->setGeometry(QRect(10, 20, 191, 16));
-        label_2 = new QLabel(controlContainers);
-        label_2->setObjectName(QString::fromUtf8("label_2"));
-        label_2->setGeometry(QRect(10, 40, 47, 13));
-        label_3 = new QLabel(controlContainers);
-        label_3->setObjectName(QString::fromUtf8("label_3"));
-        label_3->setGeometry(QRect(10, 50, 71, 20));
-        label_4 = new QLabel(controlContainers);
-        label_4->setObjectName(QString::fromUtf8("label_4"));
-        label_4->setGeometry(QRect(10, 120, 151, 16));
+        ip_label = new QLabel(controlContainers);
+        ip_label->setObjectName(QString::fromUtf8("ip_label"));
+        ip_label->setGeometry(QRect(10, 40, 47, 13));
+        port_label = new QLabel(controlContainers);
+        port_label->setObjectName(QString::fromUtf8("port_label"));
+        port_label->setGeometry(QRect(10, 50, 71, 20));
+        connected_status_label = new QLabel(controlContainers);
+        connected_status_label->setObjectName(QString::fromUtf8("connected_status_label"));
+        connected_status_label->setGeometry(QRect(10, 120, 151, 16));
         lineEdit = new QLineEdit(controlContainers);
         lineEdit->setObjectName(QString::fromUtf8("lineEdit"));
         lineEdit->setGeometry(QRect(860, 40, 113, 20));
@@ -86,10 +86,10 @@ public:
         MainWidget->setWindowTitle(QApplication::translate("MainWidget", "Form", nullptr));
         pushButton->setText(QApplication::translate("MainWidget", "Start Preview", nullptr));
         label->setText(QApplication::translate("MainWidget", "Connect from client with these address:", nullptr));
-        label_2->setText(QApplication::translate("MainWidget", "IP: N/A", nullptr));
-        label_3->setText(QApplication::translate("MainWidget", "PORT: N/A", nullptr));
-        label_4->setText(QApplication::translate("MainWidget", "Current Status: Not Connected", nullptr));
-        lineEdit->setPlaceholderText(QString());
+        ip_label->setText(QApplication::translate("MainWidget", "IP: N/A", nullptr));
+        port_label->setText(QApplication::translate("MainWidget", "PORT: N/A", nullptr));
+        connected_status_label->setText(QApplication::translate("MainWidget", "Current Status: Not Connected", nullptr));
+        lineEdit->setPlaceholderText(QApplication::translate("MainWidget", "60", nullptr));
         label_5->setText(QApplication::translate("MainWidget", "Frame Rate:", nullptr));
     } // retranslateUi
 
@@ -101,4 +101,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // MAINWINDOWGFXVYI_H
+#endif // MAINWINDOWPUJZTE_H

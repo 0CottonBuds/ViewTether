@@ -6,6 +6,7 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
+    connect(server, SIGNAL(newConnection()), this, SLOT([this] {emit connected(); }));
 
     if(!server->listen(QHostAddress::Any, 9999))
     {
@@ -41,7 +42,8 @@ void DisplayStreamServer::newConnection()
 
     // handle client disconnect
     connect(client, &QTcpSocket::disconnected, client, &QTcpSocket::deleteLater);
-    connect(client, &QTcpSocket::disconnected, client, [this] {client = nullptr; });
+    connect(client, &QTcpSocket::disconnected, client, [this] {client = nullptr;});
+    connect(client, &QTcpSocket::disconnected, this, [this] {emit disconnected(); });
 }
 
 void DisplayStreamServer::sendDataToClient(UCHAR* pData) {

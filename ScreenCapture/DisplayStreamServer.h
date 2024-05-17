@@ -18,6 +18,10 @@ public slots:
 	void readWhenReady();
 	void sendDataToClient(UCHAR* pData);
 
+signals:
+	void connected();
+	void disconnected();
+
 private:
 	QTcpServer* server;
 	QTcpSocket* client = nullptr;

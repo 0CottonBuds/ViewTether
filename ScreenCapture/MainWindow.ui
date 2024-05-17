@@ -69,7 +69,7 @@
        <string>Connect from client with these address:</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="ip_label">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -82,7 +82,7 @@
        <string>IP: N/A</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_3">
+     <widget class="QLabel" name="port_label">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -95,7 +95,7 @@
        <string>PORT: N/A</string>
       </property>
      </widget>
-     <widget class="QLabel" name="label_4">
+     <widget class="QLabel" name="connected_status_label">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -118,7 +118,7 @@
        </rect>
       </property>
       <property name="placeholderText">
-       <string/>
+       <string>60</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_5">
