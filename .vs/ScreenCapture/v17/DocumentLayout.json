@@ -62,8 +62,7 @@
               "RelativeToolTip": "ScreenCapture\\ui_MainWindow.h",
               "ViewState": "AQIAAEgAAAAAAAAAAAAAAF0AAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-05-17T13:34:33.919Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-17T13:34:33.919Z"
             },
             {
               "$type": "Document",
@@ -87,8 +86,7 @@
               "RelativeToolTip": "ScreenCapture\\App.cpp",
               "ViewState": "AQIAABIAAAAAAAAAAAAAACkAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-05-12T11:32:29.451Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-05-12T11:32:29.451Z"
             },
             {
               "$type": "Document",
@@ -136,8 +134,7 @@
               "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAABUAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-04-13T07:49:45.222Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-04-13T07:49:45.222Z"
             },
             {
               "$type": "Document",
@@ -145,9 +142,9 @@
               "Title": "DisplayStreamServer.cpp",
               "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp",
               "RelativeDocumentMoniker": "ScreenCapture\\DisplayStreamServer.cpp",
-              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp*",
-              "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.cpp*",
-              "ViewState": "AQIAACEAAAAAAAAAAAAAADwAAAAOAAAA",
+              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\DisplayStreamServer.cpp",
+              "RelativeToolTip": "ScreenCapture\\DisplayStreamServer.cpp",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAADEAAAAbAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-13T07:53:26.624Z",
               "EditorCaption": ""
