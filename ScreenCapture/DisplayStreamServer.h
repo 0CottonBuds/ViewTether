@@ -13,6 +13,9 @@ class DisplayStreamServer : public QObject {
 public:
 	explicit DisplayStreamServer(QObject* parent = 0);
 
+	QString getServerIp();
+	QString getServerPort();
+
 public slots:
 	void newConnection();
 	void readWhenReady();
@@ -25,4 +28,7 @@ signals:
 private:
 	QTcpServer* server;
 	QTcpSocket* client = nullptr;
+
+	QString serverIp;
+	QString serverPort = "9999";
 };

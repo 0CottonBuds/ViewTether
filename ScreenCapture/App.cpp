@@ -16,7 +16,11 @@ App::App(int argc, char **argv)
 
 	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
+	
 	displayStreamServerWorker = new DisplayStreamServer();
+	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
+	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
+
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000/60);
 	previewTimer->stop();

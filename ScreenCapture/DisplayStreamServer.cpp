@@ -11,15 +11,29 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
     if(!server->listen(QHostAddress::Any, 9999))
     {
 		QHostAddress serverAddr = server->serverAddress();
+        serverIp = serverAddr.toString();
         qDebug() << "Server could not start";
-        qDebug() << serverAddr.toString();
+        qDebug() << serverIp;
     }
     else
     {
 		QHostAddress serverAddr = server->serverAddress();
+        serverIp = serverAddr.toString();
         qDebug() << "Server started!";
-        qDebug() << serverAddr.toString();
+        qDebug() << serverIp;
     }
+}
+
+QString DisplayStreamServer::getServerIp()
+{
+    if (serverIp == "0.0.0.0") 
+        return "localhost (only local host)";
+    return serverIp;
+}
+
+QString DisplayStreamServer::getServerPort()
+{
+    return serverPort;
 }
 
 void DisplayStreamServer::newConnection()
@@ -48,7 +62,7 @@ void DisplayStreamServer::newConnection()
 
 void DisplayStreamServer::sendDataToClient(UCHAR* pData) {
     if (client == nullptr) {
-        qDebug() << "There is no client connected" << endl;
+        qDebug() << "There is no client connected";
 		return;
     }
 
@@ -62,5 +76,5 @@ void DisplayStreamServer::readWhenReady() {
     while (client->bytesAvailable()) {
         data.append(client->readAll());
     }
-    qDebug() << "Client Response: " << data << endl;
+    qDebug() << "Client Response: " << data;
 }
