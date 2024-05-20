@@ -15,6 +15,7 @@ public:
 	App(int argc, char** argv);
 	App(const App&);
 	~App();
+	void setFps();
 
 public slots:
 	void previewSwitch();

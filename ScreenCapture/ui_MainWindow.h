@@ -1,18 +1,18 @@
 /********************************************************************************
-** Form generated from reading UI file 'MainWindowOtZzrv.ui'
+** Form generated from reading UI file 'MainWindowckOkSJ.ui'
 **
 ** Created by: Qt User Interface Compiler version 6.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef MAINWINDOWOTZZRV_H
-#define MAINWINDOWOTZZRV_H
+#ifndef MAINWINDOWCKOKSJ_H
+#define MAINWINDOWCKOKSJ_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
@@ -30,8 +30,8 @@ public:
     QLabel *ip_label;
     QLabel *port_label;
     QLabel *connected_status_label;
-    QLineEdit *lineEdit;
     QLabel *label_5;
+    QComboBox *comboBox;
 
     void setupUi(QWidget *MainWidget)
     {
@@ -66,12 +66,16 @@ public:
         connected_status_label = new QLabel(controlContainers);
         connected_status_label->setObjectName("connected_status_label");
         connected_status_label->setGeometry(QRect(10, 120, 341, 16));
-        lineEdit = new QLineEdit(controlContainers);
-        lineEdit->setObjectName("lineEdit");
-        lineEdit->setGeometry(QRect(860, 40, 113, 20));
         label_5 = new QLabel(controlContainers);
         label_5->setObjectName("label_5");
-        label_5->setGeometry(QRect(800, 40, 61, 16));
+        label_5->setGeometry(QRect(840, 20, 61, 16));
+        comboBox = new QComboBox(controlContainers);
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->addItem(QString());
+        comboBox->setObjectName("comboBox");
+        comboBox->setGeometry(QRect(910, 20, 69, 22));
+        comboBox->setEditable(false);
 
         verticalLayout->addWidget(controlContainers);
 
@@ -89,8 +93,11 @@ public:
         ip_label->setText(QCoreApplication::translate("MainWidget", "IP: N/A", nullptr));
         port_label->setText(QCoreApplication::translate("MainWidget", "PORT: N/A", nullptr));
         connected_status_label->setText(QCoreApplication::translate("MainWidget", "Current Status: Not Connected", nullptr));
-        lineEdit->setPlaceholderText(QCoreApplication::translate("MainWidget", "60", nullptr));
         label_5->setText(QCoreApplication::translate("MainWidget", "Frame Rate:", nullptr));
+        comboBox->setItemText(0, QCoreApplication::translate("MainWidget", "60", nullptr));
+        comboBox->setItemText(1, QCoreApplication::translate("MainWidget", "30", nullptr));
+        comboBox->setItemText(2, QCoreApplication::translate("MainWidget", "15", nullptr));
+
     } // retranslateUi
 
 };
@@ -101,4 +108,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // MAINWINDOWOTZZRV_H
+#endif // MAINWINDOWCKOKSJ_H

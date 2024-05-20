@@ -43,6 +43,7 @@ App::App(int argc, char **argv)
 
 	// other connects
 	connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
+	connect(mainWidget->comboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
 
 	connect(displayStreamServerWorker, &DisplayStreamServer::connected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Connected"); });
 	connect(displayStreamServerWorker, &DisplayStreamServer::disconnected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Not Connected"); });
@@ -56,6 +57,14 @@ App::~App()
 {
 	screenDuplicatorThread.quit();
 	screenDuplicatorThread.wait();
+}
+
+void App::setFps()
+{
+	int fps = mainWidget->comboBox->currentText().toInt();
+	while (previewTimer->interval() != fps) {
+		previewTimer->setInterval(fps);
+	}
 }
 
 App::App(const App&)
