@@ -17,7 +17,7 @@ public:
 	ScreenDuplicator();
 	~ScreenDuplicator();
 
-	HRESULT getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize);
+	HRESULT getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize);
 
 private:
 	IDXGIFactory2* pFactory = nullptr; 
@@ -49,11 +49,11 @@ public slots:
 	void getFrame() {
 		QMutexLocker locker(&mutex);
 
-		UCHAR* pPixelData = nullptr;
+		shared_ptr<UCHAR> pPixelData;
 		UINT pixelDataSize = 0;
 		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
 
-		QImage *img =  new QImage(pPixelData, 1920, 1080, QImage::Format_RGBA8888);
+		QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
 		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
 		delete img;
 
@@ -63,7 +63,7 @@ public slots:
 	}
 
 signals:
-	void frameReady(UCHAR* pPixelData);
+	void frameReady(shared_ptr<UCHAR> pPixelData);
 	void imageReady(QImage* img);
 
 private:

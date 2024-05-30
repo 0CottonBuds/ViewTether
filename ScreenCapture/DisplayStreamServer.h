@@ -19,7 +19,7 @@ public:
 public slots:
 	void newConnection();
 	void readWhenReady();
-	void sendDataToClient(UCHAR* pData);
+	void sendDataToClient(shared_ptr<UCHAR> pData);
 
 signals:
 	void connected();

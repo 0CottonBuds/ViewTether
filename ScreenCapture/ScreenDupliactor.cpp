@@ -28,7 +28,7 @@ HRESULT ScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelDataSize)
+HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize)
 {
 	HRESULT hr;
 
@@ -114,7 +114,7 @@ HRESULT ScreenDuplicator::getFrame(UCHAR ** out_ucharPixelData, UINT& out_pixelD
 	}
 
 
-	*out_ucharPixelData = pBytePixelDataBuffer;
+	*out_ucharPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
 	out_pixelDataSize = resource.DepthPitch;
 
 	return S_OK;
