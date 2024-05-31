@@ -32,12 +32,16 @@ App::App(int argc, char **argv)
 
 	layout->addWidget(videoWidget);
 
-	// Screen Duplicator Thread
+	//Threads for sreenduplicator and displaystreamserver
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
 	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
 	screenDuplicatorThread.start();
+
+	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
+	displayStreamServerThread.start();
 
 	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
