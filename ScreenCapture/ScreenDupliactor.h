@@ -12,7 +12,27 @@
 #pragma comment(lib,"d3d11.lib")
 
 using namespace std;
-class ScreenDuplicator {
+class ScreenDuplicator : public QObject {
+	Q_OBJECT
+public slots:
+	void getFrame1() {
+		shared_ptr<UCHAR> pPixelData;
+		UINT pixelDataSize = 0;
+		getFrame(&pPixelData, pixelDataSize);
+
+		QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
+		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
+		delete img;
+
+		// handle deletion of pixel data on slots
+		emit frameReady(pPixelData);
+		emit imageReady(rgbSwappedImg);
+	}
+
+signals:
+	void frameReady(shared_ptr<UCHAR> pPixelData);
+	void imageReady(QImage* img);
+
 public:
 	ScreenDuplicator();
 	~ScreenDuplicator();
@@ -44,30 +64,3 @@ private:
 	HRESULT HR;
 };
 
-class QScreenDuplicatorWorker : public QObject {
-	Q_OBJECT
-public slots:
-	void getFrame() {
-		QMutexLocker locker(&mutex);
-
-		shared_ptr<UCHAR> pPixelData;
-		UINT pixelDataSize = 0;
-		screenDuplicator.getFrame(&pPixelData, pixelDataSize);
-
-		QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
-		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
-		delete img;
-
-		// handle deletion of pixel data on slots
-		emit frameReady(pPixelData);
-		emit imageReady(rgbSwappedImg);
-	}
-
-signals:
-	void frameReady(shared_ptr<UCHAR> pPixelData);
-	void imageReady(QImage* img);
-
-private:
-	QMutex mutex = QMutex();
-	ScreenDuplicator screenDuplicator = ScreenDuplicator();
-};

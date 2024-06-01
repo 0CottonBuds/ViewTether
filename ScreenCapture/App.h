@@ -23,7 +23,7 @@ public slots:
 
 private:
 	QThread screenDuplicatorThread;
-	QScreenDuplicatorWorker* screenDuplicatorWorker = new QScreenDuplicatorWorker();
+	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker;
 

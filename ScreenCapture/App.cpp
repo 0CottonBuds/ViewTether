@@ -35,15 +35,15 @@ App::App(int argc, char **argv)
 	//Threads for sreenduplicator and displaystreamserver
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &QScreenDuplicatorWorker::getFrame);
-	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::imageReady, this, &App::test1);
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame1);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::test1);
 	screenDuplicatorThread.start();
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
 	displayStreamServerThread.start();
 
-	connect(screenDuplicatorWorker, &QScreenDuplicatorWorker::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	// other connects
 	connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
@@ -61,6 +61,8 @@ App::~App()
 {
 	screenDuplicatorThread.quit();
 	screenDuplicatorThread.wait();
+	displayStreamServerThread.quit();
+	displayStreamServerThread.wait();
 }
 
 void App::setFps()
