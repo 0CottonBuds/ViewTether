@@ -31,13 +31,15 @@ HRESULT ScreenDuplicator::Initialize()
 HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize)
 {
 	HRESULT hr;
-
 	IDXGIResource* pResource = nullptr;
+	ID3D11Texture2D* pDesktopTexture = nullptr;
 	DXGI_OUTDUPL_FRAME_INFO frameInfo;
+	D3D11_TEXTURE2D_DESC desktopTextureDesc;
 
+	// release frame incase previous frame is still there;
 	pOutputDuplication->ReleaseFrame();
 
-	// loop until we get a frame
+	// Sometimes ActuireNextFrame() fails so we try until we get a frame. 
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
 		if (FAILED(hr)) {
@@ -51,9 +53,6 @@ HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& 
 		}
 		break;
 	}
-
-	ID3D11Texture2D* pDesktopTexture = nullptr;
-	D3D11_TEXTURE2D_DESC desktopTextureDesc;
 
 	hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
 	if (FAILED(hr)) {
@@ -112,7 +111,6 @@ HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& 
 		pSourcePos += resource.RowPitch;
 		pDestinationPos += resource.RowPitch;
 	}
-
 
 	*out_ucharPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
 	out_pixelDataSize = resource.DepthPitch;

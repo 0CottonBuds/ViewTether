@@ -20,6 +20,7 @@ public:
 	HRESULT getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize);
 
 private:
+
 	IDXGIFactory2* pFactory = nullptr; 
 	DXGI_ADAPTER_DESC1 adapterDesc;
 	ID3D11Device* pDevice = nullptr;
@@ -69,5 +70,4 @@ signals:
 private:
 	QMutex mutex = QMutex();
 	ScreenDuplicator screenDuplicator = ScreenDuplicator();
-	UCHAR* ppixelData = nullptr;
 };
