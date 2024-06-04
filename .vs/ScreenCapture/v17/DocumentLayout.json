@@ -21,7 +21,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 358,
+          "DockedWidth": 300,
           "SelectedChildIndex": 3,
           "Children": [
             {
@@ -42,9 +42,9 @@
               "Title": "main.cpp",
               "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
               "RelativeDocumentMoniker": "ScreenCapture\\main.cpp",
-              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp*",
-              "RelativeToolTip": "ScreenCapture\\main.cpp*",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAgAAAA",
+              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
+              "RelativeToolTip": "ScreenCapture\\main.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-06-04T06:20:12.152Z",
               "EditorCaption": ""
@@ -65,7 +65,7 @@
           ]
         },
         {
-          "DockedWidth": 148,
+          "DockedWidth": 206,
           "SelectedChildIndex": 0,
           "Children": [
             {
