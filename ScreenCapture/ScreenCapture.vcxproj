@@ -93,6 +93,18 @@
     <Import Project="$(QtMsBuild)\Qt.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <IncludePath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ExecutablePath>$(ExecutablePath)</ExecutablePath>
+    <IncludePath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -130,13 +142,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avcodec.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avdevice.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avfilter.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avformat.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avutil.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\swresample.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\swscale.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\bcrypt.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\Mfplat.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\mfuuid.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\Secur32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
@@ -151,7 +164,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -159,7 +172,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avcodec.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avdevice.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avfilter.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avformat.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\avutil.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\swresample.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\swscale.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\bcrypt.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\Mfplat.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\mfuuid.lib;C:\Users\Cotton-Orion\Documents\ffmpeg\installed\lib\Secur32.Lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
@@ -170,9 +184,11 @@
     <ClCompile Include="DisplayStreamServer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ScreenDupliactor.cpp" />
+    <ClCompile Include="StreamCodec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DisplayStreamServer.h" />
+    <ClInclude Include="StreamCodec.h" />
     <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />
     <QtMoc Include="ScreenDupliactor.h" />

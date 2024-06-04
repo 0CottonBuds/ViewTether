@@ -30,12 +30,18 @@
     <ClCompile Include="DisplayStreamServer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StreamCodec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui_MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIdeoWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StreamCodec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
