@@ -19,7 +19,7 @@ public:
 
 public slots:
 	void previewSwitch();
-	void test1(QImage* img);
+	void updateFrame(shared_ptr<QImage> img);
 
 private:
 	QThread screenDuplicatorThread;

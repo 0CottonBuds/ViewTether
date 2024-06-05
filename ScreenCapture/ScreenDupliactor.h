@@ -15,29 +15,16 @@ using namespace std;
 class ScreenDuplicator : public QObject {
 	Q_OBJECT
 public slots:
-	void getFrame1() {
-		shared_ptr<UCHAR> pPixelData;
-		UINT pixelDataSize = 0;
-		getFrame(&pPixelData, pixelDataSize);
-
-		QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
-		QImage *rgbSwappedImg = new QImage(img->rgbSwapped());
-		delete img;
-
-		// handle deletion of pixel data on slots
-		emit frameReady(pPixelData);
-		emit imageReady(rgbSwappedImg);
-	}
+	HRESULT getFrame();
 
 signals:
 	void frameReady(shared_ptr<UCHAR> pPixelData);
-	void imageReady(QImage* img);
+	void imageReady(shared_ptr<QImage> img);
 
 public:
 	ScreenDuplicator();
 	~ScreenDuplicator();
 
-	HRESULT getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize);
 
 private:
 

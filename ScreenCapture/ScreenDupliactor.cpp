@@ -28,7 +28,7 @@ HRESULT ScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& out_pixelDataSize)
+HRESULT ScreenDuplicator::getFrame()
 {
 	HRESULT hr;
 	IDXGIResource* pResource = nullptr;
@@ -112,8 +112,15 @@ HRESULT ScreenDuplicator::getFrame(shared_ptr<UCHAR>* out_ucharPixelData, UINT& 
 		pDestinationPos += resource.RowPitch;
 	}
 
-	*out_ucharPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
-	out_pixelDataSize = resource.DepthPitch;
+	shared_ptr<UCHAR> pPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
+	//out_pixelDataSize = resource.DepthPitch;
+
+	QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
+	shared_ptr<QImage> rgbSwappedImg = shared_ptr<QImage>(new QImage(img->rgbSwapped()));
+	delete img;
+
+	emit frameReady(pPixelData);
+	emit imageReady(rgbSwappedImg);
 
 	return S_OK;
 }

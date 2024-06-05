@@ -35,8 +35,8 @@ App::App(int argc, char **argv)
 	//Threads for sreenduplicator and displaystreamserver
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame1);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::test1);
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
 	screenDuplicatorThread.start();
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
@@ -93,8 +93,7 @@ void App::previewSwitch()
 	}
 }
 
-void App::test1(QImage *img)
+void App::updateFrame(shared_ptr<QImage> img)
 {
-	videoWidget->updateImage(img);
-	delete img;
+	videoWidget->updateImage(img.get());
 }
