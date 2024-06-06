@@ -11,7 +11,8 @@ class StreamCodec
 {
 public:
 	StreamCodec(int height, int width, int fps);
-
+	void run();
+ 
 private:
 	bool setupffmpegContext();
 	bool setupffmpegContextOptions(int height, int width, int fps);
@@ -20,5 +21,8 @@ private:
 	const AVCodec* codec;
 	AVCodecContext* context;
 	int bytesPerPixel;
+	int width;
+	int height;
+	int fps;
 };
 

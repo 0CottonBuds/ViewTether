@@ -10,9 +10,34 @@ extern "C" {
 
 StreamCodec::StreamCodec(int height, int width, int fps)
 {
+	this->height = height;
+	this->width = width;
+	this->fps = fps;
 	setupffmpegContext();
 	setupffmpegContextOptions(height, width, fps);
 	setupBytesPerPixel();
+}
+
+void StreamCodec::run()
+{
+	//open codec
+	if (avcodec_open2(context, codec, nullptr) < 0) {
+		qDebug() << "Could not open codec";
+		exit(-1);
+	}
+	
+	// SWS context
+	SwsContext* swsContext = sws_getContext(
+	  width, height,
+	  AV_PIX_FMT_RGBA,
+	  width, height,
+	  AV_PIX_FMT_YUV420P,
+	  0, nullptr, nullptr, nullptr);
+
+	if (!swsContext){
+	  qDebug() << "Could not allocate sws context";
+	  exit(-1);
+	}
 }
 
 bool StreamCodec::setupffmpegContext()
