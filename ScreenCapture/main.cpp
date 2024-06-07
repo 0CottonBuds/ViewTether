@@ -9,6 +9,7 @@ using namespace std;
 int main(int argc, char **argv)
 {
 	StreamCodec sc(1080, 1980, 30);
+	sc.run();
 
 	return 0;
 }

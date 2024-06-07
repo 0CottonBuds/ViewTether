@@ -1,2 +1,4 @@
-﻿  main.cpp
+﻿  StreamCodec.cpp
+C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\StreamCodec.cpp(76,1): warning C4715: 'StreamCodec::setupffmpegContext': not all control paths return a value
+C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\StreamCodec.cpp(129,1): warning C4715: 'StreamCodec::setupBytesPerPixel': not all control paths return a value
   ScreenCapture.vcxproj -> C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\x64\Debug\ScreenCapture.exe

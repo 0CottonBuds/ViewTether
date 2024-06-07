@@ -29,7 +29,7 @@ void StreamCodec::run()
 	// SWS context
 	SwsContext* swsContext = sws_getContext(
 	  width, height,
-	  AV_PIX_FMT_RGBA,
+	  AV_PIX_FMT_BGRA,
 	  width, height,
 	  AV_PIX_FMT_YUV420P,
 	  0, nullptr, nullptr, nullptr);
@@ -38,11 +38,58 @@ void StreamCodec::run()
 	  qDebug() << "Could not allocate sws context";
 	  exit(-1);
 	}
+
+	//frame and packet init
+	AVPacket* packet = av_packet_alloc();
+
+	AVFrame *frame;
+	frame = av_frame_alloc();
+	if (!frame){
+	  qDebug() << "Could not allocate video frame";
+	  exit(-1);
+	}
+
+	frame->format = context->pix_fmt;
+	frame->height = context->height;
+	frame->width  = context->width;
+
+	if(av_frame_get_buffer(frame, 0) < 0){
+	  qDebug() << "Can't allocate the video frame data";
+	  exit(-1);
+	}
+
+
+	// Filling the frame
+	/// I don't know exact reason for fflush, they just do it in official encoding DOCs
+	fflush(stdout);
+
+	/// Making sure the frame data is writable
+	if (av_frame_make_writable(frame) < 0){
+	  qDebug() << "Frame data not writable";
+	  exit(-1);
+	}
+
+	/// AV_PIX_FMT_RGB24 => AV_PIX_FMT_YUV420P, fill frame data. SWS input data is just uint8_t* [0; 255] flattened image pixels. Like cv2::Mat.data.
+	/// uint8_t* data = cv2::Mat.data, or …
+	const uint8_t *inData[1] = {data};
+	int inLineSize[1] = {bytesPerPixel*context->width};
+	sws_scale(swsContext, inData, inLineSize, 0, context->height, frame->data, frame->linesize);
+
+	/// Set frame index in range: [1, fps]
+	frame->pts = 1;
+
+	/// Set frame type
+	bool isKeyFrame = false;
+	if (isKeyFrame){
+	  frame->key_frame = 1;
+	  frame->pict_type = AVPictureType::AV_PICTURE_TYPE_I;
+	}
+	qDebug() << "Finished";
 }
 
 bool StreamCodec::setupffmpegContext()
 {
-	codec = avcodec_find_encoder(AV_CODEC_ID_H265);
+	codec = avcodec_find_encoder(AV_CODEC_ID_HEVC);
 	if (!codec) {
 		qDebug() << "Codec with specified id not found";
 		return false;
