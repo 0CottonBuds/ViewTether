@@ -64,4 +64,7 @@
   <ItemGroup>
     <None Include="cpp.hint" />
   </ItemGroup>
+  <ItemGroup>
+    <Media Include="Big Buck Bunny.mp4" />
+  </ItemGroup>
 </Project>

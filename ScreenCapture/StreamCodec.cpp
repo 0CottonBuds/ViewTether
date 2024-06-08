@@ -1,6 +1,5 @@
 #include "StreamCodec.h"
 #include "qdebug.h"
-
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/opt.h>
@@ -58,32 +57,6 @@ void StreamCodec::run()
 	  exit(-1);
 	}
 
-
-	// Filling the frame
-	/// I don't know exact reason for fflush, they just do it in official encoding DOCs
-	fflush(stdout);
-
-	/// Making sure the frame data is writable
-	if (av_frame_make_writable(frame) < 0){
-	  qDebug() << "Frame data not writable";
-	  exit(-1);
-	}
-
-	/// AV_PIX_FMT_RGB24 => AV_PIX_FMT_YUV420P, fill frame data. SWS input data is just uint8_t* [0; 255] flattened image pixels. Like cv2::Mat.data.
-	/// uint8_t* data = cv2::Mat.data, or …
-	const uint8_t *inData[1] = {data};
-	int inLineSize[1] = {bytesPerPixel*context->width};
-	sws_scale(swsContext, inData, inLineSize, 0, context->height, frame->data, frame->linesize);
-
-	/// Set frame index in range: [1, fps]
-	frame->pts = 1;
-
-	/// Set frame type
-	bool isKeyFrame = false;
-	if (isKeyFrame){
-	  frame->key_frame = 1;
-	  frame->pict_type = AVPictureType::AV_PICTURE_TYPE_I;
-	}
 	qDebug() << "Finished";
 }
 

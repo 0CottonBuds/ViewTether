@@ -1,4 +1,5 @@
 #pragma once
+#include <QObject>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -7,7 +8,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-class StreamCodec
+using namespace std;
+class StreamCodec 
 {
 public:
 	StreamCodec(int height, int width, int fps);
