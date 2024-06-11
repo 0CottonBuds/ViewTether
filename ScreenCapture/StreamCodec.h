@@ -1,5 +1,6 @@
 #pragma once
 #include <QObject>
+#include "Windows.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -8,18 +9,16 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
-using namespace std;
-class StreamCodec 
+class StreamCodec : public QObject 
 {
+	Q_OBJECT
 public:
 	StreamCodec(int height, int width, int fps);
-	void run();
- 
-private:
-	bool setupffmpegContext();
-	bool setupffmpegContextOptions(int height, int width, int fps);
-	bool setupBytesPerPixel();
 
+public slots:
+	void encodeFrame(std::shared_ptr<UCHAR> pData);
+
+private:
 	const AVCodec* codec;
 	AVCodecContext* context;
 	int bytesPerPixel;

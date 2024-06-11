@@ -21,9 +21,6 @@
     <ClCompile Include="ScreenDupliactor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="App.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -33,15 +30,15 @@
     <ClCompile Include="StreamCodec.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui_MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIdeoWidget.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="StreamCodec.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -58,6 +55,12 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="DisplayStreamServer.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="StreamCodec.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Test.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

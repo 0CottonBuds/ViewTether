@@ -182,13 +182,23 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="DisplayStreamServer.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="main.cpp">
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(Filename).moc</QtMocFileName>
+      <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Release|x64'">input</DynamicSource>
+      <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(Filename).moc</QtMocFileName>
+    </ClCompile>
     <ClCompile Include="ScreenDupliactor.cpp" />
     <ClCompile Include="StreamCodec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="DisplayStreamServer.h" />
-    <ClInclude Include="StreamCodec.h" />
+    <QtMoc Include="StreamCodec.h" />
+    <QtMoc Include="Test.h" />
     <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />
     <QtMoc Include="ScreenDupliactor.h" />
