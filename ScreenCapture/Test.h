@@ -1,8 +1,8 @@
 #pragma once
-#include <QObject>
-#include <qapplication.h>
 #include <StreamCodec.h>
 #include <ScreenDupliactor.h>
+#include <qapplication.h>
+#include <QObject>
 
 
 class Test: public QObject{
