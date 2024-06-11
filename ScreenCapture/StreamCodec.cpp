@@ -56,6 +56,15 @@ void StreamCodec::initializeCodec()
 	}
 }
 
+void StreamCodec::initializeSWS()
+{
+	swsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, NULL, NULL, NULL);
+	if (!swsContext) {
+		qDebug() << "Could not allocate SWS Context";
+		exit(1);
+	}
+}
+
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
 	AVFrame* frame = av_frame_alloc();

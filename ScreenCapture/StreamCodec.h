@@ -18,6 +18,7 @@ class StreamCodec : public QObject
 public:
 	StreamCodec(int height, int width, int fps);
 	void initializeCodec();
+	void initializeSWS();
 
 public slots:
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
@@ -25,6 +26,7 @@ public slots:
 private:
 	const AVCodec* codec;
 	AVCodecContext* context;
+	SwsContext *swsContext;
 	int bytesPerPixel;
 	int width;
 	int height;
