@@ -6,6 +6,7 @@ StreamCodec::StreamCodec(int height, int width, int fps)
 	this->width = width;
 	this->fps = fps;
 	initializeCodec();
+	initializeSWS();
 }
 
 void StreamCodec::initializeCodec()
@@ -55,7 +56,6 @@ void StreamCodec::initializeCodec()
 		exit(1);
 	}
 }
-
 void StreamCodec::initializeSWS()
 {
 	swsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, NULL, NULL, NULL);
@@ -66,6 +66,47 @@ void StreamCodec::initializeSWS()
 }
 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
+{
+	int err;
+	AVFrame* frame = allocateFrame(pData);
+	frame = formatFrame(frame);
+	AVPacket* packet = allocatepacket(frame);
+
+	err = avcodec_send_frame(context, frame);
+	if (err < 0) {
+		qDebug() << "Error sending frame to codec";
+		av_frame_free(&frame);
+		av_packet_free(&packet);
+		exit(1);
+	}
+	
+	err = avcodec_receive_packet(context, packet);
+	if (err < 0) {
+		qDebug() << "Error recieving to codec";
+		av_frame_free(&frame);
+		av_packet_free(&packet);
+		exit(1);
+	}
+
+	emit encodeFinish(packet);
+
+	av_frame_free(&frame);
+	av_packet_free(&packet);
+	qDebug() << "Finished encoding frame";
+}
+
+AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
+{
+	AVPacket* packet = av_packet_alloc();
+	if (!packet) {
+		qDebug() << "Could not allocate memory for packet";
+		av_frame_free(&frame);
+
+	}
+	return packet;
+}
+
+AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 {
 	AVFrame* frame = av_frame_alloc();
 	if (!frame) {
@@ -90,8 +131,40 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	frame->data[0] = pData.get();
 	frame->linesize[0] = width * 4;
 
+	return frame;
+}
+
+AVFrame* StreamCodec::formatFrame(AVFrame* frame)
+{
+	AVFrame* yuvFrame = av_frame_alloc();
+	if (!yuvFrame) {
+		qDebug() << "Unable to allocate memory for yuv frame";
+		av_frame_free(&frame);
+		exit(1);
+	}
+
+	yuvFrame->format = context->pix_fmt;
+	yuvFrame->width = width;
+	yuvFrame->height = height;
+
+	if (av_frame_get_buffer(yuvFrame, 0) < 0) {
+		qDebug() << "Failed to get frame buffer";
+		exit(1);
+	}
+
+	if (av_frame_make_writable(yuvFrame) < 0) {
+		qDebug() << "Failed to make frame writable";
+		exit(1);
+	}
+
+	int err = sws_scale(swsContext, (const uint8_t* const*)frame->data, frame->linesize, 0, height, (uint8_t* const*)yuvFrame->data, yuvFrame->linesize);
+	if (err < 0) {
+		qDebug() << "Could not format frame to yuv420p";
+		exit(1);
+	}
+
 	av_frame_free(&frame);
-	qDebug() << "Finished allocating frame";
+	return yuvFrame;
 }
 
 

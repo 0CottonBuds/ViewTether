@@ -33,19 +33,6 @@
           "SelectedChildIndex": 6,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "main.cpp",
-              "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
-              "RelativeDocumentMoniker": "ScreenCapture\\main.cpp",
-              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
-              "RelativeToolTip": "ScreenCapture\\main.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAEAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-06T13:11:30.652Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Bookmark",
               "Name": "ST:4:0:{dcc4ea97-1c0c-482b-b205-e541c0df9728}"
             },
@@ -59,6 +46,18 @@
             },
             {
               "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "main.cpp",
+              "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
+              "RelativeDocumentMoniker": "ScreenCapture\\main.cpp",
+              "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\main.cpp",
+              "RelativeToolTip": "ScreenCapture\\main.cpp",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAEAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2024-06-06T13:11:30.652Z"
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 4,
               "Title": "App.cpp",
               "DocumentMoniker": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\App.cpp",
@@ -67,8 +66,7 @@
               "RelativeToolTip": "ScreenCapture\\App.cpp",
               "ViewState": "AQIAAA8AAAAAAAAAAAAAACYAAAAYAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2024-06-11T14:44:46.196Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-06-11T14:44:46.196Z"
             },
             {
               "$type": "Document",
@@ -80,8 +78,7 @@
               "RelativeToolTip": "ScreenCapture\\Test.h",
               "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2024-06-11T14:37:32.023Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-06-11T14:37:32.023Z"
             },
             {
               "$type": "Document",
@@ -91,7 +88,7 @@
               "RelativeDocumentMoniker": "ScreenCapture\\StreamCodec.cpp",
               "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\StreamCodec.cpp",
               "RelativeToolTip": "ScreenCapture\\StreamCodec.cpp",
-              "ViewState": "AQIAACAAAAAAAAAAAAAnwEAAAAABAAAA",
+              "ViewState": "AQIAACcAAAAAAAAAAAAAAEMAAAAsAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-06-06T13:10:03.819Z",
               "EditorCaption": ""
@@ -104,7 +101,7 @@
               "RelativeDocumentMoniker": "ScreenCapture\\StreamCodec.h",
               "ToolTip": "C:\\Users\\Cotton-Orion\\Documents\\Projects\\Cpp Projects\\Screen-Capture\\ScreenCapture\\StreamCodec.h",
               "RelativeToolTip": "ScreenCapture\\StreamCodec.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAANAAAA",
+              "ViewState": "AQIAAAYAAAAAAAAAAAAAABsAAAAVAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-06-06T13:09:12.487Z",
               "EditorCaption": ""
