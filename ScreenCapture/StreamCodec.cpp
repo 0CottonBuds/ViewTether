@@ -11,7 +11,7 @@ StreamCodec::StreamCodec(int height, int width, int fps)
 
 void StreamCodec::initializeCodec()
 {
-	codec = avcodec_find_encoder(AV_CODEC_ID_HEVC);
+	codec = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!codec) {
 		qDebug() << "Codec not found";
 		exit(1);
@@ -32,8 +32,6 @@ void StreamCodec::initializeCodec()
 	context->framerate.den = 1;
 	context->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	context->max_b_frames = 3;
-	context->refs = 3;
 
 	av_opt_set(context->priv_data, "preset", "ultrafast", 0);
 	av_opt_set(context->priv_data, "crf", "35", 0);
@@ -67,22 +65,28 @@ void StreamCodec::initializeSWS()
 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
-	int err;
-	AVFrame* frame = allocateFrame(pData);
-	frame = formatFrame(frame);
-	AVPacket* packet = allocatepacket(frame);
+	int err = 0;
+	av_log_set_level(AV_LOG_DEBUG);
+	AVFrame* frame1 = allocateFrame(pData);
+	AVFrame* frame = formatFrame(frame1);
 
 	err = avcodec_send_frame(context, frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";
+		char* errStr = new char;
+		av_make_error_string(errStr, 255, err);
+		qDebug() << errStr;
 		av_frame_free(&frame);
-		av_packet_free(&packet);
 		exit(1);
 	}
-	
+
+	AVPacket* packet = allocatepacket(frame);
 	err = avcodec_receive_packet(context, packet);
 	if (err < 0) {
 		qDebug() << "Error recieving to codec";
+		char* errStr = new char;
+		av_make_error_string(errStr, 255, err);
+		qDebug() << errStr;
 		av_frame_free(&frame);
 		av_packet_free(&packet);
 		exit(1);
@@ -117,6 +121,7 @@ AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 	frame->format = AV_PIX_FMT_BGRA;
 	frame->width = width;
 	frame->height = height;
+	frame->pts = 0;
 
 	if (av_frame_get_buffer(frame, 0) < 0) {
 		qDebug() << "Failed to get frame buffer";
@@ -146,7 +151,10 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 	yuvFrame->format = context->pix_fmt;
 	yuvFrame->width = width;
 	yuvFrame->height = height;
-
+	yuvFrame->pts = 0;
+	yuvFrame->flags += AV_FRAME_FLAG_KEY;
+	yuvFrame->pict_type = AV_PICTURE_TYPE_I;
+	
 	if (av_frame_get_buffer(yuvFrame, 0) < 0) {
 		qDebug() << "Failed to get frame buffer";
 		exit(1);
@@ -163,7 +171,6 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 		exit(1);
 	}
 
-	av_frame_free(&frame);
 	return yuvFrame;
 }
 
