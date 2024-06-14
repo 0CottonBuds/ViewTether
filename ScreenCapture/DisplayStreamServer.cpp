@@ -60,13 +60,13 @@ void DisplayStreamServer::newConnection()
     connect(client, &QTcpSocket::disconnected, this, &DisplayStreamServer::disconnected);
 }
 
-void DisplayStreamServer::sendDataToClient(shared_ptr<UCHAR> pData) {
+void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
     if (client == nullptr) {
         qDebug() << "There is no client connected";
 		return;
     }
 
-	client->write((char*) pData.get());
+	client->write((char*) packet);
 	client->waitForBytesWritten();
 }
 

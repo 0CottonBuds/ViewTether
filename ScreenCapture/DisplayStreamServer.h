@@ -6,6 +6,11 @@
 #include <QTimer>
 #include <Windows.h>
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+}
+
 using namespace std;
 
 class DisplayStreamServer : public QObject {
@@ -19,7 +24,7 @@ public:
 public slots:
 	void newConnection();
 	void readWhenReady();
-	void sendDataToClient(shared_ptr<UCHAR> pData);
+	void sendDataToClient(AVPacket* packet);
 
 signals:
 	void connected();

@@ -32,7 +32,8 @@ void StreamCodec::initializeCodec()
 	context->framerate.den = 1;
 	context->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	context->max_b_frames = 0;
+	context->gop_size = 10;
+
 
 
 	av_opt_set(context->priv_data, "preset", "ultrafast", 0);
@@ -67,11 +68,11 @@ void StreamCodec::initializeSWS()
 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
+	fflush(stdout);
 	int err = 0;
 	av_log_set_level(AV_LOG_DEBUG);
 	AVFrame* frame1 = allocateFrame(pData);
 	AVFrame* frame = formatFrame(frame1);
-	AVPacket* packet = allocatepacket(frame);
 
 	err = avcodec_send_frame(context, frame);
 	if (err < 0) {
@@ -83,23 +84,32 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 		exit(1);
 	}
 
-	err = avcodec_send_frame(context, NULL);
-	err = avcodec_receive_packet(context, packet);
-	if (err < 0) {
-		qDebug() << "Error recieving to codec";
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
-		av_frame_free(&frame);
+	//err = avcodec_send_frame(context, NULL);
+	while (true) {
+		AVPacket* packet = allocatepacket(frame);
+		err = avcodec_receive_packet(context, packet);
+		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
+			av_packet_unref(packet);
+			av_packet_free(&packet);
+			break;
+		}
+		if (err < 0) {
+			qDebug() << "Error recieving to codec";
+			char* errStr = new char;
+			av_make_error_string(errStr, 255, err);
+			qDebug() << errStr;
+			av_frame_free(&frame);
+			av_frame_free(&frame1);
+			av_packet_free(&packet);
+			exit(1);
+		}
+		emit encodeFinish(packet);
+		av_packet_unref(packet);
 		av_packet_free(&packet);
-		exit(1);
 	}
-	
-
-	emit encodeFinish(packet);
 
 	av_frame_free(&frame);
-	av_packet_free(&packet);
+	av_frame_free(&frame1);
 	qDebug() << "Finished encoding frame";
 }
 
@@ -109,7 +119,7 @@ AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
 	if (!packet) {
 		qDebug() << "Could not allocate memory for packet";
 		av_frame_free(&frame);
-
+		exit(1);
 	}
 	return packet;
 }

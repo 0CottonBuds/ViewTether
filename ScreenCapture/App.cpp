@@ -35,17 +35,21 @@ App::App(int argc, char **argv)
 	//Threads for sreenduplicator and displaystreamserver
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
+	streamCodec->moveToThread(&screenDuplicatorThread);
+	connect(&screenDuplicatorThread, &QThread::finished, streamCodec, &QObject::deleteLater);
 	screenDuplicatorThread.start();
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
 	displayStreamServerThread.start();
 
-	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 
-	// other connects
+	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamCodec, &StreamCodec::encodeFrame);
+	connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+
+	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
+
 	connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
 	connect(mainWidget->comboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
 

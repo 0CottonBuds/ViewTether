@@ -16,6 +16,8 @@ public:
 		QApplication app(argc, argv);
 		connect(screenDuplicator, &ScreenDuplicator::frameReady, streamCodec, &StreamCodec::encodeFrame);
 		screenDuplicator->getFrame();
+		screenDuplicator->getFrame();
+		screenDuplicator->getFrame();
 		app.exec();
 	}
 

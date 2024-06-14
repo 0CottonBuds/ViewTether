@@ -8,6 +8,7 @@
 #include "VIdeoWidget.h"
 #include "ScreenDupliactor.h"
 #include "DisplayStreamServer.h"
+#include "StreamCodec.h"
 
 class App : public QObject {
 	Q_OBJECT;
@@ -26,6 +27,8 @@ private:
 	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker;
+
+	StreamCodec* streamCodec = new StreamCodec(1920, 1080, 60);
 
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;
