@@ -1,10 +1,9 @@
 #include "App.h"
-#include "Test.h"
+
 
 using namespace std;
-int main(int argc, char **argv)
-{
-	Test t = Test(argc, argv);
+int main(int argc, char** argv){
+	App app(argc, argv);
 	return 0;
 }
 
