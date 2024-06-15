@@ -7,7 +7,7 @@
 #include <QLayout>
 #include <QTimer>
 
-App::App(int argc, char **argv)
+App::App(int argc, char** argv)
 {
 	mainWidget = new Ui::MainWidget();
 	QApplication app(argc, argv);
@@ -16,37 +16,37 @@ App::App(int argc, char **argv)
 
 	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
-	
+
 	displayStreamServerWorker = new DisplayStreamServer();
 	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
 	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
 
 	previewTimer = new QTimer();
-	previewTimer->setInterval(1000/60);
+	previewTimer->setInterval(1000 / 60);
 	previewTimer->stop();
 
 	// preview video widget
 	videoWidget = new VideoWidget(mainWidget->previewContainer);
 	videoWidget->show();
-
-
 	layout->addWidget(videoWidget);
 
-	//Threads for sreenduplicator and displaystreamserver
+	//Threads
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
-	streamCodec->moveToThread(&screenDuplicatorThread);
-	connect(&screenDuplicatorThread, &QThread::finished, streamCodec, &QObject::deleteLater);
-	screenDuplicatorThread.start();
+
+	streamCodec->moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::finished, streamCodec, &QObject::deleteLater);
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
+
 	displayStreamServerThread.start();
+	screenDuplicatorThread.start();
 
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamCodec, &StreamCodec::encodeFrame);
-	connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	//connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
 
@@ -58,7 +58,6 @@ App::App(int argc, char **argv)
 
 	widget->show();
 	app.exec();
-
 }
 
 App::~App()
