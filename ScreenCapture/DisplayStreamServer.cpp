@@ -1,5 +1,14 @@
 #include "DisplayStreamServer.h"
 
+extern "C" {
+#include <libavcodec/avcodec.h>
+#include <libavformat/avformat.h>
+#include <libavutil/opt.h>
+#include <libavutil/imgutils.h>
+#include <libswscale/swscale.h>
+}
+
+
 DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 {
     server = new QTcpServer();
@@ -62,12 +71,14 @@ void DisplayStreamServer::newConnection()
 
 void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
     if (client == nullptr) {
-        qDebug() << "There is no client connected";
 		return;
     }
 
 	client->write((char*) packet);
 	client->waitForBytesWritten();
+
+    av_packet_unref(packet);
+    av_packet_free(&packet);
 }
 
 void DisplayStreamServer::readWhenReady() {

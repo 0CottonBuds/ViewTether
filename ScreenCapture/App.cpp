@@ -46,7 +46,7 @@ App::App(int argc, char** argv)
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamCodec, &StreamCodec::encodeFrame);
-	//connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
 

@@ -104,13 +104,10 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 			exit(1);
 		}
 		emit encodeFinish(packet);
-		av_packet_unref(packet);
-		av_packet_free(&packet);
 	}
 
 	av_frame_free(&frame);
 	av_frame_free(&frame1);
-	qDebug() << "Finished encoding frame";
 }
 
 AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
