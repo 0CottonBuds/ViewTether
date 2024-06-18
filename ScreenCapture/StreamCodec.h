@@ -39,5 +39,6 @@ private:
 	int width;
 	int height;
 	int fps;
+	int pts = 0;
 };
 

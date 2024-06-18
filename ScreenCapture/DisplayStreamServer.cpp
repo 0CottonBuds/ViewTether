@@ -74,7 +74,10 @@ void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
 		return;
     }
 
-	client->write((char*) packet);
+
+    unsigned char* data = packet->data;
+
+	client->write((char*) data);
 	client->waitForBytesWritten();
 
     av_packet_unref(packet);
