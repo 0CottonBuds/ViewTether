@@ -24,12 +24,12 @@ void StreamCodec::initializeCodec()
 	}
 
 	context->bit_rate = 400000;
-	context->width = width;
 	context->height = height;
+	context->width = width;
 	context->time_base.num = 1;
 	context->time_base.den = fps;
 	context->framerate.num = fps;
-	context->framerate.den = 1;
+    context->framerate.den = 1;
 	context->pix_fmt = AV_PIX_FMT_YUV420P;
 
 	context->gop_size = 1;
@@ -68,9 +68,7 @@ void StreamCodec::initializeSWS()
 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
-	fflush(stdout);
 	int err = 0;
-	av_log_set_level(AV_LOG_DEBUG);
 	AVFrame* frame1 = allocateFrame(pData);
 	AVFrame* frame = formatFrame(frame1);
 
@@ -87,6 +85,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	while (true) {
 		AVPacket* packet = allocatepacket(frame);
 		err = avcodec_receive_packet(context, packet);
+		fflush(stdout);
 		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
 			av_packet_unref(packet);
 			av_packet_free(&packet);
@@ -117,6 +116,9 @@ AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
 		av_frame_free(&frame);
 		exit(1);
 	}
+
+	packet->time_base.den = 1;
+	packet->time_base.num = fps;
 	return packet;
 }
 
@@ -128,7 +130,7 @@ AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 		exit(1);
 	}
 
-	frame->format = AV_PIX_FMT_YUV420P;
+	frame->format = AV_PIX_FMT_BGRA;
 	frame->width = width;
 	frame->height = height;
 	frame->pts = pts;
