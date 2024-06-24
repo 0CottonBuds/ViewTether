@@ -16,6 +16,7 @@ class ScreenDuplicator : public QObject {
 	Q_OBJECT
 public slots:
 	HRESULT getFrame();
+	HRESULT Initialize();
 
 signals:
 	void frameReady(shared_ptr<UCHAR> pPixelData);
@@ -40,7 +41,6 @@ private:
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
 
-	HRESULT Initialize();
 	HRESULT initializeFactory(); 
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();

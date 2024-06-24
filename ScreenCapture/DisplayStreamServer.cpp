@@ -11,7 +11,23 @@ extern "C" {
 
 DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
 {
-    server = new QTcpServer();
+}
+
+QString DisplayStreamServer::getServerIp()
+{
+    if (serverIp == "0.0.0.0") 
+        return "localhost (only local host)";
+    return serverIp;
+}
+
+QString DisplayStreamServer::getServerPort()
+{
+    return serverPort;
+}
+
+void DisplayStreamServer::run()
+{
+	server = new QTcpServer();
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
@@ -31,18 +47,6 @@ DisplayStreamServer::DisplayStreamServer(QObject* parent) : QObject(parent)
         qDebug() << "Server started!";
         qDebug() << serverIp;
     }
-}
-
-QString DisplayStreamServer::getServerIp()
-{
-    if (serverIp == "0.0.0.0") 
-        return "localhost (only local host)";
-    return serverIp;
-}
-
-QString DisplayStreamServer::getServerPort()
-{
-    return serverPort;
 }
 
 void DisplayStreamServer::newConnection()

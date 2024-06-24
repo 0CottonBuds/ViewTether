@@ -5,8 +5,6 @@ StreamCodec::StreamCodec(int height, int width, int fps)
 	this->height = height;
 	this->width = width;
 	this->fps = fps;
-	initializeCodec();
-	initializeSWS();
 }
 
 void StreamCodec::initializeCodec()
@@ -23,7 +21,6 @@ void StreamCodec::initializeCodec()
 		exit(1);
 	}
 
-	context->bit_rate = 400000;
 	context->height = height;
 	context->width = width;
 	context->time_base.num = 1;
@@ -32,9 +29,7 @@ void StreamCodec::initializeCodec()
     context->framerate.den = 1;
 	context->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	context->gop_size = 1;
-
-
+	context->gop_size = 0;
 
 	av_opt_set(context->priv_data, "preset", "ultrafast", 0);
 	av_opt_set(context->priv_data, "crf", "35", 0);
@@ -108,6 +103,12 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	av_frame_free(&frame1);
 }
 
+void StreamCodec::run()
+{
+	initializeCodec();
+	initializeSWS();
+}
+
 AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
 {
 	AVPacket* packet = av_packet_alloc();
@@ -116,9 +117,6 @@ AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
 		av_frame_free(&frame);
 		exit(1);
 	}
-
-	packet->time_base.den = 1;
-	packet->time_base.num = fps;
 	return packet;
 }
 
@@ -145,9 +143,7 @@ AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 		exit(1);
 	}
 
-	int numBytes = width * height * 4;
 	frame->data[0] = pData.get();
-	frame->linesize[0] = width * 4;
 
 	return frame;
 }
@@ -182,12 +178,6 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 		qDebug() << "Could not format frame to yuv420p";
 		exit(1);
 	}
-
-	yuvFrame->linesize[0] = width;
-	yuvFrame->linesize[1] = width / 2;
-	yuvFrame->linesize[2] = width / 2;
-	
-
 	return yuvFrame;
 }
 

@@ -32,12 +32,15 @@ App::App(int argc, char** argv)
 
 	//Threads
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
+	connect(&screenDuplicatorThread, &QThread::started, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 
 	streamCodec->moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::started, streamCodec, &StreamCodec::run);
 	connect(&displayStreamServerThread, &QThread::finished, streamCodec, &QObject::deleteLater);
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::started, displayStreamServerWorker, &DisplayStreamServer::run);
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
 
 	displayStreamServerThread.start();

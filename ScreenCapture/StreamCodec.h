@@ -20,6 +20,7 @@ public:
 
 public slots:
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
+	void run();
 
 signals:
 	void encodeFinish(AVPacket* packet);

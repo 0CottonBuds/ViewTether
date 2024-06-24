@@ -22,6 +22,7 @@ public:
 	QString getServerPort();
 
 public slots:
+	void run();
 	void newConnection();
 	void readWhenReady();
 	void sendDataToClient(AVPacket* packet);

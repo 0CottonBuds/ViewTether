@@ -2,7 +2,6 @@
 
 ScreenDuplicator::ScreenDuplicator()
 {
-	Initialize();
 }
 
 ScreenDuplicator::~ScreenDuplicator()
