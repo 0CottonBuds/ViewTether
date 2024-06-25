@@ -54,7 +54,7 @@ void StreamCodec::initializeCodec()
 }
 void StreamCodec::initializeSWS()
 {
-	swsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, SWS_BILINEAR, NULL, NULL, NULL);
+	swsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, NULL, NULL, NULL, NULL);
 	if (!swsContext) {
 		qDebug() << "Could not allocate SWS Context";
 		exit(1);
@@ -80,7 +80,6 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	while (true) {
 		AVPacket* packet = allocatepacket(frame);
 		err = avcodec_receive_packet(context, packet);
-		fflush(stdout);
 		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
 			av_packet_unref(packet);
 			av_packet_free(&packet);

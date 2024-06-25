@@ -78,16 +78,25 @@ void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
 		return;
     }
 
+    QByteArray serializedPacket = serializeAvPacket(packet);
 
-    unsigned char* data = new unsigned char[packet->size];
-
-    memcpy(data, packet->data, packet->size);
-
-	client->write((char*) data);
+	client->write(serializedPacket);
 	client->waitForBytesWritten();
 
     av_packet_unref(packet);
     av_packet_free(&packet);
+}
+
+QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
+{
+    QByteArray byteArray;
+    QDataStream stream(&byteArray, QIODevice::WriteOnly);
+
+    stream << static_cast<qint32>(packet->size);
+    stream.writeRawData(reinterpret_cast<const char*>(packet->data), packet->size);
+    stream << static_cast<qint32>(packet->stream_index);
+
+    return byteArray;
 }
 
 void DisplayStreamServer::readWhenReady() {

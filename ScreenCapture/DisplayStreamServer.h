@@ -26,6 +26,7 @@ public slots:
 	void newConnection();
 	void readWhenReady();
 	void sendDataToClient(AVPacket* packet);
+	QByteArray serializeAvPacket(AVPacket* packet);
 
 signals:
 	void connected();
