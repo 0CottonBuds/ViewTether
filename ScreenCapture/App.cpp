@@ -35,9 +35,9 @@ App::App(int argc, char** argv)
 	connect(&screenDuplicatorThread, &QThread::started, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 
-	streamCodec->moveToThread(&displayStreamServerThread);
-	connect(&displayStreamServerThread, &QThread::started, streamCodec, &StreamCodec::run);
-	connect(&displayStreamServerThread, &QThread::finished, streamCodec, &QObject::deleteLater);
+	streamEncoder->moveToThread(&displayStreamServerThread);
+	connect(&displayStreamServerThread, &QThread::started, streamEncoder, &StreamCodec::run);
+	connect(&displayStreamServerThread, &QThread::finished, streamEncoder, &QObject::deleteLater);
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
 	connect(&displayStreamServerThread, &QThread::started, displayStreamServerWorker, &DisplayStreamServer::run);
@@ -48,8 +48,12 @@ App::App(int argc, char** argv)
 
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 
-	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamCodec, &StreamCodec::encodeFrame);
-	connect(streamCodec, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
+	//connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+
+	StreamCodec* decodertest = new StreamCodec(1080, 1920, 60, decode);
+	decodertest->run();
+	connect(streamEncoder, &StreamCodec::encodeFinish, decodertest, &StreamCodec::decodePacket);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
 

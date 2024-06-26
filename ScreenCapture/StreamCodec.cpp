@@ -11,12 +11,13 @@ StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 // initializes the stream codec and SWS
 void StreamCodec::run()
 {
-	if (type == 0) {
+	if (type == CodecType::encode) {
 		initializeEncoder();
 		initializeEncoderSWS();
 	}
 	else {
 		initializeDecoder();
+		initializedecoderSWS();
 	}
 }
 
@@ -78,6 +79,7 @@ void StreamCodec::initializeEncoderSWS()
 }
 
 // encodes pixel data and emits encode finish when a packet is ready.
+// remember to free the frame on the reciever of packet 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
 	if (type != CodecType::encode) {
@@ -87,7 +89,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 
 	int err = 0;
 	AVFrame* frame1 = allocateFrame(pData);
-	AVFrame* frame = formatFrame(frame1);
+	AVFrame* frame = convertFrameFromRGBAtoYUV(frame1);
 
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
@@ -163,7 +165,7 @@ AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 	return frame;
 }
 
-AVFrame* StreamCodec::formatFrame(AVFrame* frame)
+AVFrame* StreamCodec::convertFrameFromRGBAtoYUV(AVFrame* frame)
 {
 	AVFrame* yuvFrame = av_frame_alloc();
 	if (!yuvFrame) {
@@ -200,7 +202,7 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 
 void StreamCodec::initializeDecoder()
 {
-	decoder = avcodec_find_encoder(AV_CODEC_ID_H264);
+	decoder = avcodec_find_decoder(AV_CODEC_ID_H264);
 	if (!decoder) {
 		qDebug() << "Codec not found";
 		exit(1);
@@ -220,11 +222,6 @@ void StreamCodec::initializeDecoder()
     decoderContext->framerate.den = 1;
 	decoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	decoderContext->gop_size = 0;
-
-	av_opt_set(decoderContext->priv_data, "preset", "ultrafast", 0);
-	av_opt_set(decoderContext->priv_data, "crf", "35", 0);
-	av_opt_set(decoderContext->priv_data, "tune", "zerolatency", 0);
 
 	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
 	if (!desc){
@@ -237,7 +234,8 @@ void StreamCodec::initializeDecoder()
 		exit(1);
 	}
 
-	int err = avcodec_open2(decoderContext, encoder, nullptr);
+	CoUninitialize();
+	int err = avcodec_open2(decoderContext, decoder, nullptr);
 	if (err < 0) {
 		qDebug() << "Could not open codec";
 		exit(1);
@@ -246,7 +244,7 @@ void StreamCodec::initializeDecoder()
 
 void StreamCodec::initializedecoderSWS()
 {
-	decoderSwsContext = sws_getContext(width, height, AV_PIX_FMT_YUV420P, width, height, AV_PIX_FMT_BGRA NULL, NULL, NULL, NULL);
+	decoderSwsContext = sws_getContext(width, height, AV_PIX_FMT_YUV420P, width, height, AV_PIX_FMT_BGRA, NULL, NULL, NULL, NULL);
 	if (!decoderSwsContext) {
 		qDebug() << "Could not allocate SWS Context";
 		exit(1);
@@ -254,6 +252,7 @@ void StreamCodec::initializedecoderSWS()
 }
 
 // decodes avpacket and emits decode finish when a frame is ready.
+// remember to free the frame on the reciever of frame
 void StreamCodec::decodePacket(AVPacket* packet)
 {
 	if (type != CodecType::decode) {
@@ -272,5 +271,67 @@ void StreamCodec::decodePacket(AVPacket* packet)
 		exit(1);
 	}
 
+	AVFrame* frame = av_frame_alloc();
+	int response = 0;
+	while (response >= 0) {
+		response = avcodec_receive_frame(decoderContext, frame);
+
+		if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
+			break;
+		}
+		else if (response < 0) {
+			qDebug() << "Error recieving frame from codec";
+			char* errStr = new char;
+			av_make_error_string(errStr, 255, err);
+			qDebug() << errStr;
+			av_packet_free(&packet);
+			av_frame_free(&frame);
+			exit(1);
+		}
+
+		AVFrame *bgraFrame = convertFrameFromYUVtoBGRA(frame);
+
+		emit decodeFinish(bgraFrame);
+
+		av_frame_unref(frame);
+		av_frame_free(&frame);
+	}
+
+	av_frame_free(&frame);
+	av_packet_free(&packet);
 }
+
+AVFrame* StreamCodec::convertFrameFromYUVtoBGRA(AVFrame* frame)
+{
+	AVFrame *bgraFrame = av_frame_alloc();
+	if (!bgraFrame) {
+		qDebug() << "Unable to allocate memory for yuv frame";
+		av_frame_free(&frame);
+		exit(1);
+	}
+
+	bgraFrame->format = AV_PIX_FMT_BGRA;
+	bgraFrame->width = width;
+	bgraFrame->height = height;
+	bgraFrame->pts = pts;
+	pts += 1;
+	
+	if (av_frame_get_buffer(bgraFrame, 0) < 0) {
+		qDebug() << "Failed to get frame buffer";
+		exit(1);
+	}
+
+	if (av_frame_make_writable(bgraFrame) < 0) {
+		qDebug() << "Failed to make frame writable";
+		exit(1);
+	}
+
+	int err = sws_scale(decoderSwsContext, (const uint8_t* const*)frame->data, frame->linesize, 0, height, (uint8_t* const*)bgraFrame->data, bgraFrame->linesize);
+	if (err < 0) {
+		qDebug() << "Could not format frame to bgra";
+		exit(1);
+	}	
+	return bgraFrame;
+}
+
 

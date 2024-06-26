@@ -9,7 +9,7 @@ class Test: public QObject{
 	Q_OBJECT
 private:
 	ScreenDuplicator* screenDuplicator = new ScreenDuplicator();
-	StreamCodec* streamCodec = new StreamCodec(1080, 1920, 60);
+	StreamCodec* streamCodec = new StreamCodec(1080, 1920, 60, encode);
 
 public:
 	Test(int argc, char **argv) {
