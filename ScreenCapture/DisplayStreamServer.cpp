@@ -75,7 +75,9 @@ void DisplayStreamServer::newConnection()
 
 void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
     if (client == nullptr) {
-		return;
+		av_packet_unref(packet);
+		av_packet_free(&packet);
+        return;
     }
 
     QByteArray serializedPacket = serializeAvPacket(packet);

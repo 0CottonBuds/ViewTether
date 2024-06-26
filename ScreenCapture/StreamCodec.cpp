@@ -9,31 +9,31 @@ StreamCodec::StreamCodec(int height, int width, int fps)
 
 void StreamCodec::initializeCodec()
 {
-	codec = avcodec_find_encoder(AV_CODEC_ID_H264);
-	if (!codec) {
+	encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
+	if (!encoder) {
 		qDebug() << "Codec not found";
 		exit(1);
 	}
 	 
-	context = avcodec_alloc_context3(codec);
-	if (!context) {
+	encoderContext = avcodec_alloc_context3(encoder);
+	if (!encoderContext) {
 		qDebug() << "Could not allocate codec context";
 		exit(1);
 	}
 
-	context->height = height;
-	context->width = width;
-	context->time_base.num = 1;
-	context->time_base.den = fps;
-	context->framerate.num = fps;
-    context->framerate.den = 1;
-	context->pix_fmt = AV_PIX_FMT_YUV420P;
+	encoderContext->height = height;
+	encoderContext->width = width;
+	encoderContext->time_base.num = 1;
+	encoderContext->time_base.den = fps;
+	encoderContext->framerate.num = fps;
+    encoderContext->framerate.den = 1;
+	encoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	context->gop_size = 0;
+	encoderContext->gop_size = 0;
 
-	av_opt_set(context->priv_data, "preset", "ultrafast", 0);
-	av_opt_set(context->priv_data, "crf", "35", 0);
-	av_opt_set(context->priv_data, "tune", "zerolatency", 0);
+	av_opt_set(encoderContext->priv_data, "preset", "ultrafast", 0);
+	av_opt_set(encoderContext->priv_data, "crf", "35", 0);
+	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 
 	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
 	if (!desc){
@@ -46,7 +46,7 @@ void StreamCodec::initializeCodec()
 		exit(1);
 	}
 
-	int err = avcodec_open2(context, codec, nullptr);
+	int err = avcodec_open2(encoderContext, encoder, nullptr);
 	if (err < 0) {
 		qDebug() << "Could not open codec";
 		exit(1);
@@ -54,8 +54,8 @@ void StreamCodec::initializeCodec()
 }
 void StreamCodec::initializeSWS()
 {
-	swsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, NULL, NULL, NULL, NULL);
-	if (!swsContext) {
+	encoderSwsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, NULL, NULL, NULL, NULL);
+	if (!encoderSwsContext) {
 		qDebug() << "Could not allocate SWS Context";
 		exit(1);
 	}
@@ -67,7 +67,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	AVFrame* frame1 = allocateFrame(pData);
 	AVFrame* frame = formatFrame(frame1);
 
-	err = avcodec_send_frame(context, frame);
+	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";
 		char* errStr = new char;
@@ -79,7 +79,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 
 	while (true) {
 		AVPacket* packet = allocatepacket(frame);
-		err = avcodec_receive_packet(context, packet);
+		err = avcodec_receive_packet(encoderContext, packet);
 		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
 			av_packet_unref(packet);
 			av_packet_free(&packet);
@@ -100,6 +100,10 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 
 	av_frame_free(&frame);
 	av_frame_free(&frame1);
+}
+
+void StreamCodec::decodePacket(AVPacket* packet)
+{
 }
 
 void StreamCodec::run()
@@ -156,7 +160,7 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 		exit(1);
 	}
 
-	yuvFrame->format = context->pix_fmt;
+	yuvFrame->format = encoderContext->pix_fmt;
 	yuvFrame->width = width;
 	yuvFrame->height = height;
 	yuvFrame->pts = pts;
@@ -172,7 +176,7 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 		exit(1);
 	}
 
-	int err = sws_scale(swsContext, (const uint8_t* const*)frame->data, frame->linesize, 0, height, (uint8_t* const*)yuvFrame->data, yuvFrame->linesize);
+	int err = sws_scale(encoderSwsContext, (const uint8_t* const*)frame->data, frame->linesize, 0, height, (uint8_t* const*)yuvFrame->data, yuvFrame->linesize);
 	if (err < 0) {
 		qDebug() << "Could not format frame to yuv420p";
 		exit(1);

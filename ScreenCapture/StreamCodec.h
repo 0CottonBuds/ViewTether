@@ -20,10 +20,12 @@ public:
 
 public slots:
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
+	void decodePacket(AVPacket* packet);
 	void run();
 
 signals:
 	void encodeFinish(AVPacket* packet);
+	void decodeFinish(AVFrame* frame);
 
 private:
 	void initializeSWS();
@@ -33,9 +35,14 @@ private:
 	AVFrame* allocateFrame(std::shared_ptr<UCHAR> pData);
 	AVFrame* formatFrame(AVFrame* frame);
 
-	const AVCodec* codec;
-	AVCodecContext* context;
-	SwsContext *swsContext;
+	const AVCodec* encoder;
+	AVCodecContext* encoderContext;
+	SwsContext *encoderSwsContext;
+
+	const AVCodec* decoder;
+	AVCodecContext* decoderContext;
+	SwsContext *decoderSwsContext;  
+	
 	int bytesPerPixel;
 	int width;
 	int height;
