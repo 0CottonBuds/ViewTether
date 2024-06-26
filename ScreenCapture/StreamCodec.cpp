@@ -263,6 +263,14 @@ void StreamCodec::decodePacket(AVPacket* packet)
 	int err = 0;
 
 	err = avcodec_send_packet(decoderContext, packet);
+	if (err < 0) {
+		qDebug() << "Error sending packet to codec";
+		char* errStr = new char;
+		av_make_error_string(errStr, 255, err);
+		qDebug() << errStr;
+		av_packet_free(&packet);
+		exit(1);
+	}
 
 }
 
