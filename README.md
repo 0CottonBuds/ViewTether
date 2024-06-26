@@ -1,3 +1,6 @@
+# In development
+This project is currently in development and is not working
+
 # Screen-Capture
 Screen capture software using DXGI API 
 
