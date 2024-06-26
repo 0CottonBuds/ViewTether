@@ -12,11 +12,20 @@ extern "C" {
 
 #pragma comment(lib, "strmiids.lib")
 
+enum CodecType {
+	encode,
+	decode
+};
+
+// class for encoding and decoding data on screen capture app.
+// use encode frame to encode pixel data
+// use decode frame to decode avpacket
+// stream codec has 2 types 0 for encoding 1 for decoding
 class StreamCodec : public QObject 
 {
 	Q_OBJECT
 public:
-	StreamCodec(int height, int width, int fps);
+	StreamCodec(int height, int width, int fps, CodecType type);
 
 public slots:
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
@@ -28,8 +37,10 @@ signals:
 	void decodeFinish(AVFrame* frame);
 
 private:
-	void initializeSWS();
-	void initializeCodec();
+	void initializeEncoder();
+	void initializeEncoderSWS();
+	void initializeDecoder();
+	void initializedecoderSWS();
 
 	AVPacket* allocatepacket(AVFrame* frame);
 	AVFrame* allocateFrame(std::shared_ptr<UCHAR> pData);
@@ -47,6 +58,7 @@ private:
 	int width;
 	int height;
 	int fps;
+	CodecType type;
 	int pts = 0;
 };
 

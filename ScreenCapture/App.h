@@ -28,7 +28,7 @@ private:
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker;
 
-	StreamCodec* streamCodec = new StreamCodec(1080, 1920, 60);
+	StreamCodec* streamCodec = new StreamCodec(1080, 1920, 60, 0);
 
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;

@@ -1,13 +1,28 @@
 #include "StreamCodec.h"
 #include "qdebug.h"
-StreamCodec::StreamCodec(int height, int width, int fps)
+StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 {
 	this->height = height;
 	this->width = width;
 	this->fps = fps;
+	this->type = type;
 }
 
-void StreamCodec::initializeCodec()
+// initializes the stream codec and SWS
+void StreamCodec::run()
+{
+	if (type == 0) {
+		initializeEncoder();
+		initializeEncoderSWS();
+	}
+	else {
+		initializeDecoder();
+	}
+}
+
+
+
+void StreamCodec::initializeEncoder()
 {
 	encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!encoder) {
@@ -52,7 +67,8 @@ void StreamCodec::initializeCodec()
 		exit(1);
 	}
 }
-void StreamCodec::initializeSWS()
+
+void StreamCodec::initializeEncoderSWS()
 {
 	encoderSwsContext = sws_getContext(width, height, AV_PIX_FMT_BGRA, width, height, AV_PIX_FMT_YUV420P, NULL, NULL, NULL, NULL);
 	if (!encoderSwsContext) {
@@ -61,8 +77,14 @@ void StreamCodec::initializeSWS()
 	}
 }
 
+// encodes pixel data and emits encode finish when a packet is ready.
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
+	if (type != CodecType::encode) {
+		qDebug() << "Error: not on encode mode";
+		exit(1);
+	}
+
 	int err = 0;
 	AVFrame* frame1 = allocateFrame(pData);
 	AVFrame* frame = formatFrame(frame1);
@@ -100,16 +122,6 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 
 	av_frame_free(&frame);
 	av_frame_free(&frame1);
-}
-
-void StreamCodec::decodePacket(AVPacket* packet)
-{
-}
-
-void StreamCodec::run()
-{
-	initializeCodec();
-	initializeSWS();
 }
 
 AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
@@ -184,4 +196,73 @@ AVFrame* StreamCodec::formatFrame(AVFrame* frame)
 	return yuvFrame;
 }
 
+
+
+void StreamCodec::initializeDecoder()
+{
+	decoder = avcodec_find_encoder(AV_CODEC_ID_H264);
+	if (!decoder) {
+		qDebug() << "Codec not found";
+		exit(1);
+	}
+	 
+	decoderContext = avcodec_alloc_context3(decoder);
+	if (!decoderContext) {
+		qDebug() << "Could not allocate codec context";
+		exit(1);
+	}
+
+	decoderContext->height = height;
+	decoderContext->width = width;
+	decoderContext->time_base.num = 1;
+	decoderContext->time_base.den = fps;
+	decoderContext->framerate.num = fps;
+    decoderContext->framerate.den = 1;
+	decoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
+
+	decoderContext->gop_size = 0;
+
+	av_opt_set(decoderContext->priv_data, "preset", "ultrafast", 0);
+	av_opt_set(decoderContext->priv_data, "crf", "35", 0);
+	av_opt_set(decoderContext->priv_data, "tune", "zerolatency", 0);
+
+	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
+	if (!desc){
+		qDebug() << "Can't get descriptor for pixel format";
+		exit(1);
+	}
+	bytesPerPixel = av_get_bits_per_pixel(desc) / 8;
+	if(av_get_bits_per_pixel(desc) % 8 != 0){
+		qDebug() << "Unhandled bits per pixel, bad in pix fmt";
+		exit(1);
+	}
+
+	int err = avcodec_open2(decoderContext, encoder, nullptr);
+	if (err < 0) {
+		qDebug() << "Could not open codec";
+		exit(1);
+	}
+}
+
+void StreamCodec::initializedecoderSWS()
+{
+	decoderSwsContext = sws_getContext(width, height, AV_PIX_FMT_YUV420P, width, height, AV_PIX_FMT_BGRA NULL, NULL, NULL, NULL);
+	if (!decoderSwsContext) {
+		qDebug() << "Could not allocate SWS Context";
+		exit(1);
+	}
+}
+
+// decodes avpacket and emits decode finish when a frame is ready.
+void StreamCodec::decodePacket(AVPacket* packet)
+{
+	if (type != CodecType::decode) {
+		qDebug() << "Error: Not on decode mode";
+		exit(1);
+	}
+	int err = 0;
+
+	err = avcodec_send_packet(decoderContext, packet);
+
+}
 
