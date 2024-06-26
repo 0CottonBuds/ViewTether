@@ -1,5 +1,7 @@
 #include "StreamCodec.h"
 #include "qdebug.h"
+
+
 StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 {
 	this->height = height;
@@ -8,7 +10,7 @@ StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 	this->type = type;
 }
 
-// initializes the stream codec and SWS
+
 void StreamCodec::run()
 {
 	if (type == CodecType::encode) {
@@ -78,8 +80,6 @@ void StreamCodec::initializeEncoderSWS()
 	}
 }
 
-// encodes pixel data and emits encode finish when a packet is ready.
-// remember to free the frame on the reciever of packet 
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
 	if (type != CodecType::encode) {
@@ -251,8 +251,6 @@ void StreamCodec::initializedecoderSWS()
 	}
 }
 
-// decodes avpacket and emits decode finish when a frame is ready.
-// remember to free the frame on the reciever of frame
 void StreamCodec::decodePacket(AVPacket* packet)
 {
 	if (type != CodecType::decode) {

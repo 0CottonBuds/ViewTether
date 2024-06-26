@@ -28,8 +28,16 @@ public:
 	StreamCodec(int height, int width, int fps, CodecType type);
 
 public slots:
+	
+	// encodes pixel data and emits encode finish when a packet is ready.
+	// remember to free the frame on the reciever of packet 
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
+
+	// decodes avpacket and emits decode finish when a frame is ready.
+	// remember to free the frame on the reciever of frame
 	void decodePacket(AVPacket* packet);
+
+	// initializes the stream codec and SWS
 	void run();
 
 signals:
