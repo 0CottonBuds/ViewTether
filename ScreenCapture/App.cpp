@@ -49,11 +49,7 @@ App::App(int argc, char** argv)
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	//connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
-
-	StreamCodec* decodertest = new StreamCodec(1080, 1920, 60, decode);
-	decodertest->run();
-	connect(streamEncoder, &StreamCodec::encodeFinish, decodertest, &StreamCodec::decodePacket);
+	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
 

@@ -94,6 +94,7 @@ QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
     QByteArray byteArray;
     QDataStream stream(&byteArray, QIODevice::WriteOnly);
 
+    stream << "pkt";
     stream << static_cast<qint32>(packet->size);
     stream.writeRawData(reinterpret_cast<const char*>(packet->data), packet->size);
     stream << static_cast<qint32>(packet->stream_index);
