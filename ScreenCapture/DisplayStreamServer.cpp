@@ -51,23 +51,25 @@ void DisplayStreamServer::run()
 
 void DisplayStreamServer::newConnection()
 {
+    QByteArray msg;
+    QDataStream msgStream(&msg, QIODevice::WriteOnly);
+
     // if there is a client connected
     if (client != nullptr) {
+        msgStream << QString("msg").toUtf8();
+        msgStream << QString("Sorry there is currently a connected client to the server");
+
 		QTcpSocket* socket = server->nextPendingConnection();
-        socket->write("Sorry there is currently a connected client to the server!");
+        socket->write(msg);
         socket->waitForBytesWritten();
         socket->disconnectFromHost();
         return;
     }
 
-    client = server->nextPendingConnection();
-
-    QByteArray msg;
-    QDataStream msgStream(&msg, QIODevice::WriteOnly);
-
     msgStream << QString("msg").toUtf8();
     msgStream << QString("Connected to Screen Capture Server").toUtf8();
 
+    client = server->nextPendingConnection();
     client->write(msg);
 
     connect(client, SIGNAL(readyRead()), this, SLOT(readWhenReady()));
@@ -99,7 +101,7 @@ QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
     QByteArray byteArray;
     QDataStream stream(&byteArray, QIODevice::WriteOnly);
 
-    stream << QString("pkt").toUtf8;
+    stream << QString("pkt").toUtf8();
     stream << static_cast<qint32>(packet->size);
     stream.writeRawData(reinterpret_cast<const char*>(packet->data), packet->size);
 
