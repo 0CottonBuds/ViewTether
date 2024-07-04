@@ -62,8 +62,13 @@ void DisplayStreamServer::newConnection()
 
     client = server->nextPendingConnection();
 
-    client->write("Hello client\r\n");
-    client->write("You are now connected to Screen Capture server\r\n");
+    QByteArray msg;
+    QDataStream msgStream(&msg, QIODevice::WriteOnly);
+
+    msgStream << QString("msg").toUtf8();
+    msgStream << QString("Connected to Screen Capture Server").toUtf8();
+
+    client->write(msg);
 
     connect(client, SIGNAL(readyRead()), this, SLOT(readWhenReady()));
 
@@ -94,7 +99,7 @@ QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
     QByteArray byteArray;
     QDataStream stream(&byteArray, QIODevice::WriteOnly);
 
-    stream << "pkt";
+    stream << QString("pkt").toUtf8;
     stream << static_cast<qint32>(packet->size);
     stream.writeRawData(reinterpret_cast<const char*>(packet->data), packet->size);
 
