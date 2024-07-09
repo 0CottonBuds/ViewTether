@@ -39,6 +39,7 @@ void StreamCodec::initializeEncoder()
 		exit(1);
 	}
 
+	encoderContext->bit_rate = 3000000;
 	encoderContext->height = height;
 	encoderContext->width = width;
 	encoderContext->time_base.num = 1;
@@ -47,10 +48,11 @@ void StreamCodec::initializeEncoder()
     encoderContext->framerate.den = 1;
 	encoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
 
-	encoderContext->gop_size = 0;
+	encoderContext->gop_size = 10;
+	encoderContext->keyint_min = 10;
 
 	av_opt_set(encoderContext->priv_data, "preset", "ultrafast", 0);
-	av_opt_set(encoderContext->priv_data, "crf", "35", 0);
+	av_opt_set(encoderContext->priv_data, "crf", "25", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 
 	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
