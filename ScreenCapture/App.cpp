@@ -104,12 +104,16 @@ void App::previewSwitch()
 			previewTimer->stop();
 			mainWidget->startButton->setText("Start Streaming");
 		}
+		mainWidget->adapterComboBox->setDisabled(false);
+		mainWidget->outputComboBox->setDisabled(false);
 		videoWidget->hide();
 	}
 	else {
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
 		videoWidget->show();
+		mainWidget->adapterComboBox->setDisabled(true);
+		mainWidget->outputComboBox->setDisabled(true);
 	}
 }
 
