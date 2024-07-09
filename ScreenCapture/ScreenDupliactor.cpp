@@ -24,11 +24,15 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initializeOutputDuplication()))
 		return hr;
+	emit finishInitialization();
 	return S_OK;
 }
 
 HRESULT ScreenDuplicator::getFrame()
 {
+	if (pOutputDuplication == nullptr)
+		return E_FAIL;
+
 	HRESULT hr;
 	IDXGIResource* pResource = nullptr;
 	ID3D11Texture2D* pDesktopTexture = nullptr;
@@ -218,10 +222,15 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeOutputDuplication()
+HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outputIndex)
 {
+	if (pOutputDuplication != nullptr) {
+		pOutputDuplication->ReleaseFrame();
+		pOutputDuplication->Release();
+	}
+	
 	HRESULT hr;
-	hr = vvOutputs[0][0]->DuplicateOutput(pDevice, &pOutputDuplication);
+	hr = vvOutputs[adapterIndex][outputIndex]->DuplicateOutput(pDevice, &pOutputDuplication);
 	if (FAILED(hr)) {
 		cerr << "Failed to initialize Output Duplication" << endl;
 		return hr;
@@ -267,3 +276,15 @@ HRESULT ScreenDuplicator::releaseMemory()
 		return E_FAIL;
 	}
 }
+
+vector<DXGI_ADAPTER_DESC1> ScreenDuplicator::getAdapters()
+{
+    return vAdapterDesc;
+}
+
+vector<vector<IDXGIOutput1*>> ScreenDuplicator::getOutputs()
+{
+    return vvOutputs;
+}
+
+

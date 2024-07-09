@@ -43,7 +43,7 @@
        <height>150</height>
       </size>
      </property>
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="startButton">
       <property name="geometry">
        <rect>
         <x>430</x>
@@ -53,7 +53,7 @@
        </rect>
       </property>
       <property name="text">
-       <string>Start Preview</string>
+       <string>Start Streaming</string>
       </property>
      </widget>
      <widget class="QLabel" name="label">
@@ -121,7 +121,7 @@
        <string>Frame Rate:</string>
       </property>
      </widget>
-     <widget class="QComboBox" name="comboBox">
+     <widget class="QComboBox" name="frameRateComboBox">
       <property name="geometry">
        <rect>
         <x>910</x>
@@ -148,6 +148,73 @@
         <string>15</string>
        </property>
       </item>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>840</x>
+        <y>50</y>
+        <width>61</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Adapter: </string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>840</x>
+        <y>80</y>
+        <width>61</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Outputs:</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="adapterComboBox">
+      <property name="geometry">
+       <rect>
+        <x>910</x>
+        <y>50</y>
+        <width>69</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <property name="currentText">
+       <string/>
+      </property>
+      <property name="placeholderText">
+       <string>NULL</string>
+      </property>
+      <property name="duplicatesEnabled">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="outputComboBox">
+      <property name="geometry">
+       <rect>
+        <x>910</x>
+        <y>80</y>
+        <width>69</width>
+        <height>22</height>
+       </rect>
+      </property>
+      <property name="editable">
+       <bool>false</bool>
+      </property>
+      <property name="placeholderText">
+       <string>NULL</string>
+      </property>
+      <property name="duplicatesEnabled">
+       <bool>true</bool>
+      </property>
      </widget>
     </widget>
    </item>

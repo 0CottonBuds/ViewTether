@@ -21,14 +21,18 @@ App::App(int argc, char** argv)
 	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
 	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
 
+	// preview timer setup
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000 / 60);
 	previewTimer->stop();
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
+	// end preview timer setup
 
-	// preview video widget
+	// preview video widget initialization
 	videoWidget = new VideoWidget(mainWidget->previewContainer);
 	videoWidget->show();
 	layout->addWidget(videoWidget);
+	// END preview video widget initialization
 
 	//Threads
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
@@ -45,19 +49,29 @@ App::App(int argc, char** argv)
 
 	displayStreamServerThread.start();
 	screenDuplicatorThread.start();
+	// END Threads
 
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
-
+	// main event loop
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
 	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
-
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, this, &App::updateFrame);
+	// end main event loop
 
-	connect(mainWidget->pushButton, SIGNAL(clicked()), this, SLOT(previewSwitch()));
-	connect(mainWidget->comboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
+	// preview switch 
+	connect(mainWidget->startButton, &QPushButton::clicked, this, &App::previewSwitch);
+	connect(mainWidget->frameRateComboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
+	// end preview switch
 
+	// connection status connects
 	connect(displayStreamServerWorker, &DisplayStreamServer::connected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Connected"); });
 	connect(displayStreamServerWorker, &DisplayStreamServer::disconnected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Not Connected"); });
+	// end connection status connects
+
+	connect(screenDuplicatorWorker, &ScreenDuplicator::finishInitialization, this, &App::initializeAdapterComboBox);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::finishInitialization, this, &App::initializeOutputComboBox);
+	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::initializeOutputComboBox);
+	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
+	connect(mainWidget->outputComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 
 	widget->show();
 	app.exec();
@@ -73,7 +87,7 @@ App::~App()
 
 void App::setFps()
 {
-	int fps = mainWidget->comboBox->currentText().toInt();
+	int fps = mainWidget->frameRateComboBox->currentText().toInt();
 	while (previewTimer->interval() != fps) {
 		previewTimer->setInterval(fps);
 	}
@@ -88,13 +102,13 @@ void App::previewSwitch()
 	if (previewTimer->isActive()) {
 		while (previewTimer->isActive()) {
 			previewTimer->stop();
-			mainWidget->pushButton->setText("Start Preview");
+			mainWidget->startButton->setText("Start Streaming");
 		}
 		videoWidget->hide();
 	}
 	else {
 		previewTimer->start();
-		mainWidget->pushButton->setText("Stop Preview");
+		mainWidget->startButton->setText("Stop Streaming");
 		videoWidget->show();
 	}
 }
@@ -103,3 +117,43 @@ void App::updateFrame(shared_ptr<QImage> img)
 {
 	videoWidget->updateImage(img.get());
 }
+
+void App::initializeAdapterComboBox()
+{
+	vector<DXGI_ADAPTER_DESC1> adapters = screenDuplicatorWorker->getAdapters();
+	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
+	for (int i = 0; i < adapters.size(); i++) {
+		DXGI_ADAPTER_DESC1 currAdapter = adapters[i];
+		wchar_t* desc = currAdapter.Description;
+		wstring wstrDesc(desc);
+		string strDesc(wstrDesc.begin(), wstrDesc.end());
+		mainWidget->adapterComboBox->addItem(strDesc.c_str());
+	}
+	mainWidget->adapterComboBox->setCurrentIndex(0);
+}
+
+void App::initializeOutputComboBox()
+{
+	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
+	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
+	vector<IDXGIOutput1*> currOutputs = outputs[adapterIndex];
+
+	mainWidget->outputComboBox->clear();
+
+	for (int i = 0; i < currOutputs.size(); i++) {
+		mainWidget->outputComboBox->addItem(to_string(i).c_str());
+	}
+	mainWidget->outputComboBox->setCurrentIndex(0);
+}
+
+void App::setScreen()
+{
+	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
+	int outputIndex = mainWidget->outputComboBox->currentIndex();
+	if (adapterIndex < 0 || outputIndex < 0) {
+		return;
+	}
+
+	screenDuplicatorWorker->initializeOutputDuplication(adapterIndex, outputIndex);
+}
+

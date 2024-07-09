@@ -21,11 +21,14 @@ public slots:
 signals:
 	void frameReady(shared_ptr<UCHAR> pPixelData);
 	void imageReady(shared_ptr<QImage> img);
+	void finishInitialization();
 
 public:
 	ScreenDuplicator();
 	~ScreenDuplicator();
-
+	vector<DXGI_ADAPTER_DESC1> getAdapters(); 	
+	vector<vector<IDXGIOutput1*>> getOutputs();
+	HRESULT initializeOutputDuplication(int adapterIndex = 0, int outputIndex = 0);
 
 private:
 
@@ -46,7 +49,6 @@ private:
 	HRESULT initializeAdapterDescription();
 	HRESULT initualizeOutputs();
 	HRESULT initializeD3D11Device();
-	HRESULT initializeOutputDuplication();
 	HRESULT releaseMemory();
 	HRESULT HR;
 };

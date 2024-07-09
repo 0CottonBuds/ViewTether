@@ -33,4 +33,8 @@ private:
 	Ui::MainWidget* mainWidget;
 	QTimer* previewTimer;
 	VideoWidget* videoWidget;
+
+	void initializeAdapterComboBox();
+	void initializeOutputComboBox();
+	void setScreen();
 };
