@@ -50,6 +50,9 @@
     <ClInclude Include="DriverHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="miscHelpers.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="MainWindow.ui">

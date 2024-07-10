@@ -19,22 +19,36 @@ public:
 	void setFps();
 
 public slots:
-	void previewSwitch();
-	void updateFrame(shared_ptr<QImage> img);
+	// switches the screen on or off
+	void streamSwitch();
+	// updates video widget
 
 private:
 	QThread screenDuplicatorThread;
 	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
-
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
 
-	Ui::MainWidget* mainWidget;
-	QTimer* previewTimer;
+	Ui_MainWidget* mainWidget;
 	VideoWidget* videoWidget;
+	QTimer* previewTimer;
 
-	void initializeAdapterComboBox();
-	void initializeOutputComboBox();
+	// sets what screen to be duplicated based on adapter and output combo boxes.
 	void setScreen();
+
+	void initializePreviewTimer(); // initializes a QTimer used for timing the fps of streaming. By default this is set to 60 fps
+	void initializeVideoWidget();
+	void initializeThreads();
+
+	// Handles event loop of..
+	// 1: getting the frame encoding and streaming.  
+	// 2: getting the image and updating video widget
+	void initializeMainEventLoop();
+
+	void initializeButtons();
+	void initializeConnectionInformation();
+	void initializeComboBoxes();
+	void populateAdapterComboBox();
+	void populateOutputComboBox();
 };

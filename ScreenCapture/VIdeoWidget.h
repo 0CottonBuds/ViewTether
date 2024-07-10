@@ -7,14 +7,15 @@ public:
     VideoWidget(QWidget *parent = nullptr) : QWidget(parent) {
     }
 
+public slots:
     void removeCurrentImage() {
         currentImage = blankImage;
         update();
     }
 
-    void updateImage(const QImage *image) {
-        currentImage = *image;
-        update(); // Schedule a repaint
+    void updateImage(std::shared_ptr<QImage> image) {
+        currentImage = *image.get();
+        update();
     }
 
 protected:
