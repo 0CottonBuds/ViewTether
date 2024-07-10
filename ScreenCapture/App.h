@@ -26,7 +26,7 @@ private:
 	QThread screenDuplicatorThread;
 	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
 	QThread displayStreamServerThread;
-	DisplayStreamServer* displayStreamServerWorker;
+	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
 
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
 

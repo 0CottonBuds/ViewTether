@@ -182,6 +182,7 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="DisplayStreamServer.cpp" />
+    <ClCompile Include="DriverHelper.cpp" />
     <ClCompile Include="main.cpp">
       <DynamicSource Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">input</DynamicSource>
       <QtMocFileName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(Filename).moc</QtMocFileName>
@@ -199,6 +200,7 @@
     <QtMoc Include="DisplayStreamServer.h" />
     <QtMoc Include="StreamCodec.h" />
     <QtMoc Include="Test.h" />
+    <ClInclude Include="DriverHelper.h" />
     <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />
     <QtMoc Include="ScreenDupliactor.h" />
@@ -209,9 +211,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
+    <None Include="usbmmidd_v2\deviceinstaller.exe" />
+    <None Include="usbmmidd_v2\deviceinstaller64.exe" />
+    <None Include="usbmmidd_v2\usbmmidd.bat" />
+    <None Include="usbmmidd_v2\usbmmidd.cat" />
+    <None Include="usbmmidd_v2\usbmmIdd.inf" />
   </ItemGroup>
   <ItemGroup>
-    <Media Include="Big Buck Bunny.mp4" />
+    <Text Include="usbmmidd_v2\idd_instructions.txt" />
+    <Text Include="usbmmidd_v2\License.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />

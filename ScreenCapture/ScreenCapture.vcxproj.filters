@@ -16,6 +16,9 @@
     <Filter Include="Forms">
       <UniqueIdentifier>{c7a413dc-e96b-4221-894c-b7eebb3d2a36}</UniqueIdentifier>
     </Filter>
+    <Filter Include="usbmmidd">
+      <UniqueIdentifier>{b2036ac7-6977-4c02-98de-63014938843e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ScreenDupliactor.cpp">
@@ -33,12 +36,18 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DriverHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ui_MainWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="VIdeoWidget.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DriverHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -65,9 +74,29 @@
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
+    <None Include="usbmmidd_v2\deviceinstaller64.exe">
+      <Filter>usbmmidd</Filter>
+    </None>
     <None Include="cpp.hint" />
+    <None Include="usbmmidd_v2\usbmmidd.bat">
+      <Filter>usbmmidd</Filter>
+    </None>
+    <None Include="usbmmidd_v2\deviceinstaller.exe">
+      <Filter>usbmmidd</Filter>
+    </None>
+    <None Include="usbmmidd_v2\usbmmidd.cat">
+      <Filter>usbmmidd</Filter>
+    </None>
+    <None Include="usbmmidd_v2\usbmmIdd.inf">
+      <Filter>usbmmidd</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Media Include="Big Buck Bunny.mp4" />
+    <Text Include="usbmmidd_v2\idd_instructions.txt">
+      <Filter>usbmmidd</Filter>
+    </Text>
+    <Text Include="usbmmidd_v2\License.txt">
+      <Filter>usbmmidd</Filter>
+    </Text>
   </ItemGroup>
 </Project>

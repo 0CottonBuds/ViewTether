@@ -17,10 +17,6 @@ App::App(int argc, char** argv)
 	// extra QT initialization
 	QHBoxLayout* layout = new QHBoxLayout(mainWidget->previewContainer);
 
-	displayStreamServerWorker = new DisplayStreamServer();
-	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
-	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
-
 	// preview timer setup
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000 / 60);
@@ -63,6 +59,8 @@ App::App(int argc, char** argv)
 	// end preview switch
 
 	// connection status connects
+	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
+	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
 	connect(displayStreamServerWorker, &DisplayStreamServer::connected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Connected"); });
 	connect(displayStreamServerWorker, &DisplayStreamServer::disconnected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Not Connected"); });
 	// end connection status connects
