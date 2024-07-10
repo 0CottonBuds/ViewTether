@@ -7,6 +7,8 @@
 #include <QLayout>
 #include <QTimer>
 
+#include "miscHelpers.h"
+
 App::App(int argc, char** argv)
 {
 	mainWidget = new Ui_MainWidget();
@@ -121,6 +123,18 @@ void App::initializeMainEventLoop()
 void App::initializeButtons()
 {
 	connect(mainWidget->startButton, &QPushButton::clicked, this, &App::streamSwitch);
+
+	connect(mainWidget->settingsButton, &QPushButton::clicked, this, [this] {mainWidget->appRouter->setCurrentWidget(mainWidget->settingsPage); });
+	connect(mainWidget->backToStreaming, &QPushButton::clicked, this, [this] {mainWidget->appRouter->setCurrentWidget(mainWidget->streamingPage); });
+
+	connect(mainWidget->aboutSettingsButton, &QPushButton::clicked, this, [this] {mainWidget->settingsRouter->setCurrentWidget(mainWidget->aboutSettings); });
+	connect(mainWidget->virtualMonitorSettingsButton, &QPushButton::clicked, this, [this] {mainWidget->settingsRouter->setCurrentWidget(mainWidget->virtualMonitorSettings); });
+
+	connect(mainWidget->githubRepoButton, &QPushButton::clicked, this, [] {openLink(L"https://github.com/0CottonBuds/Screen-Capture"); });
+	connect(mainWidget->clientGithubRepoButton, &QPushButton::clicked, this, [] {openLink(L"https://github.com/0CottonBuds/Screen-Capture-Android-Client"); });
+	connect(mainWidget->linkedinButton, &QPushButton::clicked, this, [] {openLink(L"https://www.linkedin.com/in/emil-john-llanes-187214231/"); });
+	connect(mainWidget->githubButton, &QPushButton::clicked, this, [] {openLink(L"https://github.com/0CottonBuds"); });
+	connect(mainWidget->facebookButton, &QPushButton::clicked, this, [] {openLink(L"https://www.facebook.com/0CottonBuds"); });
 }
 
 void App::initializeConnectionInformation()

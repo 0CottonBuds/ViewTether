@@ -238,7 +238,7 @@
            <bool>true</bool>
           </property>
          </widget>
-         <widget class="QPushButton" name="startButton_2">
+         <widget class="QPushButton" name="settingsButton">
           <property name="geometry">
            <rect>
             <x>560</x>

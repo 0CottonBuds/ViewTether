@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'MainWindowcHBJrw.ui'
+** Form generated from reading UI file 'MainWindowPaXscY.ui'
 **
 ** Created by: Qt User Interface Compiler version 6.7.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef MAINWINDOWCHBJRW_H
-#define MAINWINDOWCHBJRW_H
+#ifndef MAINWINDOWPAXSCY_H
+#define MAINWINDOWPAXSCY_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -42,7 +42,7 @@ public:
     QLabel *outputLabel;
     QComboBox *adapterComboBox;
     QComboBox *outputComboBox;
-    QPushButton *startButton_2;
+    QPushButton *settingsButton;
     QLabel *connected_status_label_2;
     QWidget *settingsPage;
     QHBoxLayout *horizontalLayout;
@@ -141,9 +141,9 @@ public:
         outputComboBox->setGeometry(QRect(910, 80, 69, 22));
         outputComboBox->setEditable(false);
         outputComboBox->setDuplicatesEnabled(true);
-        startButton_2 = new QPushButton(controlContainers);
-        startButton_2->setObjectName("startButton_2");
-        startButton_2->setGeometry(QRect(560, 30, 51, 61));
+        settingsButton = new QPushButton(controlContainers);
+        settingsButton->setObjectName("settingsButton");
+        settingsButton->setGeometry(QRect(560, 30, 51, 61));
         connected_status_label_2 = new QLabel(controlContainers);
         connected_status_label_2->setObjectName("connected_status_label_2");
         connected_status_label_2->setGeometry(QRect(840, 120, 141, 31));
@@ -291,7 +291,7 @@ public:
         adapterComboBox->setCurrentText(QString());
         adapterComboBox->setPlaceholderText(QCoreApplication::translate("MainWidget", "NULL", nullptr));
         outputComboBox->setPlaceholderText(QCoreApplication::translate("MainWidget", "NULL", nullptr));
-        startButton_2->setText(QCoreApplication::translate("MainWidget", "Settings", nullptr));
+        settingsButton->setText(QCoreApplication::translate("MainWidget", "Settings", nullptr));
         connected_status_label_2->setText(QCoreApplication::translate("MainWidget", "Tip: Add virtual Monitor at settings", nullptr));
         label_4->setText(QCoreApplication::translate("MainWidget", "Settings", nullptr));
         backToStreaming->setText(QCoreApplication::translate("MainWidget", "Back", nullptr));
@@ -328,4 +328,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // MAINWINDOWCHBJRW_H
+#endif // MAINWINDOWPAXSCY_H
