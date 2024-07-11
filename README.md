@@ -1,21 +1,19 @@
-# In development
-This project is currently in development and is not working
-
 # Screen-Capture
-Screen capture software using DXGI API 
 
-# Acknowledgements
-This project includes unmodified version of Amyuni USB Mobile Monitor Virtual Display. Copyright 2014-2021 Amyuni Technologies Inc. For more information visit the [official amyuni website(https://www.amyuni.com).
+Screen-Capture allows you to stream a virtual second screen from your Windows machine to another device, such as Android or desktop, effectively transforming it into a secondary display. To use this software, you'll need to download its companion [client application](https://github.com/0CottonBuds/Screen-Capture-Android-Client).
 
-# License
-Screen-Capture is under GPL v3 License. See LICENSE.md for more information
+## Acknowledgements
 
-This project includes FFmpeg, which is licensed under the GPL v3. A copy of the GPL license is included in the `FFmpeg-source` directory.
-For more information about FFmpeg and its licensing terms, please visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
+This project includes an unmodified version of Amyuni USB Mobile Monitor Virtual Display, copyrighted 2014-2021 by Amyuni Technologies Inc. For more details, please visit the [official Amyuni website](https://www.amyuni.com).
 
-The Amyuni USB Mobile Monitor Virtual Display software is licensed under terms provided by Amyuni Technologies Inc. Please refer to the accompanying license file for details.
+## License
 
-# dependencies
-this application depends on ffmpeg for compression of frames link it to the development environment
-you also need to install HEVC video extention from the windows store or other sources for HEVC
+Screen-Capture is licensed under the GPL v3 License. See LICENSE.md for details.
 
+This project also includes FFmpeg, licensed under GPL v3. A copy of the GPL license is provided in the `FFmpeg-source` directory. For more information on FFmpeg and its licensing terms, visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
+
+The Amyuni USB Mobile Monitor Virtual Display software is licensed under terms provided by Amyuni Technologies Inc. Refer to the accompanying license file for specifics.
+
+## Dependencies
+
+This application relies on FFmpeg for compressing frames. Ensure you have it linked in your development environment.
