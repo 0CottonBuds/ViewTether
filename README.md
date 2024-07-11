@@ -10,7 +10,7 @@ This project includes an unmodified version of Amyuni USB Mobile Monitor Virtual
 
 Screen-Capture is licensed under the GPL v3 License. See LICENSE.md for details.
 
-This project also includes FFmpeg, licensed under GPL v3. A copy of the GPL license is provided in the `FFmpeg-source` directory. For more information on FFmpeg and its licensing terms, visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
+This project also includes FFmpeg, licensed under GPL. A copy of the GPL license is provided in the `FFmpeg-source` directory. For more information on FFmpeg and its licensing terms, visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
 
 The Amyuni USB Mobile Monitor Virtual Display software is licensed under terms provided by Amyuni Technologies Inc. Refer to the accompanying license file for specifics.
 
