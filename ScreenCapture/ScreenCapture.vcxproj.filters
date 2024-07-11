@@ -47,9 +47,6 @@
     <ClInclude Include="VIdeoWidget.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DriverHelper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="miscHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -73,6 +70,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="Test.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="DriverHelper.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

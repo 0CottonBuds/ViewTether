@@ -200,7 +200,7 @@
     <QtMoc Include="DisplayStreamServer.h" />
     <QtMoc Include="StreamCodec.h" />
     <QtMoc Include="Test.h" />
-    <ClInclude Include="DriverHelper.h" />
+    <QtMoc Include="DriverHelper.h" />
     <ClInclude Include="miscHelpers.h" />
     <ClInclude Include="VIdeoWidget.h" />
     <QtMoc Include="App.h" />

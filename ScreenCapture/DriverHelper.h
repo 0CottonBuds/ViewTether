@@ -1,17 +1,26 @@
 #pragma once
 
-// check if amyuni USB Mobile Monitor Virtual Display driver is installed
-bool isAmyuniInstalled();
+#include <qobject.h>
 
-// install amyuni drivers
-void installAmyuni();
+class DriverHelper : public QObject{
+	Q_OBJECT
 
-// uninstall amyuni drivers
-void uninstallAmyuni();
+public:
+	// check if amyuni USB Mobile Monitor Virtual Display driver is installed
+	bool isAmyuniInstalled();
 
-// add a virtual monitor with amyuni drivers
-void addVirtualScreen();
+	// install amyuni drivers
+	void installAmyuni();
 
-// remove a virtual monitor with amyuni drivers
-void removeVirtualScreen();
+	// uninstall amyuni drivers
+	void uninstallAmyuni();
 
+	// add a virtual monitor with amyuni drivers
+	void addVirtualScreen();
+
+	// remove a virtual monitor with amyuni drivers
+	void removeVirtualScreen();
+
+signals:
+	void virtualScreenModified();
+};

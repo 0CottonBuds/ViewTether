@@ -7,7 +7,7 @@
 
 #pragma comment(lib, "SetupAPI.lib")
 
-bool isAmyuniInstalled() {
+bool DriverHelper::isAmyuniInstalled() {
     std::wstring driverName = L"USB Mobile Monitor Virtual Display";
     // Get a list of all installed devices
     HDEVINFO deviceInfoSet = SetupDiGetClassDevs(NULL, NULL, NULL, DIGCF_PRESENT | DIGCF_ALLCLASSES);
@@ -42,7 +42,7 @@ bool isAmyuniInstalled() {
     return false;
 }
 
-void installAmyuni() {
+void DriverHelper::installAmyuni() {
     try {
         system("usbmmidd_v2\\deviceinstaller64.exe install usbmmidd_v2\\usbmmidd.inf usbmmidd");
         std::cout << "successfully installed amyuni drivers";
@@ -52,7 +52,7 @@ void installAmyuni() {
     }
 }
 
-void uninstallAmyuni()
+void DriverHelper::uninstallAmyuni()
 {
     try {
         system("usbmmidd_v2\\deviceinstaller64.exe stop usbmmidd");
@@ -64,20 +64,22 @@ void uninstallAmyuni()
     }
 }
 
-void addVirtualScreen() {
+void DriverHelper::addVirtualScreen() {
 	try {
         system("usbmmidd_v2\\deviceinstaller64.exe enableidd 1");
         std::cout << "successfully added a new virtual monitor";
+        emit virtualScreenModified();
     }
     catch(...){
         std::cerr << "failed to install amyuni";
     }
 }
 
-void removeVirtualScreen() {
+void DriverHelper::removeVirtualScreen() {
 	try {
         system("usbmmidd_v2\\deviceinstaller64.exe enableidd 0");
         std::cout << "successfully removed a new virtual monitor";
+        emit virtualScreenModified();
     }
     catch(...){
         std::cerr << "failed to install amyuni";

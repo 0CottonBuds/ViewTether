@@ -11,6 +11,7 @@ ScreenDuplicator::~ScreenDuplicator()
 
 HRESULT ScreenDuplicator::Initialize()
 {
+	releaseMemory();
 	HRESULT hr;
 	if (FAILED(hr = initializeFactory()))
 		return hr;
@@ -213,6 +214,7 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 		D3D_FEATURE_LEVEL_9_2,
 		D3D_FEATURE_LEVEL_9_1,
 	};
+
 	hr = D3D11CreateDevice(vAdapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, D3DFeatureLevel, 6, D3D11_SDK_VERSION, &pDevice, &featureLevel, &pDeviceContext);
 	if (FAILED(hr)) {
 		cerr << "failed to initialize D3D device" << endl;
@@ -250,24 +252,27 @@ HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outp
 HRESULT ScreenDuplicator::releaseMemory()
 {
 	try {
-		if(pFactory != nullptr)
+		if (pFactory != nullptr) {
 			pFactory->Release();
-		if(pDevice != nullptr)
+			pFactory = nullptr;
+		}
+		if (pDevice != nullptr) {
 			pDevice->Release();
-		if(pDeviceContext != nullptr)
+			pDevice = nullptr;
+		}
+		if (pDeviceContext != nullptr) {
 			pDeviceContext->Release();
-
-		for (IDXGIAdapter1* tAdapter : vAdapters) {
-			if(tAdapter != nullptr)
-				tAdapter->Release();
+			pDeviceContext = nullptr;
+		}
+		if (pOutputDuplication != nullptr) {
+			pOutputDuplication->Release();
+			pOutputDuplication = nullptr;
 		}
 
-		for (vector<IDXGIOutput1*> tvOutputs : vvOutputs) {
-			for (IDXGIOutput1* tpOutput : tvOutputs) {
-				if(tpOutput != nullptr)
-					tpOutput->Release();
-			}
-		}
+		vvOutputs.clear();
+		vAdapterDesc.clear();
+		vAdapters.clear();
+
 		return S_OK;
 	}
 	catch(exception e) {

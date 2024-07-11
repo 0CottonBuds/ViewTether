@@ -135,6 +135,13 @@ void App::initializeButtons()
 	connect(mainWidget->linkedinButton, &QPushButton::clicked, this, [] {openLink(L"https://www.linkedin.com/in/emil-john-llanes-187214231/"); });
 	connect(mainWidget->githubButton, &QPushButton::clicked, this, [] {openLink(L"https://github.com/0CottonBuds"); });
 	connect(mainWidget->facebookButton, &QPushButton::clicked, this, [] {openLink(L"https://www.facebook.com/0CottonBuds"); });
+
+	// driver buttons
+	connect(mainWidget->amyuniInstallButton, &QPushButton::clicked, this, [this] {driverHelper->installAmyuni(); });
+	connect(mainWidget->amyuniUninstallButton, &QPushButton::clicked, this, [this] {driverHelper->uninstallAmyuni(); });
+	connect(mainWidget->amyuniAddMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->addVirtualScreen(); });
+	connect(mainWidget->AmyuniRemoveMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->removeVirtualScreen(); });
+	connect(driverHelper, &DriverHelper::virtualScreenModified, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
 }
 
 void App::initializeConnectionInformation()

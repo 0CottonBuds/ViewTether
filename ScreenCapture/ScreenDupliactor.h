@@ -44,12 +44,12 @@ private:
 	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
 	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
 
+	HRESULT HR;
 	HRESULT initializeFactory(); 
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();
 	HRESULT initualizeOutputs();
 	HRESULT initializeD3D11Device();
 	HRESULT releaseMemory();
-	HRESULT HR;
 };
 

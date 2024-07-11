@@ -9,6 +9,7 @@
 #include "ScreenDupliactor.h"
 #include "DisplayStreamServer.h"
 #include "StreamCodec.h"
+#include "DriverHelper.h"
 
 class App : public QObject {
 	Q_OBJECT;
@@ -29,6 +30,7 @@ private:
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
+	DriverHelper* driverHelper = new DriverHelper();
 
 	Ui_MainWidget* mainWidget;
 	VideoWidget* videoWidget;
