@@ -1,3 +1,5 @@
+# Screen Capture License
+                    
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -672,3 +674,10 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
+
+
+# FFmpeg License
+
+This project includes FFmpeg, which is licensed under the GPL v3. A copy of the GPL license is included in the `ffmpeg-source` directory.
+
+For more information about FFmpeg and its licensing terms, please visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
