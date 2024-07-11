@@ -5,6 +5,9 @@
 #include <vector>
 #include <QTimer>
 #include <Windows.h>
+#include <QHostInfo>
+#include <QHostAddress>
+#include <QNetworkInterface>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -31,11 +34,15 @@ public slots:
 signals:
 	void connected();
 	void disconnected();
+	void initializationFinished();
 
 private:
 	QTcpServer* server;
 	QTcpSocket* client = nullptr;
 
+	QString serverHostName;
 	QString serverIp;
 	QString serverPort = "9999";
+
+	void getHostInformation();
 };

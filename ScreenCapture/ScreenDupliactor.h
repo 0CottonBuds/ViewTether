@@ -21,7 +21,7 @@ public slots:
 signals:
 	void frameReady(shared_ptr<UCHAR> pPixelData);
 	void imageReady(shared_ptr<QImage> img);
-	void finishInitialization();
+	void initializationFinished();
 
 public:
 	ScreenDuplicator();

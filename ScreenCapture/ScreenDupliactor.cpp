@@ -25,7 +25,7 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initializeOutputDuplication()))
 		return hr;
-	emit finishInitialization();
+	emit initializationFinished();
 	return S_OK;
 }
 

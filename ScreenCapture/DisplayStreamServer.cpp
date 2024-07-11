@@ -33,20 +33,23 @@ void DisplayStreamServer::run()
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
     connect(server, SIGNAL(newConnection()), this, SIGNAL(connected()));
 
-    if(!server->listen(QHostAddress::Any, 9999))
+    if(!server->listen(QHostAddress::Any, serverPort.toInt()))
     {
-		QHostAddress serverAddr = server->serverAddress();
-        serverIp = serverAddr.toString();
+        getHostInformation();
         qDebug() << "Server could not start";
-        qDebug() << serverIp;
+		qDebug() << "Localhost name: " << serverHostName;
+		qDebug() << "IP: " << serverIp;  
+		qDebug() << "Port: " << serverPort;  
     }
     else
     {
-		QHostAddress serverAddr = server->serverAddress();
-        serverIp = serverAddr.toString();
+        getHostInformation();
         qDebug() << "Server started!";
-        qDebug() << serverIp;
-    }
+		qDebug() << "Localhost name: " << serverHostName;
+		qDebug() << "IP = " << serverIp;  
+		qDebug() << "Port: " << serverPort;  
+	}
+    emit initializationFinished();
 }
 
 void DisplayStreamServer::newConnection()
@@ -114,4 +117,14 @@ void DisplayStreamServer::readWhenReady() {
         data.append(client->readAll());
     }
     qDebug() << "Client Response: " << data;
+}
+
+void DisplayStreamServer::getHostInformation() {
+    serverHostName = QHostInfo::localHostName();
+    QList<QHostAddress> hostList = QHostInfo::fromName(serverHostName).addresses();
+    for(const QHostAddress & address: hostList) {
+        if (address.protocol() == QAbstractSocket::IPv4Protocol && address.isLoopback() == false) {
+            serverIp = address.toString();
+        }
+    }
 }

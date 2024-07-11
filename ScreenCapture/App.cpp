@@ -146,8 +146,8 @@ void App::initializeButtons()
 
 void App::initializeConnectionInformation()
 {
-	mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp());
-	mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort());
+	connect(displayStreamServerWorker, &DisplayStreamServer::initializationFinished, this, [this] {mainWidget->ip_label->setText("IP: " + displayStreamServerWorker->getServerIp()); });
+	connect(displayStreamServerWorker, &DisplayStreamServer::initializationFinished, this, [this] {mainWidget->port_label->setText("PORT: " + displayStreamServerWorker->getServerPort()); });
 	connect(displayStreamServerWorker, &DisplayStreamServer::connected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Connected"); });
 	connect(displayStreamServerWorker, &DisplayStreamServer::disconnected, this, [this] {mainWidget->connected_status_label->setText("Current Status: Not Connected"); });
 }
@@ -155,8 +155,8 @@ void App::initializeConnectionInformation()
 void App::initializeComboBoxes()
 {
 	connect(mainWidget->frameRateComboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::finishInitialization, this, &App::populateAdapterComboBox);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::finishInitialization, this, &App::populateOutputComboBox);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::populateAdapterComboBox);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::populateOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::populateOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 	connect(mainWidget->outputComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
