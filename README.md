@@ -4,7 +4,7 @@ Screen-Capture allows you to stream a virtual second screen from your Windows ma
 
 ## Acknowledgements
 
-This project includes an unmodified version of Amyuni USB Mobile Monitor Virtual Display, copyrighted 2014-2024 by Amyuni Technologies Inc. For more details, please visit the [official Amyuni website](https://www.amyuni.com).
+This project includes an unmodified version of Amyuni USB Mobile Monitor Virtual Display, copyrighted by Amyuni Technologies Inc. For more details, please visit the [official Amyuni website](https://www.amyuni.com).
 
 ## License
 
