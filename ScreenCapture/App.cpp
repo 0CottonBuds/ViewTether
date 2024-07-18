@@ -51,18 +51,20 @@ void App::setFps()
 void App::streamSwitch() 
 {
 	if (previewTimer->isActive()) {
-		while (previewTimer->isActive()) {
-			previewTimer->stop();
-			mainWidget->startButton->setText("Start Streaming");
-		}
+		screenDuplicatorWorker->isActive = false;
+		previewTimer->stop();
+		mainWidget->startButton->setText("Start Streaming");
+		//videoWidget->hide();
+
 		mainWidget->adapterComboBox->setDisabled(false);
 		mainWidget->outputComboBox->setDisabled(false);
-		videoWidget->hide();
 	}
 	else {
+		screenDuplicatorWorker->isActive = true;
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
-		videoWidget->show();
+		//videoWidget->show();
+
 		mainWidget->adapterComboBox->setDisabled(true);
 		mainWidget->outputComboBox->setDisabled(true);
 	}
@@ -84,7 +86,6 @@ void App::initializePreviewTimer()
 	previewTimer = new QTimer();
 	previewTimer->setInterval(1000 / 60);
 	previewTimer->stop();
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 }
 
 void App::initializeVideoWidget()
@@ -115,6 +116,7 @@ void App::initializeThreads()
 
 void App::initializeMainEventLoop()
 {
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, videoWidget, &VideoWidget::updateImage);
 	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);

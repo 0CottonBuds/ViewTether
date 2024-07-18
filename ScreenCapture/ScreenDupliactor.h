@@ -30,6 +30,8 @@ public:
 	vector<vector<IDXGIOutput1*>> getOutputs();
 	HRESULT initializeOutputDuplication(int adapterIndex = 0, int outputIndex = 0);
 
+	bool isActive = false;
+
 private:
 
 	IDXGIFactory2* pFactory = nullptr; 

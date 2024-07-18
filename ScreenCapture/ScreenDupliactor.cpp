@@ -31,6 +31,9 @@ HRESULT ScreenDuplicator::Initialize()
 
 HRESULT ScreenDuplicator::getFrame()
 {
+	if (!isActive)
+		return S_OK;
+
 	if (pOutputDuplication == nullptr)
 		return E_FAIL;
 
