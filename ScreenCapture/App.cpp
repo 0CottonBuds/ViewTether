@@ -54,7 +54,7 @@ void App::streamSwitch()
 		screenDuplicatorWorker->isActive = false;
 		previewTimer->stop();
 		mainWidget->startButton->setText("Start Streaming");
-		//videoWidget->hide();
+		videoWidget->hide();
 
 		mainWidget->adapterComboBox->setDisabled(false);
 		mainWidget->outputComboBox->setDisabled(false);
@@ -63,7 +63,7 @@ void App::streamSwitch()
 		screenDuplicatorWorker->isActive = true;
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
-		//videoWidget->show();
+		videoWidget->show();
 
 		mainWidget->adapterComboBox->setDisabled(true);
 		mainWidget->outputComboBox->setDisabled(true);

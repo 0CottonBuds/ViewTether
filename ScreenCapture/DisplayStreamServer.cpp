@@ -73,6 +73,7 @@ void DisplayStreamServer::newConnection()
     msgStream << QString("Connected to Screen Capture Server").toUtf8();
 
     client = server->nextPendingConnection();
+    client->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     client->write(msg);
 
     connect(client, SIGNAL(readyRead()), this, SLOT(readWhenReady()));
@@ -93,6 +94,7 @@ void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
     QByteArray serializedPacket = serializeAvPacket(packet);
 
 	client->write(serializedPacket);
+    client->flush();
 	client->waitForBytesWritten();
 
     av_packet_unref(packet);
