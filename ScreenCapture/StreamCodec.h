@@ -27,11 +27,16 @@ class StreamCodec : public QObject
 public:
 	StreamCodec(int height, int width, int fps, CodecType type);
 
+
 public slots:
 	
 	// encodes pixel data and emits encode finish when a packet is ready.
 	// remember to free the frame on the reciever of packet 
 	void encodeFrame(std::shared_ptr<UCHAR> pData);
+
+	// sometimes IDXGI output duplication dont give a new frame
+	// we send back packet if thats the case
+	void sendBackPacket();
 
 	// decodes avpacket and emits decode finish when a frame is ready.
 	// remember to free the frame on the reciever of frame
@@ -46,6 +51,8 @@ signals:
 
 private:
 	//shared
+	
+	AVPacket* backPacket;
 
 	int bytesPerPixel;
 	int width;
@@ -61,9 +68,7 @@ private:
 
 	void initializeEncoder();
 	void initializeEncoderSWS();
-	AVPacket* allocatepacket(AVFrame* frame);
 	AVFrame* allocateFrame(std::shared_ptr<UCHAR> pData);
-	AVFrame* convertFrameFromRGBAtoYUV(AVFrame* frame);
 
 	//decoder
 	const AVCodec* decoder;

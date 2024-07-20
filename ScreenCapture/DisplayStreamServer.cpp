@@ -27,29 +27,28 @@ QString DisplayStreamServer::getServerPort()
 
 void DisplayStreamServer::run()
 {
-	server = new QTcpServer();
+    server = new QTcpServer();
 
     // whenever a user connects, it will emit signal
     connect(server, SIGNAL(newConnection()), this, SLOT(newConnection()));
     connect(server, SIGNAL(newConnection()), this, SIGNAL(connected()));
 
-    if(!server->listen(QHostAddress::Any, serverPort.toInt()))
+    if (!server->listen(QHostAddress::Any, serverPort.toInt()))
     {
         getHostInformation();
         qDebug() << "Server could not start";
-		qDebug() << "Localhost name: " << serverHostName;
-		qDebug() << "IP: " << serverIp;  
-		qDebug() << "Port: " << serverPort;  
+        qDebug() << "Localhost name: " << serverHostName;
+        qDebug() << "IP: " << serverIp;
+        qDebug() << "Port: " << serverPort;
     }
     else
     {
         getHostInformation();
         qDebug() << "Server started!";
-		qDebug() << "Localhost name: " << serverHostName;
-		qDebug() << "IP = " << serverIp;  
-		qDebug() << "Port: " << serverPort;  
-	}
-    emit initializationFinished();
+        qDebug() << "Localhost name: " << serverHostName;
+        qDebug() << "IP = " << serverIp;
+        qDebug() << "Port: " << serverPort;
+    }
 }
 
 void DisplayStreamServer::newConnection()
@@ -85,8 +84,9 @@ void DisplayStreamServer::newConnection()
 }
 
 void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
-    if (client == nullptr) {
-		av_packet_unref(packet);
+
+	if (client == nullptr) {
+  		av_packet_unref(packet);
 		av_packet_free(&packet);
         return;
     }

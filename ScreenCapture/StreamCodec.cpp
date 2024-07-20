@@ -27,6 +27,8 @@ void StreamCodec::run()
 
 void StreamCodec::initializeEncoder()
 {
+	backPacket = av_packet_alloc();
+
 	encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
 	if (!encoder) {
 		qDebug() << "Codec not found";
@@ -40,6 +42,7 @@ void StreamCodec::initializeEncoder()
 	}
 
 	encoderContext->bit_rate = 3000000;
+	encoderContext->rc_buffer_size = 6000000;
 	encoderContext->height = height;
 	encoderContext->width = width;
 	encoderContext->time_base.num = 1;
@@ -48,12 +51,17 @@ void StreamCodec::initializeEncoder()
     encoderContext->framerate.den = 1;
 	encoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
 
+	
+	encoderContext->thread_count = 2;
 	encoderContext->gop_size = 10;
-	encoderContext->keyint_min = 10;
+	encoderContext->max_b_frames = 2;
+	encoderContext->keyint_min = 5;
 
 	av_opt_set(encoderContext->priv_data, "preset", "ultrafast", 0);
 	av_opt_set(encoderContext->priv_data, "crf", "25", 0);
+	//av_opt_set(encoderContext->priv_data, "rc", "cbr", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
+	av_opt_set(encoderContext->priv_data, "forced_idr", "1", 0);
 
 	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
 	if (!desc){
@@ -90,8 +98,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	}
 
 	int err = 0;
-	AVFrame* frame1 = allocateFrame(pData);
-	AVFrame* frame = convertFrameFromRGBAtoYUV(frame1);
+	AVFrame* frame = allocateFrame(pData);
 
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
@@ -104,7 +111,13 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	}
 
 	while (true) {
-		AVPacket* packet = allocatepacket(frame);
+		AVPacket* packet = av_packet_alloc();
+		if (!packet) {
+			qDebug() << "Could not allocate memory for packet";
+			av_frame_free(&frame);
+			exit(1);
+		}
+		
 		err = avcodec_receive_packet(encoderContext, packet);
 		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
 			av_packet_unref(packet);
@@ -117,62 +130,36 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 			av_make_error_string(errStr, 255, err);
 			qDebug() << errStr;
 			av_frame_free(&frame);
-			av_frame_free(&frame1);
 			av_packet_free(&packet);
 			exit(1);
 		}
+
 		emit encodeFinish(packet);
 	}
 
 	av_frame_free(&frame);
-	av_frame_free(&frame1);
 }
 
-AVPacket* StreamCodec::allocatepacket(AVFrame* frame)
+void StreamCodec::sendBackPacket()
 {
-	AVPacket* packet = av_packet_alloc();
-	if (!packet) {
-		qDebug() << "Could not allocate memory for packet";
-		av_frame_free(&frame);
-		exit(1);
+	if (backPacket->size <= 0) {
+		return;
 	}
-	return packet;
+
+	emit encodeFinish(backPacket);
 }
 
 AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 {
-	AVFrame* frame = av_frame_alloc();
-	if (!frame) {
-		qDebug() << "Could not allocate memory for frame";
-		exit(1);
-	}
+	uint8_t* data[8];
+	int linesize[8];
 
-	frame->format = AV_PIX_FMT_BGRA;
-	frame->width = width;
-	frame->height = height;
-	frame->pts = pts;
+	data[0] = pData.get();
+	linesize[0] = 7680;
 
-	if (av_frame_get_buffer(frame, 0) < 0) {
-		qDebug() << "Failed to get frame buffer";
-		exit(1);
-	}
-
-	if (av_frame_make_writable(frame) < 0) {
-		qDebug() << "Failed to make frame writable";
-		exit(1);
-	}
-
-	frame->data[0] = pData.get();
-
-	return frame;
-}
-
-AVFrame* StreamCodec::convertFrameFromRGBAtoYUV(AVFrame* frame)
-{
 	AVFrame* yuvFrame = av_frame_alloc();
 	if (!yuvFrame) {
 		qDebug() << "Unable to allocate memory for yuv frame";
-		av_frame_free(&frame);
 		exit(1);
 	}
 
@@ -180,27 +167,29 @@ AVFrame* StreamCodec::convertFrameFromRGBAtoYUV(AVFrame* frame)
 	yuvFrame->width = width;
 	yuvFrame->height = height;
 	yuvFrame->pts = pts;
+	yuvFrame->pict_type = AV_PICTURE_TYPE_I;
+
 	pts += 1;
+	
 	
 	if (av_frame_get_buffer(yuvFrame, 0) < 0) {
 		qDebug() << "Failed to get frame buffer";
 		exit(1);
 	}
-
+	
 	if (av_frame_make_writable(yuvFrame) < 0) {
 		qDebug() << "Failed to make frame writable";
 		exit(1);
 	}
 
-	int err = sws_scale(encoderSwsContext, (const uint8_t* const*)frame->data, frame->linesize, 0, height, (uint8_t* const*)yuvFrame->data, yuvFrame->linesize);
+	int err = sws_scale(encoderSwsContext, (const uint8_t* const*)data, linesize, 0, height, (uint8_t* const*)yuvFrame->data, yuvFrame->linesize);
 	if (err < 0) {
 		qDebug() << "Could not format frame to yuv420p";
 		exit(1);
 	}
+	
 	return yuvFrame;
 }
-
-
 
 void StreamCodec::initializeDecoder()
 {

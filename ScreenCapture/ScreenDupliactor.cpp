@@ -50,7 +50,7 @@ HRESULT ScreenDuplicator::getFrame()
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
 		if (FAILED(hr)) {
-			cerr << "Failed to get next frame" << endl;
+			cerr << "No available Frame" << endl;
 			return hr;
 		}
 		if (frameInfo.LastPresentTime.QuadPart == 0) {
