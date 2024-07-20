@@ -50,7 +50,8 @@ HRESULT ScreenDuplicator::getFrame()
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(500 ,&frameInfo, &pResource);
 		if (FAILED(hr)) {
-			cerr << "No available Frame" << endl;
+			cerr << "No available Frame using back frame" << endl;
+			emit frameReady(backFrame);
 			return hr;
 		}
 		if (frameInfo.LastPresentTime.QuadPart == 0) {
@@ -120,7 +121,10 @@ HRESULT ScreenDuplicator::getFrame()
 	}
 
 	shared_ptr<UCHAR> pPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
-	//out_pixelDataSize = resource.DepthPitch;
+
+	backFrame.reset();
+	backFrame = pPixelData;
+
 
 	QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
 	shared_ptr<QImage> rgbSwappedImg = shared_ptr<QImage>(new QImage(img->rgbSwapped()));

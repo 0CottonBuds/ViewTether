@@ -33,6 +33,7 @@ public:
 	bool isActive = false;
 
 private:
+	shared_ptr<UCHAR> backFrame;
 
 	IDXGIFactory2* pFactory = nullptr; 
 	DXGI_ADAPTER_DESC1 adapterDesc;
