@@ -49,7 +49,7 @@ void StreamCodec::initializeEncoder()
 	encoderContext->framerate.num = fps;
     encoderContext->framerate.den = 1;
 	encoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
-	encoderContext->max_b_frames = 0;
+	encoderContext->max_b_frames = 2;
 	encoderContext->gop_size = 20;
 
 	av_opt_set(encoderContext->priv_data, "preset", "veryfast", 0);
@@ -84,7 +84,7 @@ void StreamCodec::initializeEncoderSWS()
 	}
 }
 
-void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData, bool isIFrame)
+void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
 	if (type != CodecType::encode) {
 		qDebug() << "Error: not on encode mode";
@@ -94,9 +94,6 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData, bool isIFrame)
 	int err = 0;
 	AVFrame* frame = allocateFrame(pData);
 	
-	if (isIFrame)
-		frame->pict_type = AV_PICTURE_TYPE_SI;
-
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";

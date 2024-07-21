@@ -51,12 +51,12 @@ HRESULT ScreenDuplicator::getFrame()
 		hr = pOutputDuplication->AcquireNextFrame(0 ,&frameInfo, &pResource);
 		if (FAILED(hr)) {
 			cerr << "No available Frame using back frame" << endl;
-			emit frameReady(backFrame, true);
+			emit frameReady(backFrame);
 			return hr;
 		}
 		if (frameInfo.LastPresentTime.QuadPart == 0) {
 			cerr << "No available Frame using back frame" << endl;
-			emit frameReady(backFrame, true);
+			emit frameReady(backFrame);
 			pResource->Release();
 			hr = pOutputDuplication->ReleaseFrame();
 			continue;
@@ -132,7 +132,7 @@ HRESULT ScreenDuplicator::getFrame()
 	shared_ptr<QImage> rgbSwappedImg = shared_ptr<QImage>(new QImage(img->rgbSwapped()));
 	delete img;
 
-	emit frameReady(pPixelData, false);
+	emit frameReady(pPixelData);
 	emit imageReady(rgbSwappedImg);
 
 	return S_OK;
