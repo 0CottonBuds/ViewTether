@@ -42,7 +42,6 @@ void StreamCodec::initializeEncoder()
 	}
 
 	encoderContext->bit_rate = 3000000;
-	encoderContext->rc_buffer_size = 6000000;
 	encoderContext->height = height;
 	encoderContext->width = width;
 	encoderContext->time_base.num = 1;
@@ -50,16 +49,11 @@ void StreamCodec::initializeEncoder()
 	encoderContext->framerate.num = fps;
     encoderContext->framerate.den = 1;
 	encoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
+	encoderContext->max_b_frames = 0;
+	encoderContext->gop_size = 20;
 
-	
-	encoderContext->thread_count = 2;
-	encoderContext->gop_size = 10;
-	encoderContext->max_b_frames = 2;
-	encoderContext->keyint_min = 5;
-
-	av_opt_set(encoderContext->priv_data, "preset", "ultrafast", 0);
-	av_opt_set(encoderContext->priv_data, "crf", "25", 0);
-	//av_opt_set(encoderContext->priv_data, "rc", "cbr", 0);
+	av_opt_set(encoderContext->priv_data, "preset", "veryfast", 0);
+	av_opt_set(encoderContext->priv_data, "crf", "26", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 	av_opt_set(encoderContext->priv_data, "forced_idr", "1", 0);
 
@@ -90,7 +84,7 @@ void StreamCodec::initializeEncoderSWS()
 	}
 }
 
-void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
+void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData, bool isIFrame)
 {
 	if (type != CodecType::encode) {
 		qDebug() << "Error: not on encode mode";
@@ -99,6 +93,9 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 
 	int err = 0;
 	AVFrame* frame = allocateFrame(pData);
+	
+	if (isIFrame)
+		frame->pict_type = AV_PICTURE_TYPE_SI;
 
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
@@ -140,15 +137,6 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 	av_frame_free(&frame);
 }
 
-void StreamCodec::sendBackPacket()
-{
-	if (backPacket->size <= 0) {
-		return;
-	}
-
-	emit encodeFinish(backPacket);
-}
-
 AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 {
 	uint8_t* data[8];
@@ -167,7 +155,7 @@ AVFrame* StreamCodec::allocateFrame(std::shared_ptr<UCHAR> pData)
 	yuvFrame->width = width;
 	yuvFrame->height = height;
 	yuvFrame->pts = pts;
-	yuvFrame->pict_type = AV_PICTURE_TYPE_I;
+	//yuvFrame->pict_type = AV_PICTURE_TYPE_I;
 
 	pts += 1;
 	

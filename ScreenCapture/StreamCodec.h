@@ -32,11 +32,7 @@ public slots:
 	
 	// encodes pixel data and emits encode finish when a packet is ready.
 	// remember to free the frame on the reciever of packet 
-	void encodeFrame(std::shared_ptr<UCHAR> pData);
-
-	// sometimes IDXGI output duplication dont give a new frame
-	// we send back packet if thats the case
-	void sendBackPacket();
+	void encodeFrame(std::shared_ptr<UCHAR> pData, bool isIFrame);
 
 	// decodes avpacket and emits decode finish when a frame is ready.
 	// remember to free the frame on the reciever of frame

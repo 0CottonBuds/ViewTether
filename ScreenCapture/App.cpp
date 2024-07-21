@@ -118,7 +118,6 @@ void App::initializeMainEventLoop()
 {
 	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
 	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::sendBackPacket);
 	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, videoWidget, &VideoWidget::updateImage);
 	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 }

@@ -19,7 +19,7 @@ public slots:
 	HRESULT Initialize();
 
 signals:
-	void frameReady(shared_ptr<UCHAR> pPixelData);
+	void frameReady(shared_ptr<UCHAR> pPixelData, bool isIFrame);
 	void imageReady(shared_ptr<QImage> img);
 	void initializationFinished();
 
