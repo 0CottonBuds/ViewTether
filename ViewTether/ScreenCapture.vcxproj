@@ -22,11 +22,12 @@
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{22c6f2f4-5f34-48c7-8c82-98859ca8c0a3}</ProjectGuid>
-    <RootNamespace>ScreenCapture</RootNamespace>
+    <RootNamespace>ViewTether</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <keyword>Qt4VSv1.0</keyword>
     <Keyword>QtVS_v304</Keyword>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <ProjectName>ViewTether</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -95,15 +96,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)FFmpeg-libs\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(ProjectDir)FFmpeg-libs\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(ProjectDir)FFmpeg-libs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ExecutablePath>$(ExecutablePath)</ExecutablePath>
-    <IncludePath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\include;$(IncludePath)</IncludePath>
-    <ExternalIncludePath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\include;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)FFmpeg-libs\include;$(IncludePath)</IncludePath>
+    <ExternalIncludePath>$(ProjectDir)FFmpeg-libs\include;$(ExternalIncludePath)</ExternalIncludePath>
+    <LibraryPath>$(ProjectDir)FFmpeg-libs\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -142,14 +143,14 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)FFmpeg-libs\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\avcodec.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avdevice.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avfilter.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avformat.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\avutil.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\swresample.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\swscale.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\bcrypt.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\Mfplat.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\mfuuid.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\Secur32.Lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;$(ProjectDir)FFmpeg-libs\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectDir)\FFmpeg-libs\lib\avcodec.lib;$(ProjectDir)\FFmpeg-libs\lib\avdevice.lib;$(ProjectDir)\FFmpeg-libs\lib\avfilter.lib;$(ProjectDir)\FFmpeg-libs\lib\avformat.lib;$(ProjectDir)\FFmpeg-libs\lib\avutil.lib;$(ProjectDir)\FFmpeg-libs\lib\\swresample.lib;$(ProjectDir)\FFmpeg-libs\lib\swscale.lib;$(ProjectDir)\FFmpeg-libs\lib\bcrypt.lib;$(ProjectDir)\FFmpeg-libs\lib\Mfplat.lib;$(ProjectDir)\FFmpeg-libs\lib\mfuuid.lib;$(ProjectDir)\FFmpeg-libs\lib\\Secur32.Lib;$(ProjectDir)\FFmpeg-libs\lib\\libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
@@ -164,7 +165,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>C:\Users\Cotton-Orion\Documents\ffmpeg\installed\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)FFmpeg-libs\include;C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -172,8 +173,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\avcodec.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avdevice.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avfilter.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\\avformat.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\avutil.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\swresample.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\swscale.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\bcrypt.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\Mfplat.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\mfuuid.lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\Secur32.Lib;C:\Users\Cotton-Orion\Documents\Projects\Cpp Projects\Screen-Capture\ScreenCapture\FFmpeg-libs\installed\lib\libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;$(ProjectDir)FFmpeg-libs\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(ProjectDir)\FFmpeg-libs\lib\avcodec.lib;$(ProjectDir)\FFmpeg-libs\lib\avdevice.lib;$(ProjectDir)\FFmpeg-libs\lib\avfilter.lib;$(ProjectDir)\FFmpeg-libs\lib\avformat.lib;$(ProjectDir)\FFmpeg-libs\lib\avutil.lib;$(ProjectDir)\FFmpeg-libs\lib\\swresample.lib;$(ProjectDir)\FFmpeg-libs\lib\swscale.lib;$(ProjectDir)\FFmpeg-libs\lib\bcrypt.lib;$(ProjectDir)\FFmpeg-libs\lib\Mfplat.lib;$(ProjectDir)\FFmpeg-libs\lib\mfuuid.lib;$(ProjectDir)\FFmpeg-libs\lib\\Secur32.Lib;$(ProjectDir)\FFmpeg-libs\lib\\libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Manifest>
       <EnableDpiAwareness>false</EnableDpiAwareness>
