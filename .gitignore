@@ -1,5 +1,6 @@
 ./Screen-Capture/x64
 ./Screen-Capture/x86
+./Screen-Capture/FFmpeg-libs
 
 ./.vs
 
