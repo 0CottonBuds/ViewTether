@@ -213,7 +213,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />
-    <None Include="usbmmidd_v2\deviceinstaller.exe" />
+    <None Include="usbmmidd_v2\deviceinstaller.exe">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </None>
     <None Include="usbmmidd_v2\deviceinstaller64.exe" />
     <None Include="usbmmidd_v2\usbmmidd.bat" />
     <None Include="usbmmidd_v2\usbmmidd.cat" />
@@ -222,6 +225,23 @@
   <ItemGroup>
     <Text Include="usbmmidd_v2\idd_instructions.txt" />
     <Text Include="usbmmidd_v2\License.txt" />
+  </ItemGroup>
+  <ItemGroup>
+	  <Content Include="usbmmidd_v2\deviceinstaller64.exe">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="usbmmidd_v2\usbmmidd.bat">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="usbmmidd_v2\usbmmidd.cat">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content> 
+	  <Content Include="usbmmidd_v2\usbmmIdd.inf">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="usbmmidd_v2\License.txt" >
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
