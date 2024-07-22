@@ -4,6 +4,10 @@ ViewTether/FFmpeg-libs/
 
 .vs
 
+x64
+x86
+
+
 # Prerequisites
 *.d
 
@@ -22,7 +26,6 @@ ViewTether/FFmpeg-libs/
 *.smod
 
 # Executables
-*.exe
 *.out
 *.app
 
