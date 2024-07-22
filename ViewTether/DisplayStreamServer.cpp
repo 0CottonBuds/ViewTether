@@ -49,6 +49,7 @@ void DisplayStreamServer::run()
         qDebug() << "IP = " << serverIp;
         qDebug() << "Port: " << serverPort;
     }
+    emit initializationFinished();
 }
 
 void DisplayStreamServer::newConnection()

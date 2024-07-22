@@ -147,7 +147,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>C:\Qt\Qt5.12.12\5.12.12\msvc2017_64\lib;$(ProjectDir)FFmpeg-libs\installed\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>$(ProjectDir)\FFmpeg-libs\lib\avcodec.lib;$(ProjectDir)\FFmpeg-libs\lib\avdevice.lib;$(ProjectDir)\FFmpeg-libs\lib\avfilter.lib;$(ProjectDir)\FFmpeg-libs\lib\avformat.lib;$(ProjectDir)\FFmpeg-libs\lib\avutil.lib;$(ProjectDir)\FFmpeg-libs\lib\\swresample.lib;$(ProjectDir)\FFmpeg-libs\lib\swscale.lib;$(ProjectDir)\FFmpeg-libs\lib\bcrypt.lib;$(ProjectDir)\FFmpeg-libs\lib\Mfplat.lib;$(ProjectDir)\FFmpeg-libs\lib\mfuuid.lib;$(ProjectDir)\FFmpeg-libs\lib\\Secur32.Lib;$(ProjectDir)\FFmpeg-libs\lib\\libx264.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -169,7 +169,7 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -227,21 +227,21 @@
     <Text Include="usbmmidd_v2\License.txt" />
   </ItemGroup>
   <ItemGroup>
-	  <Content Include="usbmmidd_v2\deviceinstaller64.exe">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="usbmmidd_v2\usbmmidd.bat">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="usbmmidd_v2\usbmmidd.cat">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content> 
-	  <Content Include="usbmmidd_v2\usbmmIdd.inf">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="usbmmidd_v2\License.txt" >
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
+    <Content Include="usbmmidd_v2\deviceinstaller64.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="usbmmidd_v2\usbmmidd.bat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="usbmmidd_v2\usbmmidd.cat">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="usbmmidd_v2\usbmmIdd.inf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="usbmmidd_v2\License.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <Import Project="$(QtMsBuild)\qt.targets" Condition="Exists('$(QtMsBuild)\qt.targets')" />
