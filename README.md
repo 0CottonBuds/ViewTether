@@ -1,6 +1,6 @@
-# Screen-Capture
+# ViewTether
 
-Screen-Capture allows you to stream a virtual second screen from your Windows machine to another device, such as Android or desktop, effectively transforming it into a secondary display. To use this software, you'll need to download its companion [client application](https://github.com/0CottonBuds/Screen-Capture-Android-Client).
+ViewTether allows you to stream a virtual second screen from your Windows machine to another device, such as Android or desktop, effectively transforming it into a secondary display. To use this software, you'll need to download its companion [client application](https://github.com/0CottonBuds/ViewTether-Android-Client).
 
 ## Acknowledgements
 
@@ -8,7 +8,7 @@ This project includes an unmodified version of Amyuni USB Mobile Monitor Virtual
 
 ## License
 
-Screen-Capture is licensed under the GPL v3 License. See LICENSE.md for details.
+ViewTether is licensed under the GPL v3 License. See LICENSE.md for details.
 
 This project also includes FFmpeg, licensed under GPL. A copy of the GPL license is provided in the `FFmpeg-source` directory. For more information on FFmpeg and its licensing terms, visit the [official FFmpeg website](https://ffmpeg.org/legal.html).
 
