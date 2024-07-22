@@ -1,8 +1,8 @@
-./ScreenCapture/x64
-./ScreenCapture/x86
-./ScreenCapture/FFmpeg-libs
+ScreenCapture/x64
+ScreenCapture/x86
+ScreenCapture/FFmpeg_libs/
 
-./.vs
+.vs
 
 # Prerequisites
 *.d
