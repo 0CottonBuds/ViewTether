@@ -44,7 +44,7 @@ bool DriverHelper::isAmyuniInstalled() {
 
 void DriverHelper::installAmyuni() {
     try {
-        system("usbmmidd_v2\\deviceinstaller64.exe install usbmmidd_v2\\usbmmidd.inf usbmmidd");
+        system("\"" DEVICE_INSTALLER_64_PATH "\" install usbmmidd.inf usbmmidd");
         std::cout << "successfully installed amyuni drivers";
     }
     catch(...){
@@ -55,8 +55,8 @@ void DriverHelper::installAmyuni() {
 void DriverHelper::uninstallAmyuni()
 {
     try {
-        system("usbmmidd_v2\\deviceinstaller64.exe stop usbmmidd");
-        system("usbmmidd_v2\\deviceinstaller64.exe remove usbmmidd");
+        system("\"" DEVICE_INSTALLER_64_PATH "\" stop usbmmidd");
+        system("deviceinstaller64.exe remove usbmmidd");
         std::cout << "successfully uninstalled amyuni drivers";
     }
     catch(...){
@@ -66,7 +66,7 @@ void DriverHelper::uninstallAmyuni()
 
 void DriverHelper::addVirtualScreen() {
 	try {
-        system("usbmmidd_v2\\deviceinstaller64.exe enableidd 1");
+        system("\"" DEVICE_INSTALLER_64_PATH "\" enableidd 1");
         std::cout << "successfully added a new virtual monitor";
         emit virtualScreenModified();
     }
@@ -77,7 +77,7 @@ void DriverHelper::addVirtualScreen() {
 
 void DriverHelper::removeVirtualScreen() {
 	try {
-        system("usbmmidd_v2\\deviceinstaller64.exe enableidd 0");
+        system("\"" DEVICE_INSTALLER_64_PATH "\" enableidd 0");
         std::cout << "successfully removed a new virtual monitor";
         emit virtualScreenModified();
     }
