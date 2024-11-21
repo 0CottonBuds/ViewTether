@@ -127,13 +127,12 @@ HRESULT ScreenDuplicator::getFrame()
 	backFrame.reset();
 	backFrame = pPixelData;
 
-
-	QImage *img =  new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
-	shared_ptr<QImage> rgbSwappedImg = shared_ptr<QImage>(new QImage(img->rgbSwapped()));
-	delete img;
+	QImage* notSwappedImage = new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
+	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
+	delete notSwappedImage;
 
 	emit frameReady(pPixelData);
-	emit imageReady(rgbSwappedImg);
+	emit imageReady(image);
 
 	return S_OK;
 }

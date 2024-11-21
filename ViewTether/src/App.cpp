@@ -157,14 +157,14 @@ void App::initializeConnectionInformation()
 void App::initializeComboBoxes()
 {
 	connect(mainWidget->frameRateComboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::populateAdapterComboBox);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::populateOutputComboBox);
-	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::populateOutputComboBox);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeAdapterComboBox);
+	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeOutputComboBox);
+	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::initializeOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 	connect(mainWidget->outputComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 }
 
-void App::populateAdapterComboBox()
+void App::initializeAdapterComboBox()
 {
 	vector<DXGI_ADAPTER_DESC1> adapters = screenDuplicatorWorker->getAdapters();
 	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
@@ -178,7 +178,7 @@ void App::populateAdapterComboBox()
 	mainWidget->adapterComboBox->setCurrentIndex(0);
 }
 
-void App::populateOutputComboBox()
+void App::initializeOutputComboBox()
 {
 	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
 	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();

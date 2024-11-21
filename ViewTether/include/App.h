@@ -50,6 +50,6 @@ private:
 	void initializeButtons();
 	void initializeConnectionInformation();
 	void initializeComboBoxes();
-	void populateAdapterComboBox();
-	void populateOutputComboBox();
+	void initializeAdapterComboBox();
+	void initializeOutputComboBox();
 };
