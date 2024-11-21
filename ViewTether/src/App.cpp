@@ -7,7 +7,7 @@
 #include <QLayout>
 #include <QTimer>
 
-#include "miscHelpers.h"
+#include "Helpers/miscHelpers.h"
 
 App::App(int argc, char** argv)
 {
@@ -78,7 +78,7 @@ void App::setScreen()
 		return;
 	}
 
-	screenDuplicatorWorker->initializeOutputDuplication(adapterIndex, outputIndex);
+	screenDuplicatorWorker->changeDisplay(adapterIndex, outputIndex);
 }
 
 void App::initializePreviewTimer()
@@ -99,7 +99,7 @@ void App::initializeVideoWidget()
 void App::initializeThreads()
 {
 	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
-	connect(&screenDuplicatorThread, &QThread::started, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
+	connect(&screenDuplicatorThread, &QThread::started, screenDuplicatorWorker, &DXGIScreenDuplicator::Initialize);
 	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
 
 	streamEncoder->moveToThread(&displayStreamServerThread);
@@ -116,9 +116,9 @@ void App::initializeThreads()
 
 void App::initializeMainEventLoop()
 {
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, videoWidget, &VideoWidget::updateImage);
+	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &DXGIScreenDuplicator::getFrame);
+	connect(screenDuplicatorWorker, &DXGIScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
+	connect(screenDuplicatorWorker, &DXGIScreenDuplicator::imageReady, videoWidget, &VideoWidget::updateImage);
 	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 }
 
@@ -143,7 +143,7 @@ void App::initializeButtons()
 	connect(mainWidget->amyuniUninstallButton, &QPushButton::clicked, this, [this] {driverHelper->uninstallAmyuni(); });
 	connect(mainWidget->amyuniAddMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->addVirtualScreen(); });
 	connect(mainWidget->AmyuniRemoveMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->removeVirtualScreen(); });
-	connect(driverHelper, &DriverHelper::virtualScreenModified, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
+	connect(driverHelper, &VirtualScreenDriverHelper::virtualScreenModified, screenDuplicatorWorker, &DXGIScreenDuplicator::Initialize);
 }
 
 void App::initializeConnectionInformation()
@@ -157,8 +157,8 @@ void App::initializeConnectionInformation()
 void App::initializeComboBoxes()
 {
 	connect(mainWidget->frameRateComboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeAdapterComboBox);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeOutputComboBox);
+	connect(screenDuplicatorWorker, &DXGIScreenDuplicator::initializationFinished, this, &App::initializeAdapterComboBox);
+	connect(screenDuplicatorWorker, &DXGIScreenDuplicator::initializationFinished, this, &App::initializeOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::initializeOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 	connect(mainWidget->outputComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
@@ -167,7 +167,7 @@ void App::initializeComboBoxes()
 void App::initializeAdapterComboBox()
 {
 	vector<DXGI_ADAPTER_DESC1> adapters = screenDuplicatorWorker->getAdapters();
-	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
+	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getDisplays();
 	for (int i = 0; i < adapters.size(); i++) {
 		DXGI_ADAPTER_DESC1 currAdapter = adapters[i];
 		wchar_t* desc = currAdapter.Description;
@@ -181,7 +181,7 @@ void App::initializeAdapterComboBox()
 void App::initializeOutputComboBox()
 {
 	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
-	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
+	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getDisplays();
 	vector<IDXGIOutput1*> currOutputs = outputs[adapterIndex];
 
 	mainWidget->outputComboBox->clear();

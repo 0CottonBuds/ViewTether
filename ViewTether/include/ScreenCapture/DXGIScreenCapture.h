@@ -12,7 +12,7 @@
 #pragma comment(lib,"d3d11.lib")
 
 using namespace std;
-class ScreenDuplicator : public QObject {
+class DXGIScreenDuplicator : public QObject {
 	Q_OBJECT
 public slots:
 	HRESULT getFrame();
@@ -24,11 +24,11 @@ signals:
 	void initializationFinished();
 
 public:
-	ScreenDuplicator();
-	~ScreenDuplicator();
+	DXGIScreenDuplicator();
+	~DXGIScreenDuplicator();
 	vector<DXGI_ADAPTER_DESC1> getAdapters(); 	
-	vector<vector<IDXGIOutput1*>> getOutputs();
-	HRESULT initializeOutputDuplication(int adapterIndex = 0, int outputIndex = 0);
+	vector<vector<IDXGIOutput1*>> getDisplays();
+	HRESULT changeDisplay(int adapterIndex = 0, int displayIndex = 0);
 
 	bool isActive = false;
 

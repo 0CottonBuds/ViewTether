@@ -6,10 +6,10 @@
 
 #include "ui_MainWindow.h"
 #include "VIdeoWidget.h"
-#include "ScreenDupliactor.h"
+#include "ScreenCapture/DXGIScreenCapture.h"
 #include "DisplayStreamServer.h"
 #include "StreamCodec.h"
-#include "DriverHelper.h"
+#include "Helpers/VirtualScreenDriverHelper.h"
 
 class App : public QObject {
 	Q_OBJECT;
@@ -25,11 +25,11 @@ public slots:
 
 private:
 	QThread screenDuplicatorThread;
-	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
+	DXGIScreenDuplicator* screenDuplicatorWorker = new DXGIScreenDuplicator();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
-	DriverHelper* driverHelper = new DriverHelper();
+	VirtualScreenDriverHelper* driverHelper = new VirtualScreenDriverHelper();
 
 	Ui_MainWidget* mainWidget;
 	VideoWidget* videoWidget;

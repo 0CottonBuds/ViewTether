@@ -1,15 +1,15 @@
-#include "ScreenDupliactor.h"
+#include "ScreenCapture/DXGIScreenCapture.h"
 
-ScreenDuplicator::ScreenDuplicator()
+DXGIScreenDuplicator::DXGIScreenDuplicator()
 {
 }
 
-ScreenDuplicator::~ScreenDuplicator()
+DXGIScreenDuplicator::~DXGIScreenDuplicator()
 {
 	releaseMemory();
 }
 
-HRESULT ScreenDuplicator::Initialize()
+HRESULT DXGIScreenDuplicator::Initialize()
 {
 	releaseMemory();
 	HRESULT hr;
@@ -23,13 +23,13 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
-	if (FAILED(hr = initializeOutputDuplication()))
+	if (FAILED(hr = changeDisplay()))
 		return hr;
 	emit initializationFinished();
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getFrame()
+HRESULT DXGIScreenDuplicator::getFrame()
 {
 	if (!isActive)
 		return S_OK;
@@ -137,7 +137,7 @@ HRESULT ScreenDuplicator::getFrame()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeFactory()
+HRESULT DXGIScreenDuplicator::initializeFactory()
 {	
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
 	if (FAILED(hr)) {
@@ -148,7 +148,7 @@ HRESULT ScreenDuplicator::initializeFactory()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeAdapters()
+HRESULT DXGIScreenDuplicator::initializeAdapters()
 {
 	HRESULT hr;
 	UINT i = 0;
@@ -168,7 +168,7 @@ HRESULT ScreenDuplicator::initializeAdapters()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeAdapterDescription()
+HRESULT DXGIScreenDuplicator::initializeAdapterDescription()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -183,7 +183,7 @@ HRESULT ScreenDuplicator::initializeAdapterDescription()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initualizeOutputs()
+HRESULT DXGIScreenDuplicator::initualizeOutputs()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -210,7 +210,7 @@ HRESULT ScreenDuplicator::initualizeOutputs()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeD3D11Device()
+HRESULT DXGIScreenDuplicator::initializeD3D11Device()
 {
 	HRESULT hr;
 
@@ -232,7 +232,7 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outputIndex)
+HRESULT DXGIScreenDuplicator::changeDisplay(int adapterIndex, int outputIndex)
 {
 	if (pOutputDuplication != nullptr) {
 		pOutputDuplication->ReleaseFrame();
@@ -257,7 +257,7 @@ HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outp
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::releaseMemory()
+HRESULT DXGIScreenDuplicator::releaseMemory()
 {
 	try {
 		if (pFactory != nullptr) {
@@ -290,12 +290,12 @@ HRESULT ScreenDuplicator::releaseMemory()
 	}
 }
 
-vector<DXGI_ADAPTER_DESC1> ScreenDuplicator::getAdapters()
+vector<DXGI_ADAPTER_DESC1> DXGIScreenDuplicator::getAdapters()
 {
     return vAdapterDesc;
 }
 
-vector<vector<IDXGIOutput1*>> ScreenDuplicator::getOutputs()
+vector<vector<IDXGIOutput1*>> DXGIScreenDuplicator::getDisplays()
 {
     return vvOutputs;
 }
