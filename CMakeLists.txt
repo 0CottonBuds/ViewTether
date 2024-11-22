@@ -19,7 +19,7 @@ set(CMAKE_PREFIX_PATH QT_INSTALLATION_PATH)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)
 qt_standard_project_setup() 
  
-add_executable(ViewTether ${SOURCES} "main.cpp")
+add_executable(ViewTether ${SOURCES} "main.cpp" )
 
 set(CMAKE_MODULE_PATH "C:/vcpkg/installed/x64-windows/share/ffmpeg" ${CMAKE_MODULE_PATH})
 find_package(FFMPEG REQUIRED)

@@ -24,8 +24,8 @@ public slots:
 	void streamSwitch();
 
 private:
-	QThread screenDuplicatorThread;
-	DXGIScreenDuplicator* screenDuplicatorWorker = new DXGIScreenDuplicator();
+	QThread screenCaptureThread;
+	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
@@ -41,6 +41,8 @@ private:
 	void initializePreviewTimer(); // initializes a QTimer used for timing the fps of streaming. By default this is set to 60 fps
 	void initializeVideoWidget();
 	void initializeThreads();
+
+	void onFrameReady(shared_ptr<UCHAR> pixelData);
 
 	// Handles event loop of..
 	// 1: getting the frame encoding and streaming.  

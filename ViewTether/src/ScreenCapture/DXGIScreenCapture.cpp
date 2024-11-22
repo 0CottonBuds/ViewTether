@@ -1,15 +1,15 @@
 #include "ScreenCapture/DXGIScreenCapture.h"
 
-DXGIScreenDuplicator::DXGIScreenDuplicator()
+DXGIScreenCapture::DXGIScreenCapture()
 {
 }
 
-DXGIScreenDuplicator::~DXGIScreenDuplicator()
+DXGIScreenCapture::~DXGIScreenCapture()
 {
 	releaseMemory();
 }
 
-HRESULT DXGIScreenDuplicator::Initialize()
+HRESULT DXGIScreenCapture::Initialize()
 {
 	releaseMemory();
 	HRESULT hr;
@@ -21,6 +21,9 @@ HRESULT DXGIScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initualizeOutputs()))
 		return hr;
+	if (FAILED(hr = initializeDisplayInformationManager())) {
+		return hr;
+	}
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
 	if (FAILED(hr = changeDisplay()))
@@ -29,7 +32,7 @@ HRESULT DXGIScreenDuplicator::Initialize()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::getFrame()
+HRESULT DXGIScreenCapture::getFrame()
 {
 	if (!isActive)
 		return S_OK;
@@ -127,17 +130,12 @@ HRESULT DXGIScreenDuplicator::getFrame()
 	backFrame.reset();
 	backFrame = pPixelData;
 
-	QImage* notSwappedImage = new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
-	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
-	delete notSwappedImage;
-
 	emit frameReady(pPixelData);
-	emit imageReady(image);
 
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::initializeFactory()
+HRESULT DXGIScreenCapture::initializeFactory()
 {	
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
 	if (FAILED(hr)) {
@@ -148,7 +146,7 @@ HRESULT DXGIScreenDuplicator::initializeFactory()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::initializeAdapters()
+HRESULT DXGIScreenCapture::initializeAdapters()
 {
 	HRESULT hr;
 	UINT i = 0;
@@ -168,7 +166,7 @@ HRESULT DXGIScreenDuplicator::initializeAdapters()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::initializeAdapterDescription()
+HRESULT DXGIScreenCapture::initializeAdapterDescription()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -183,7 +181,7 @@ HRESULT DXGIScreenDuplicator::initializeAdapterDescription()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::initualizeOutputs()
+HRESULT DXGIScreenCapture::initualizeOutputs()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -210,7 +208,36 @@ HRESULT DXGIScreenDuplicator::initualizeOutputs()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::initializeD3D11Device()
+HRESULT DXGIScreenCapture::initializeDisplayInformationManager()
+{
+	for (int i = 0; i < vAdapterDesc.size(); i++) {
+		DisplayProvider currProvider;
+
+		DXGI_ADAPTER_DESC1 currAdapter = vAdapterDesc[i];
+		wchar_t* desc = currAdapter.Description;
+		wstring wstrDesc(desc);
+		string strDesc(wstrDesc.begin(), wstrDesc.end());
+
+		currProvider.name = strDesc.c_str();
+		currProvider.desc = strDesc.c_str();
+		vector<IDXGIOutput1*> currOutputs = vvOutputs[i];
+		for (int j = 0; i < currOutputs.size(); i++) {
+			DisplayInformation currDisplayProvider;
+
+			currDisplayProvider.name = to_string(j);
+			currDisplayProvider.desc = to_string(j);
+			currProvider.displayInformations.push_back(currDisplayProvider);
+
+		}
+
+		informationManager.addDisplayProvers(currProvider);
+	}
+
+	return S_OK;
+
+}
+
+HRESULT DXGIScreenCapture::initializeD3D11Device()
 {
 	HRESULT hr;
 
@@ -232,7 +259,7 @@ HRESULT DXGIScreenDuplicator::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::changeDisplay(int adapterIndex, int outputIndex)
+HRESULT DXGIScreenCapture::changeDisplay(int adapterIndex, int outputIndex)
 {
 	if (pOutputDuplication != nullptr) {
 		pOutputDuplication->ReleaseFrame();
@@ -257,7 +284,7 @@ HRESULT DXGIScreenDuplicator::changeDisplay(int adapterIndex, int outputIndex)
 	return S_OK;
 }
 
-HRESULT DXGIScreenDuplicator::releaseMemory()
+HRESULT DXGIScreenCapture::releaseMemory()
 {
 	try {
 		if (pFactory != nullptr) {
@@ -289,15 +316,4 @@ HRESULT DXGIScreenDuplicator::releaseMemory()
 		return E_FAIL;
 	}
 }
-
-vector<DXGI_ADAPTER_DESC1> DXGIScreenDuplicator::getAdapters()
-{
-    return vAdapterDesc;
-}
-
-vector<vector<IDXGIOutput1*>> DXGIScreenDuplicator::getDisplays()
-{
-    return vvOutputs;
-}
-
 
