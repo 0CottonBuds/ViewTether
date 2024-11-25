@@ -7,7 +7,8 @@
 #include <QLayout>
 #include <QTimer>
 
-#include "miscHelpers.h"
+#include "Helpers/MiscHelpers.h"
+#include "ScreenCapture/ScreenCapture.h"
 
 App::App(int argc, char** argv)
 {
@@ -30,8 +31,8 @@ App::App(int argc, char** argv)
 
 App::~App()
 {
-	screenDuplicatorThread.quit();
-	screenDuplicatorThread.wait();
+	screenCaptureThread.quit();
+	screenCaptureThread.wait();
 	displayStreamServerThread.quit();
 	displayStreamServerThread.wait();
 }
@@ -51,19 +52,22 @@ void App::setFps()
 void App::streamSwitch() 
 {
 	if (previewTimer->isActive()) {
-		screenDuplicatorWorker->isActive = false;
+		screenCaptureWorker->setActive(false);
 		previewTimer->stop();
 		mainWidget->startButton->setText("Start Streaming");
 		videoWidget->hide();
+
 
 		mainWidget->adapterComboBox->setDisabled(false);
 		mainWidget->outputComboBox->setDisabled(false);
 	}
 	else {
-		screenDuplicatorWorker->isActive = true;
+		screenCaptureWorker->setActive(true);
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
 		videoWidget->show();
+
+		elapsedTimer.start();
 
 		mainWidget->adapterComboBox->setDisabled(true);
 		mainWidget->outputComboBox->setDisabled(true);
@@ -78,7 +82,7 @@ void App::setScreen()
 		return;
 	}
 
-	screenDuplicatorWorker->initializeOutputDuplication(adapterIndex, outputIndex);
+	screenCaptureWorker->changeDisplay(adapterIndex, outputIndex);
 }
 
 void App::initializePreviewTimer()
@@ -98,9 +102,9 @@ void App::initializeVideoWidget()
 
 void App::initializeThreads()
 {
-	screenDuplicatorWorker->moveToThread(&screenDuplicatorThread);
-	connect(&screenDuplicatorThread, &QThread::started, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
-	connect(&screenDuplicatorThread, &QThread::finished, screenDuplicatorWorker, &QObject::deleteLater);
+	screenCaptureWorker->moveToThread(&screenCaptureThread);
+	connect(&screenCaptureThread, &QThread::started, screenCaptureWorker, &ScreenCapture::Initialize);
+	connect(&screenCaptureThread, &QThread::finished, screenCaptureWorker, &QObject::deleteLater);
 
 	streamEncoder->moveToThread(&displayStreamServerThread);
 	connect(&displayStreamServerThread, &QThread::started, streamEncoder, &StreamCodec::run);
@@ -111,14 +115,31 @@ void App::initializeThreads()
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
 
 	displayStreamServerThread.start();
-	screenDuplicatorThread.start();
+	screenCaptureThread.start();
+}
+
+void App::onFrameReady(shared_ptr<UCHAR> pixelData)
+{
+	QImage* notSwappedImage = new QImage(pixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
+	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
+	delete notSwappedImage;
+
+	qDebug() << elapsedTimer.elapsed();
+	if (elapsedTimer.elapsed() >= 10000) {
+		qDebug() << "Screen Capture frames per 10 seconds: " << screenCaptureWorker->frameCount;
+		qDebug() << "Screen Encoder frames per 10 seconds: " << streamEncoder->frameCount;
+
+		exit(1);
+	}
+
+	videoWidget->updateImage(image);
 }
 
 void App::initializeMainEventLoop()
 {
-	connect(previewTimer, &QTimer::timeout, screenDuplicatorWorker, &ScreenDuplicator::getFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::imageReady, videoWidget, &VideoWidget::updateImage);
+	connect(previewTimer, &QTimer::timeout, screenCaptureWorker, &ScreenCapture::getFrame);
+	connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
+	connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
 	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
 }
 
@@ -143,7 +164,7 @@ void App::initializeButtons()
 	connect(mainWidget->amyuniUninstallButton, &QPushButton::clicked, this, [this] {driverHelper->uninstallAmyuni(); });
 	connect(mainWidget->amyuniAddMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->addVirtualScreen(); });
 	connect(mainWidget->AmyuniRemoveMonitorButton, &QPushButton::clicked, this, [this] {driverHelper->removeVirtualScreen(); });
-	connect(driverHelper, &DriverHelper::virtualScreenModified, screenDuplicatorWorker, &ScreenDuplicator::Initialize);
+	connect(driverHelper, &VirtualScreenDriverHelper::virtualScreenModified, screenCaptureWorker, &ScreenCapture::Initialize);
 }
 
 void App::initializeConnectionInformation()
@@ -157,8 +178,8 @@ void App::initializeConnectionInformation()
 void App::initializeComboBoxes()
 {
 	connect(mainWidget->frameRateComboBox, &QComboBox::currentIndexChanged, this, &App::setFps);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeAdapterComboBox);
-	connect(screenDuplicatorWorker, &ScreenDuplicator::initializationFinished, this, &App::initializeOutputComboBox);
+	connect(screenCaptureWorker, &ScreenCapture::initializationFinished, this, &App::initializeAdapterComboBox);
+	connect(screenCaptureWorker, &ScreenCapture::initializationFinished, this, &App::initializeOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::initializeOutputComboBox);
 	connect(mainWidget->adapterComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
 	connect(mainWidget->outputComboBox, &QComboBox::currentIndexChanged, this, &App::setScreen);
@@ -166,27 +187,25 @@ void App::initializeComboBoxes()
 
 void App::initializeAdapterComboBox()
 {
-	vector<DXGI_ADAPTER_DESC1> adapters = screenDuplicatorWorker->getAdapters();
-	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
-	for (int i = 0; i < adapters.size(); i++) {
-		DXGI_ADAPTER_DESC1 currAdapter = adapters[i];
-		wchar_t* desc = currAdapter.Description;
-		wstring wstrDesc(desc);
-		string strDesc(wstrDesc.begin(), wstrDesc.end());
-		mainWidget->adapterComboBox->addItem(strDesc.c_str());
+	DisplayInformationManager displayInformationManager = screenCaptureWorker->getInformationManager();
+	vector<DisplayProvider> displayProviders = displayInformationManager.getDisplayProviders();
+	for (int i = 0; i < displayProviders.size(); i++) {
+		DisplayProvider currProvider = displayProviders[i];
+		mainWidget->adapterComboBox->addItem(currProvider.name.c_str());
 	}
 	mainWidget->adapterComboBox->setCurrentIndex(0);
 }
 
 void App::initializeOutputComboBox()
 {
+	mainWidget->outputComboBox->setCurrentIndex(0);
 	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
-	vector<vector<IDXGIOutput1*>> outputs = screenDuplicatorWorker->getOutputs();
-	vector<IDXGIOutput1*> currOutputs = outputs[adapterIndex];
+	DisplayInformationManager displayInformationManager = screenCaptureWorker->getInformationManager();
+	DisplayProvider selectedDisplayProvider = displayInformationManager.getDisplayProvider(adapterIndex);
 
 	mainWidget->outputComboBox->clear();
 
-	for (int i = 0; i < currOutputs.size(); i++) {
+	for (int i = 0; i < selectedDisplayProvider.displayInformations.size(); i++) {
 		mainWidget->outputComboBox->addItem(to_string(i).c_str());
 	}
 	mainWidget->outputComboBox->setCurrentIndex(0);

@@ -1,15 +1,15 @@
-#include "ScreenDupliactor.h"
+#include "ScreenCapture/DXGIScreenCapture.h"
 
-ScreenDuplicator::ScreenDuplicator()
+DXGIScreenCapture::DXGIScreenCapture()
 {
 }
 
-ScreenDuplicator::~ScreenDuplicator()
+DXGIScreenCapture::~DXGIScreenCapture()
 {
 	releaseMemory();
 }
 
-HRESULT ScreenDuplicator::Initialize()
+HRESULT DXGIScreenCapture::Initialize()
 {
 	releaseMemory();
 	HRESULT hr;
@@ -21,15 +21,18 @@ HRESULT ScreenDuplicator::Initialize()
 		return hr;
 	if (FAILED(hr = initualizeOutputs()))
 		return hr;
+	if (FAILED(hr = initializeDisplayInformationManager())) {
+		return hr;
+	}
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
-	if (FAILED(hr = initializeOutputDuplication()))
+	if (FAILED(hr = changeDisplay()))
 		return hr;
 	emit initializationFinished();
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::getFrame()
+HRESULT DXGIScreenCapture::getFrame()
 {
 	if (!isActive)
 		return S_OK;
@@ -45,6 +48,8 @@ HRESULT ScreenDuplicator::getFrame()
 
 	// release frame incase previous frame is still there;
 	pOutputDuplication->ReleaseFrame();
+
+	frameCount++;
 
 	// Sometimes ActuireNextFrame() fails so we try until we get a frame. 
 	while (true) {
@@ -127,17 +132,13 @@ HRESULT ScreenDuplicator::getFrame()
 	backFrame.reset();
 	backFrame = pPixelData;
 
-	QImage* notSwappedImage = new QImage(pPixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
-	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
-	delete notSwappedImage;
-
 	emit frameReady(pPixelData);
-	emit imageReady(image);
+
 
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeFactory()
+HRESULT DXGIScreenCapture::initializeFactory()
 {	
 	HRESULT hr = CreateDXGIFactory1(__uuidof(IDXGIFactory2), (void**)&pFactory);
 	if (FAILED(hr)) {
@@ -148,7 +149,7 @@ HRESULT ScreenDuplicator::initializeFactory()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeAdapters()
+HRESULT DXGIScreenCapture::initializeAdapters()
 {
 	HRESULT hr;
 	UINT i = 0;
@@ -168,7 +169,7 @@ HRESULT ScreenDuplicator::initializeAdapters()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeAdapterDescription()
+HRESULT DXGIScreenCapture::initializeAdapterDescription()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -183,7 +184,7 @@ HRESULT ScreenDuplicator::initializeAdapterDescription()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initualizeOutputs()
+HRESULT DXGIScreenCapture::initualizeOutputs()
 {
 	HRESULT hr;
 	for (int i = 0; i < vAdapters.size(); i++) {
@@ -210,7 +211,36 @@ HRESULT ScreenDuplicator::initualizeOutputs()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeD3D11Device()
+HRESULT DXGIScreenCapture::initializeDisplayInformationManager()
+{
+	for (int i = 0; i < vAdapterDesc.size(); i++) {
+		DisplayProvider currProvider;
+
+		DXGI_ADAPTER_DESC1 currAdapter = vAdapterDesc[i];
+		wchar_t* desc = currAdapter.Description;
+		wstring wstrDesc(desc);
+		string strDesc(wstrDesc.begin(), wstrDesc.end());
+
+		currProvider.name = strDesc.c_str();
+		currProvider.desc = strDesc.c_str();
+		vector<IDXGIOutput1*> currOutputs = vvOutputs[i];
+		for (int j = 0; i < currOutputs.size(); i++) {
+			DisplayInformation currDisplayProvider;
+
+			currDisplayProvider.name = to_string(j);
+			currDisplayProvider.desc = to_string(j);
+			currProvider.displayInformations.push_back(currDisplayProvider);
+
+		}
+
+		informationManager.addDisplayProvers(currProvider);
+	}
+
+	return S_OK;
+
+}
+
+HRESULT DXGIScreenCapture::initializeD3D11Device()
 {
 	HRESULT hr;
 
@@ -232,7 +262,7 @@ HRESULT ScreenDuplicator::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outputIndex)
+HRESULT DXGIScreenCapture::changeDisplay(int adapterIndex, int outputIndex)
 {
 	if (pOutputDuplication != nullptr) {
 		pOutputDuplication->ReleaseFrame();
@@ -257,7 +287,7 @@ HRESULT ScreenDuplicator::initializeOutputDuplication(int adapterIndex, int outp
 	return S_OK;
 }
 
-HRESULT ScreenDuplicator::releaseMemory()
+HRESULT DXGIScreenCapture::releaseMemory()
 {
 	try {
 		if (pFactory != nullptr) {
@@ -289,15 +319,4 @@ HRESULT ScreenDuplicator::releaseMemory()
 		return E_FAIL;
 	}
 }
-
-vector<DXGI_ADAPTER_DESC1> ScreenDuplicator::getAdapters()
-{
-    return vAdapterDesc;
-}
-
-vector<vector<IDXGIOutput1*>> ScreenDuplicator::getOutputs()
-{
-    return vvOutputs;
-}
-
 

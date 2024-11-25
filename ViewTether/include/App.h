@@ -6,10 +6,10 @@
 
 #include "ui_MainWindow.h"
 #include "VIdeoWidget.h"
-#include "ScreenDupliactor.h"
+#include "ScreenCapture/DXGIScreenCapture.h"
 #include "DisplayStreamServer.h"
 #include "StreamCodec.h"
-#include "DriverHelper.h"
+#include "Helpers/VirtualScreenDriverHelper.h"
 
 class App : public QObject {
 	Q_OBJECT;
@@ -24,12 +24,14 @@ public slots:
 	void streamSwitch();
 
 private:
-	QThread screenDuplicatorThread;
-	ScreenDuplicator* screenDuplicatorWorker = new ScreenDuplicator();
+	QElapsedTimer elapsedTimer;
+
+	QThread screenCaptureThread;
+	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
 	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
-	DriverHelper* driverHelper = new DriverHelper();
+	VirtualScreenDriverHelper* driverHelper = new VirtualScreenDriverHelper();
 
 	Ui_MainWidget* mainWidget;
 	VideoWidget* videoWidget;
@@ -41,6 +43,8 @@ private:
 	void initializePreviewTimer(); // initializes a QTimer used for timing the fps of streaming. By default this is set to 60 fps
 	void initializeVideoWidget();
 	void initializeThreads();
+
+	void onFrameReady(shared_ptr<UCHAR> pixelData);
 
 	// Handles event loop of..
 	// 1: getting the frame encoding and streaming.  

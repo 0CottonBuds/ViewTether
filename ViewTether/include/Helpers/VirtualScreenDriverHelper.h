@@ -2,7 +2,7 @@
 
 #include <qobject.h>
 
-class DriverHelper : public QObject{
+class VirtualScreenDriverHelper : public QObject{
 	Q_OBJECT
 
 public:
