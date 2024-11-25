@@ -41,7 +41,7 @@ HRESULT DXGIScreenCapture::getFrame()
 		return E_FAIL;
 
 	HRESULT hr;
-	IDXGIResource* pResource = nullptr;
+	IDXGIResource* pDesktopResource = nullptr;
 	ID3D11Texture2D* pDesktopTexture = nullptr;
 	DXGI_OUTDUPL_FRAME_INFO frameInfo;
 	D3D11_TEXTURE2D_DESC desktopTextureDesc;
@@ -53,79 +53,60 @@ HRESULT DXGIScreenCapture::getFrame()
 
 	// Sometimes ActuireNextFrame() fails so we try until we get a frame. 
 	while (true) {
-		hr = pOutputDuplication->AcquireNextFrame(0 ,&frameInfo, &pResource);
+		hr = pOutputDuplication->AcquireNextFrame(0 ,&frameInfo, &pDesktopResource);
 		if (FAILED(hr)) {
-			cerr << "No available Frame using back frame" << endl;
 			emit frameReady(backFrame);
 			return hr;
 		}
 		if (frameInfo.LastPresentTime.QuadPart == 0) {
-			cerr << "No available Frame using back frame" << endl;
 			emit frameReady(backFrame);
-			pResource->Release();
+			pDesktopResource->Release();
 			hr = pOutputDuplication->ReleaseFrame();
 			continue;
 		}
 		break;
 	}
 
-	hr = pResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
+	// Get desktop texture 
+	hr = pDesktopResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
 	if (FAILED(hr)) {
-		std::cerr << "Failed to Query texture interface from desktop resource" << std::endl;
+		std::cerr << "Failed to Query desktop texture" << std::endl;
 		pOutputDuplication->ReleaseFrame();
 	}
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
-	pDesktopTexture->Release();
 
-	// QueryInterface for ID3D11Texture2D
-	ID3D11Texture2D* pAcquiredDesktopImage = nullptr;
-	hr = pResource->QueryInterface(IID_PPV_ARGS(&pAcquiredDesktopImage));
-	if (FAILED(hr)) {
-		cerr << "Failed to Query interface for desktop texture" << endl;
-		return hr;
-	}
-	pResource->Release();
-	
+
 	// create an empty texture that has CPU read and write access.
-	ID3D11Texture2D* pDestImage = nullptr;
+	ID3D11Texture2D* pCPUTexture = nullptr;
 	desktopTextureDesc.Usage = D3D11_USAGE_STAGING;
 	desktopTextureDesc.BindFlags = 0;
 	desktopTextureDesc.CPUAccessFlags = D3D11_CPU_ACCESS_READ | D3D11_CPU_ACCESS_WRITE;
 	desktopTextureDesc.MiscFlags = 0;
-	hr = pDevice->CreateTexture2D(&desktopTextureDesc, nullptr, &pDestImage);
+	hr = pDevice->CreateTexture2D(&desktopTextureDesc, nullptr, &pCPUTexture);
 	if (FAILED(hr)) {
 		cerr << "Failed to create empty texture" << endl;
 		releaseMemory();
 		return hr;
 	}
 
-	// Copy image into CPU read write abled texture
-	pDeviceContext->CopyResource(pDestImage,pAcquiredDesktopImage);
-	pAcquiredDesktopImage->Release();
+	// Copy texture into CPU read write abled texture
+	pDeviceContext->CopyResource(pCPUTexture, pDesktopTexture);
+	pDesktopTexture->Release();
 
 	// Copy GPU Resource to CPU
 	D3D11_MAPPED_SUBRESOURCE resource;
 	UINT subresource = D3D11CalcSubresource(0, 0, 0);
-	hr = pDeviceContext->Map(pDestImage, subresource, D3D11_MAP_READ_WRITE, NULL, &resource);
+	hr = pDeviceContext->Map(pCPUTexture, subresource, D3D11_MAP_READ_WRITE, NULL, &resource);
 	if (FAILED(hr)) {
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
 	}
-	pDeviceContext->Unmap(pDestImage, subresource);
-	pDestImage->Release();
+	pDeviceContext->Unmap(pCPUTexture, subresource);
+	pCPUTexture->Release();
 	
-	// Copy from texture to bitmap buffer.
+	// Copy from texture to byte array buffer.
 	BYTE* pBytePixelDataBuffer = new BYTE[resource.DepthPitch];
-
-	BYTE* pSourcePos = reinterpret_cast<BYTE*>(resource.pData);
-	BYTE* pDestinationPos = pBytePixelDataBuffer;
-
-	for (size_t h = 0; h < desktopTextureDesc.Height; ++h)
-	{
-		memcpy_s(pDestinationPos, resource.RowPitch, pSourcePos, resource.RowPitch);
-		pSourcePos += resource.RowPitch;
-		pDestinationPos += resource.RowPitch;
-	}
+	memcpy(pBytePixelDataBuffer, resource.pData, resource.DepthPitch);
 
 	shared_ptr<UCHAR> pPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
 

@@ -66,9 +66,6 @@ void App::streamSwitch()
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
 		videoWidget->show();
-
-		elapsedTimer.start();
-
 		mainWidget->adapterComboBox->setDisabled(true);
 		mainWidget->outputComboBox->setDisabled(true);
 	}
@@ -123,24 +120,15 @@ void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 	QImage* notSwappedImage = new QImage(pixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
 	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
 	delete notSwappedImage;
-
-	qDebug() << elapsedTimer.elapsed();
-	if (elapsedTimer.elapsed() >= 10000) {
-		qDebug() << "Screen Capture frames per 10 seconds: " << screenCaptureWorker->frameCount;
-		qDebug() << "Screen Encoder frames per 10 seconds: " << streamEncoder->frameCount;
-
-		exit(1);
-	}
-
 	videoWidget->updateImage(image);
 }
 
 void App::initializeMainEventLoop()
 {
 	connect(previewTimer, &QTimer::timeout, screenCaptureWorker, &ScreenCapture::getFrame);
-	connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::sendDataToClient);
+	//connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
+	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
+	//connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
 }
 
 void App::initializeButtons()
@@ -187,7 +175,7 @@ void App::initializeComboBoxes()
 
 void App::initializeAdapterComboBox()
 {
-	DisplayInformationManager displayInformationManager = screenCaptureWorker->getInformationManager();
+	DisplayInformationManager displayInformationManager = screenCaptureWorker->getDisplayInformationManager();
 	vector<DisplayProvider> displayProviders = displayInformationManager.getDisplayProviders();
 	for (int i = 0; i < displayProviders.size(); i++) {
 		DisplayProvider currProvider = displayProviders[i];
@@ -200,7 +188,7 @@ void App::initializeOutputComboBox()
 {
 	mainWidget->outputComboBox->setCurrentIndex(0);
 	int adapterIndex = mainWidget->adapterComboBox->currentIndex();
-	DisplayInformationManager displayInformationManager = screenCaptureWorker->getInformationManager();
+	DisplayInformationManager displayInformationManager = screenCaptureWorker->getDisplayInformationManager();
 	DisplayProvider selectedDisplayProvider = displayInformationManager.getDisplayProvider(adapterIndex);
 
 	mainWidget->outputComboBox->clear();

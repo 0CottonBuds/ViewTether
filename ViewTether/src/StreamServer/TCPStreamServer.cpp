@@ -1,4 +1,4 @@
-#include "DisplayStreamServer.h"
+#include "StreamServer/TCPStreamServer.h"
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -76,7 +76,7 @@ void DisplayStreamServer::newConnection()
     client->setSocketOption(QAbstractSocket::LowDelayOption, 1);
     client->write(msg);
 
-    connect(client, SIGNAL(readyRead()), this, SLOT(readWhenReady()));
+    connect(client, SIGNAL(readyRead()), this, SLOT(read()));
 
     // handle client disconnect
     connect(client, &QTcpSocket::disconnected, client, &QTcpSocket::deleteLater);
@@ -84,7 +84,7 @@ void DisplayStreamServer::newConnection()
     connect(client, &QTcpSocket::disconnected, this, &DisplayStreamServer::disconnected);
 }
 
-void DisplayStreamServer::sendDataToClient(AVPacket* packet) {
+void DisplayStreamServer::write(AVPacket* packet) {
 
 	if (client == nullptr) {
   		av_packet_unref(packet);
@@ -114,7 +114,7 @@ QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
     return byteArray;
 }
 
-void DisplayStreamServer::readWhenReady() {
+void DisplayStreamServer::read() {
 	QString data;
     while (client->bytesAvailable()) {
         data.append(client->readAll());

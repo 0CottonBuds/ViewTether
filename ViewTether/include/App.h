@@ -7,7 +7,7 @@
 #include "ui_MainWindow.h"
 #include "VIdeoWidget.h"
 #include "ScreenCapture/DXGIScreenCapture.h"
-#include "DisplayStreamServer.h"
+#include "StreamServer/TCPStreamServer.h"
 #include "StreamCodec.h"
 #include "Helpers/VirtualScreenDriverHelper.h"
 
@@ -24,8 +24,6 @@ public slots:
 	void streamSwitch();
 
 private:
-	QElapsedTimer elapsedTimer;
-
 	QThread screenCaptureThread;
 	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;

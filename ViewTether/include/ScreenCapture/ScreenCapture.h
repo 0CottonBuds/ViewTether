@@ -18,7 +18,7 @@ signals:
 	void initializationFinished();
 
 public:
-	virtual DisplayInformationManager getInformationManager() = 0;
+	virtual DisplayInformationManager getDisplayInformationManager() = 0;
 	virtual HRESULT changeDisplay(int providerIndex = 0, int displayIndex = 0) = 0;
 	void setActive(bool state) { isActive = state; };
 	int frameCount = 0;

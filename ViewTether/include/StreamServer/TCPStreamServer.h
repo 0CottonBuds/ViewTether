@@ -26,15 +26,17 @@ public:
 
 public slots:
 	void run();
-	void newConnection();
-	void readWhenReady();
-	void sendDataToClient(AVPacket* packet);
-	QByteArray serializeAvPacket(AVPacket* packet);
+	void read();
+	void write(AVPacket* packet);
 
 signals:
 	void connected();
 	void disconnected();
 	void initializationFinished();
+
+private slots:
+	void newConnection();
+	QByteArray serializeAvPacket(AVPacket* packet);
 
 private:
 	QTcpServer* server;

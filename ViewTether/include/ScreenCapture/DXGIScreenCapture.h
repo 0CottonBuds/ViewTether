@@ -46,7 +46,7 @@ public:
 	DXGIScreenCapture();
 	~DXGIScreenCapture();
 
-	DisplayInformationManager getInformationManager() override { return informationManager; }
+	DisplayInformationManager getDisplayInformationManager() override { return informationManager; }
 	HRESULT changeDisplay(int providerIndex = 0, int displayIndex = 0) override;
 
 
