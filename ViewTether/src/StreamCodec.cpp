@@ -129,6 +129,7 @@ void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 		}
 
 		emit encodeFinish(packet);
+		frameCount++;
 	}
 
 	av_frame_free(&frame);

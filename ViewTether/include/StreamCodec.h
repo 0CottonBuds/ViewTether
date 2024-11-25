@@ -27,6 +27,8 @@ class StreamCodec : public QObject
 public:
 	StreamCodec(int height, int width, int fps, CodecType type);
 
+	int frameCount = 0;
+
 
 public slots:
 	

@@ -24,6 +24,8 @@ public slots:
 	void streamSwitch();
 
 private:
+	QElapsedTimer elapsedTimer;
+
 	QThread screenCaptureThread;
 	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;

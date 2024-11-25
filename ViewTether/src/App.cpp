@@ -57,6 +57,7 @@ void App::streamSwitch()
 		mainWidget->startButton->setText("Start Streaming");
 		videoWidget->hide();
 
+
 		mainWidget->adapterComboBox->setDisabled(false);
 		mainWidget->outputComboBox->setDisabled(false);
 	}
@@ -65,6 +66,8 @@ void App::streamSwitch()
 		previewTimer->start();
 		mainWidget->startButton->setText("Stop Streaming");
 		videoWidget->show();
+
+		elapsedTimer.start();
 
 		mainWidget->adapterComboBox->setDisabled(true);
 		mainWidget->outputComboBox->setDisabled(true);
@@ -120,6 +123,14 @@ void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 	QImage* notSwappedImage = new QImage(pixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
 	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
 	delete notSwappedImage;
+
+	qDebug() << elapsedTimer.elapsed();
+	if (elapsedTimer.elapsed() >= 10000) {
+		qDebug() << "Screen Capture frames per 10 seconds: " << screenCaptureWorker->frameCount;
+		qDebug() << "Screen Encoder frames per 10 seconds: " << streamEncoder->frameCount;
+
+		exit(1);
+	}
 
 	videoWidget->updateImage(image);
 }

@@ -22,6 +22,7 @@ class DXGIScreenCapture : public ScreenCapture {
 	Q_OBJECT
 
 private:
+	HRESULT HR;
 	shared_ptr<UCHAR> backFrame;
 
 	IDXGIFactory2* pFactory = nullptr; 
@@ -31,6 +32,11 @@ private:
 	IDXGIOutputDuplication* pOutputDuplication = nullptr;
 	DXGI_OUTDUPL_DESC outputDuplicationDesc;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
+
+	DisplayInformationManager informationManager;
+	vector <IDXGIAdapter1*> vAdapters; // available providers 
+	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available provider descriptions
+	vector<vector<IDXGIOutput1*>> vvOutputs; // available displays for each provider; [provider index][display index] 
 
 public slots:
 	HRESULT getFrame() override;
@@ -43,13 +49,8 @@ public:
 	DisplayInformationManager getInformationManager() override { return informationManager; }
 	HRESULT changeDisplay(int providerIndex = 0, int displayIndex = 0) override;
 
-private:
-	DisplayInformationManager informationManager;
-	vector <IDXGIAdapter1*> vAdapters; // available adapters 
-	vector <DXGI_ADAPTER_DESC1> vAdapterDesc; // available adapter descriptions
-	vector<vector<IDXGIOutput1*>> vvOutputs; // available outputs for each adapter; [adapter index][output index] 
 
-	HRESULT HR;
+private:
 	HRESULT initializeFactory(); 
 	HRESULT initializeAdapters();
 	HRESULT initializeAdapterDescription();

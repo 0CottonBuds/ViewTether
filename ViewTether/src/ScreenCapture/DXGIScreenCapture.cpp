@@ -49,6 +49,8 @@ HRESULT DXGIScreenCapture::getFrame()
 	// release frame incase previous frame is still there;
 	pOutputDuplication->ReleaseFrame();
 
+	frameCount++;
+
 	// Sometimes ActuireNextFrame() fails so we try until we get a frame. 
 	while (true) {
 		hr = pOutputDuplication->AcquireNextFrame(0 ,&frameInfo, &pResource);
@@ -131,6 +133,7 @@ HRESULT DXGIScreenCapture::getFrame()
 	backFrame = pPixelData;
 
 	emit frameReady(pPixelData);
+
 
 	return S_OK;
 }
