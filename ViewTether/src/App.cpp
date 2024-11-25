@@ -126,9 +126,9 @@ void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 void App::initializeMainEventLoop()
 {
 	connect(previewTimer, &QTimer::timeout, screenCaptureWorker, &ScreenCapture::getFrame);
-	//connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	//connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
+	connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
+	connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
+	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
 }
 
 void App::initializeButtons()

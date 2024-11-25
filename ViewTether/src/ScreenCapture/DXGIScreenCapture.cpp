@@ -101,13 +101,11 @@ HRESULT DXGIScreenCapture::getFrame()
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
 	}
-	pDeviceContext->Unmap(pCPUTexture, subresource);
 	pCPUTexture->Release();
 	
 	// Copy from texture to byte array buffer.
 	BYTE* pBytePixelDataBuffer = new BYTE[resource.DepthPitch];
 	memcpy(pBytePixelDataBuffer, resource.pData, resource.DepthPitch);
-
 	shared_ptr<UCHAR> pPixelData = shared_ptr<UCHAR>(pBytePixelDataBuffer);
 
 	backFrame.reset();

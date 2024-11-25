@@ -18,7 +18,7 @@ include_directories(./ViewTether/include)
 set(CMAKE_PREFIX_PATH QT_INSTALLATION_PATH)
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)
 qt_standard_project_setup() 
- 
+  
 add_executable(ViewTether ${SOURCES} "main.cpp" )
 
 set(CMAKE_MODULE_PATH "C:/vcpkg/installed/x64-windows/share/ffmpeg" ${CMAKE_MODULE_PATH})
@@ -29,12 +29,4 @@ target_link_libraries(ViewTether PRIVATE ${FFMPEG_LIBRARIES})
 message(${FFMPEG_LIBRARIES})
 
 target_link_libraries(ViewTether PRIVATE Qt6::Core Qt6::Widgets Qt6::Network bcrypt mfplat mfuuid secur32)
-
-
-set(CMAKE_PREFIX_PATH "C:/vcpkg/installed/x64-windows")
-find_package( OpenCV REQUIRED )
-if( OpenCV_FOUND )
-  target_link_libraries( ViewTether PRIVATE ${OpenCV_LIBS} )
-endif()
-
 
