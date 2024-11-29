@@ -1,6 +1,9 @@
 #include "StreamCodec.h"
 #include "qdebug.h"
 
+#include <d3d12.h>
+#include <dxgi1_4.h>
+
 
 StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 {
@@ -29,7 +32,7 @@ void StreamCodec::initializeEncoder()
 {
 	backPacket = av_packet_alloc();
 
-	encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
+	encoder = avcodec_find_encoder_by_name("h264_qsv");
 	if (!encoder) {
 		qDebug() << "Codec not found";
 		exit(1);
@@ -40,6 +43,34 @@ void StreamCodec::initializeEncoder()
 		qDebug() << "Could not allocate codec context";
 		exit(1);
 	}
+
+	//test
+	ID3D12Device* d3d12_device = nullptr;
+	IDXGIFactory4* dxgi_factory = nullptr;
+
+	// Create DXGI Factory
+	HRESULT hr = CreateDXGIFactory1(IID_PPV_ARGS(&dxgi_factory));
+	if (FAILED(hr)) {
+		fprintf(stderr, "Failed to create DXGI Factory.\n");
+		exit(-1);
+	}
+
+	// Create D3D12 Device
+	hr = D3D12CreateDevice(nullptr, D3D_FEATURE_LEVEL_12_0, IID_PPV_ARGS(&d3d12_device));
+	if (FAILED(hr)) {
+		fprintf(stderr, "Failed to create D3D12 Device.\n");
+		exit(-1);
+	}
+
+	// create ffmpeg hardware device context
+	AVBufferRef* hw_device_ctx = nullptr;
+
+	if (av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D12VA, nullptr, nullptr, 0) < 0) {
+		fprintf(stderr, "Failed to create D3D12VA hardware device context.\n");
+		exit(-1);
+	}
+
+	encoderContext->hw_device_ctx = av_buffer_ref(hw_device_ctx);
 
 	encoderContext->bit_rate = 3000000;
 	encoderContext->height = height;
@@ -56,15 +87,11 @@ void StreamCodec::initializeEncoder()
 	av_opt_set(encoderContext->priv_data, "crf", "26", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 	av_opt_set(encoderContext->priv_data, "forced_idr", "1", 0);
+	av_opt_set(encoderContext->priv_data, "hwaccel", "d3d12va", 0);
 
 	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
 	if (!desc){
 		qDebug() << "Can't get descriptor for pixel format";
-		exit(1);
-	}
-	bytesPerPixel = av_get_bits_per_pixel(desc) / 8;
-	if(av_get_bits_per_pixel(desc) % 8 != 0){
-		qDebug() << "Unhandled bits per pixel, bad in pix fmt";
 		exit(1);
 	}
 
