@@ -1,13 +1,14 @@
 #include <iostream>
 #include "App.h"
 
+
 extern "C" {
 	#include <libavcodec/avcodec.h>
 	#include <libavformat/avformat.h>
 	#include <libavutil/avutil.h>
     #include <libavutil/hwcontext.h>
 	#include <libavutil/error.h>
-	//#include <libavutil/hwcontext_qsv.h>
+	#include <libavutil/hwcontext_qsv.h>
 }
 
 using namespace std;
@@ -41,26 +42,7 @@ int main(int argc, char** argv){
         }
     }
 
-    AVBufferRef* hw_device_ctx = nullptr;
-
-    AVHWDeviceType hwa = av_hwdevice_find_type_by_name("qsv");
-
-    if (!hwa) {
-        std::cerr << "Failed to find QSV HWA Device" << std::endl;
-        return -1;
-    }
-
-    int err;
-    if (err = av_hwdevice_ctx_create(&hw_device_ctx, hwa, nullptr, nullptr, 0) < 0) {
-        std::cerr << "Failed to create QSV device context.\n";
-        AVERROR(err);
-        return err;
-    }
-
-    std::cout << "QSV device initialized successfully.\n";
-    av_buffer_unref(&hw_device_ctx);  // Clean up after use
-
-	//App app(argc, argv);
+	App app(argc, argv);
 	return 0;
 }
 

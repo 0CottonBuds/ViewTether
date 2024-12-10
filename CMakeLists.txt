@@ -7,7 +7,7 @@ set(CMAKE_TOOLCHAIN_FILE "C:/vcpkg/scripts/buildsystems/vcpkg.cmake")
 set(QT_INSTALLATION_PATH "C:/Qt/6.8.0")
 set(DEVICE_INSTALLER_64_PATH "${CMAKE_SOURCE_DIR}/thirdparty/usbmmidd_v2/deviceinstaller64.exe ")
 add_definitions(-DDEVICE_INSTALLER_64_PATH=\"${DEVICE_INSTALLER_64_PATH}\")
-
+ 
 # Include headers so that moc can be generated
 # https://stackoverflow.com/questions/52413341/why-is-cmake-not-mocing-my-q-object-headers
 file (GLOB_RECURSE SOURCES "./ViewTether/src/*.cpp" "./ViewTether/include/*.h" "./ViewTether/form/*.ui")
