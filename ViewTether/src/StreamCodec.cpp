@@ -1,10 +1,6 @@
 #include "StreamCodec.h"
 #include "qdebug.h"
 
-#include <d3d12.h>
-#include <dxgi1_4.h>
-
-
 StreamCodec::StreamCodec(int height, int width, int fps, CodecType type)
 {
 	this->height = height;
@@ -32,7 +28,7 @@ void StreamCodec::initializeEncoder()
 {
 	backPacket = av_packet_alloc();
 
-	encoder = avcodec_find_encoder(AV_CODEC_ID_H264);
+	encoder = avcodec_find_encoder_by_name("hevc");
 	if (!encoder) {
 		qDebug() << "Codec not found";
 		exit(1);
@@ -52,6 +48,19 @@ void StreamCodec::initializeEncoder()
 		exit(-1);
 	}
 
+	AVBufferRef* hw_frames_ref = av_hwframe_ctx_alloc(hw_device_ctx);
+	if (!hw_frames_ref) {
+		fprintf(stderr, "Failed to create D3D12VA hardware frame context.\n");
+		exit(-1);
+	}
+
+	AVHWFramesContext* hw_frames_ctx = (AVHWFramesContext*)hw_frames_ref->data;
+	hw_frames_ctx->format = AV_PIX_FMT_D3D11;  // Use the correct pixel format for your hardware device
+	hw_frames_ctx->sw_format = AV_PIX_FMT_NV12;
+	hw_frames_ctx->width = 1920;  // Frame width
+	hw_frames_ctx->height = 1080; // Frame height
+	//hw_frames_ctx->device_ref = av_buffer_ref(hw_device_ctx);
+
 
 	encoderContext->bit_rate = 3000000;
 	encoderContext->height = height;
@@ -60,19 +69,27 @@ void StreamCodec::initializeEncoder()
 	encoderContext->time_base.den = fps;
 	encoderContext->framerate.num = fps;
     encoderContext->framerate.den = 1;
-	encoderContext->pix_fmt = AV_PIX_FMT_D3D11;
-	encoderContext->max_b_frames = 2;
-	encoderContext->gop_size = 20;
+	encoderContext->pix_fmt = AV_PIX_FMT_NV12;
+	//encoderContext->max_b_frames = 2;
+	//encoderContext->gop_size = 20;
 
 	encoderContext->hw_device_ctx = av_buffer_ref(hw_device_ctx);
-	encoderContext->hw_frames_ctx = hw_device_ctx;
+	encoderContext->hw_frames_ctx = av_buffer_ref(hw_frames_ref);
 
+	if (av_hwdevice_ctx_init(encoderContext->hw_device_ctx) < 0) {
+		fprintf(stderr, "Failed to initialize D3D12VA hardware device context.\n");
+		exit(-1);
+	}
+	if (av_hwframe_ctx_init(encoderContext->hw_frames_ctx) < 0) {
+		fprintf(stderr, "Failed to initialize D3D12VA hardware frame context.\n");
+		exit(-1);
+	}
 
 	av_opt_set(encoderContext->priv_data, "preset", "veryfast", 0);
 	av_opt_set(encoderContext->priv_data, "crf", "26", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 	av_opt_set(encoderContext->priv_data, "forced_idr", "1", 0);
-	av_opt_set(encoderContext->priv_data, "hwaccel", "d3d12va", 0);
+	av_opt_set(encoderContext->priv_data, "hwaccel", "d3d11va", 0);
 
 	int err = avcodec_open2(encoderContext, encoder, nullptr);
 	if (err < 0) {
@@ -90,16 +107,28 @@ void StreamCodec::initializeEncoderSWS()
 	}
 }
 
+
 void StreamCodec::encodeFrame(std::shared_ptr<UCHAR> pData)
 {
 	if (type != CodecType::encode) {
 		qDebug() << "Error: not on encode mode";
 		exit(1);
+	} 
+	int err = 0;
+	//AVFrame* frame = allocateFrame(pData);
+
+	AVFrame* frame = av_frame_alloc();
+	//frame->width = 1920;
+	//frame->height = 1080;
+	frame->format = AV_PIX_FMT_NV12;
+	//frame->hw_frames_ctx = av_buffer_ref(encoderContext->hw_frames_ctx);
+
+	// Obtain a hardware frame and map it to the GPU texture
+	if (err = av_hwframe_get_buffer(encoderContext->hw_frames_ctx, frame, 0) < 0) {
+		fprintf(stderr, "Failed to allocate hardware frame\n");
+		return;
 	}
 
-	int err = 0;
-	AVFrame* frame = allocateFrame(pData);
-	
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";
