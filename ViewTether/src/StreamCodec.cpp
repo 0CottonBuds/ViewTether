@@ -23,53 +23,119 @@ void StreamCodec::run()
 }
 
 
+// Function to create a test NV12 texture
+HRESULT CreateNV12Texture(ID3D11Device* device, ID3D11Texture2D** texture) {
+	if (!device || !texture) return E_POINTER;
+
+	// Define the texture description
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = 1920;                         // Texture width
+	textureDesc.Height = 1080;                        // Texture height
+	textureDesc.MipLevels = 1;                        // Single mip level
+	textureDesc.ArraySize = 1;                        // Single array slice
+	textureDesc.Format = DXGI_FORMAT_NV12;            // NV12 format
+	textureDesc.SampleDesc.Count = 1;                 // No multisampling
+	textureDesc.Usage = D3D11_USAGE_DEFAULT;          // Default usage
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // Bind as a shader resource
+
+	// Calculate the size of the Y plane and UV plane
+	const size_t yPlaneSize = 1920 * 1080;            // Width * Height
+	const size_t uvPlaneSize = (1920 / 2) * (1080 / 2) * 2; // (Width/2 * Height/2) * 2 bytes per pixel (UV interleaved)
+
+	// Create test data for NV12 (all white)
+	std::vector<unsigned char> nv12Data(yPlaneSize + uvPlaneSize, 0);
+	std::fill(nv12Data.begin(), nv12Data.begin() + yPlaneSize, 255); // Y plane: white (255)
+	std::fill(nv12Data.begin() + yPlaneSize, nv12Data.end(), 128);   // UV plane: neutral chroma (128, 128)
+
+	// Define the subresource data
+	D3D11_SUBRESOURCE_DATA initData = {};
+	initData.pSysMem = nv12Data.data();
+	initData.SysMemPitch = 1920;                     // Pitch for Y plane
+	initData.SysMemSlicePitch = 0;                   // Only one slice in 2D textures
+
+	// Create the NV12 texture
+	HRESULT hr = device->CreateTexture2D(&textureDesc, &initData, texture);
+	if (FAILED(hr)) {
+		std::cerr << "Failed to create NV12 texture. HRESULT: " << hr << std::endl;
+		return hr;
+	}
+
+	std::cout << "NV12 texture created successfully!" << std::endl;
+	return S_OK;
+}
+
+
+
 
 void StreamCodec::initializeEncoder()
 {
 	backPacket = av_packet_alloc();
 
-	encoder = avcodec_find_encoder_by_name("hevc");
+	encoder = avcodec_find_encoder_by_name("hevc_qsv");
 	if (!encoder) {
-		qDebug() << "Codec not found";
+		std::cout << "Codec not found" << std::endl;
 		exit(1);
 	}
 	 
 	encoderContext = avcodec_alloc_context3(encoder);
 	if (!encoderContext) {
-		qDebug() << "Could not allocate codec context";
+		std::cout << "Could not allocate codec context" << std::endl;
 		exit(1);
+	}
+
+	// Create a D3D11 device
+	ID3D11Device* d3d11_device = nullptr;
+	ID3D11DeviceContext* d3d11_device_context = nullptr;
+	D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
+	D3D_FEATURE_LEVEL feature_level_out;
+	HRESULT hr = D3D11CreateDevice(
+		nullptr,                      // Adapter (use default)
+		D3D_DRIVER_TYPE_HARDWARE,     // Driver type
+		nullptr,                      // No software rasterizer
+		D3D11_CREATE_DEVICE_BGRA_SUPPORT, // Flags (required for video interop)
+		feature_levels,               // Feature levels
+		1,                            // Number of feature levels
+		D3D11_SDK_VERSION,            // SDK version
+		&d3d11_device,                // Output device
+		&feature_level_out,           // Output feature level
+		&d3d11_device_context         // Device context (can retrieve later)
+	);
+	if (FAILED(hr)) {
+		fprintf(stderr, "Failed to create D3D11 device\n");
+		exit(-1);
 	}
 
 	// create ffmpeg hardware device context
 	AVBufferRef* hw_device_ctx = nullptr;
 
-	if (av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0) < 0) {
-		fprintf(stderr, "Failed to create D3D12VA hardware device context.\n");
+	if (av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_QSV, "d3d11", nullptr, 0) < 0) {
+		fprintf(stderr, "Failed to create QSV hardware device context.\n");
 		exit(-1);
 	}
 
 	AVBufferRef* hw_frames_ref = av_hwframe_ctx_alloc(hw_device_ctx);
 	if (!hw_frames_ref) {
-		fprintf(stderr, "Failed to create D3D12VA hardware frame context.\n");
+		fprintf(stderr, "Failed to create QSV hardware frame context.\n");
 		exit(-1);
 	}
 
 	AVHWFramesContext* hw_frames_ctx = (AVHWFramesContext*)hw_frames_ref->data;
-	hw_frames_ctx->format = AV_PIX_FMT_D3D11;  // Use the correct pixel format for your hardware device
+	hw_frames_ctx->format = AV_PIX_FMT_QSV;  // Use the correct pixel format for your hardware device
 	hw_frames_ctx->sw_format = AV_PIX_FMT_NV12;
 	hw_frames_ctx->width = 1920;  // Frame width
 	hw_frames_ctx->height = 1080; // Frame height
-	//hw_frames_ctx->device_ref = av_buffer_ref(hw_device_ctx);
+	hw_frames_ctx->device_ref = av_buffer_ref(hw_device_ctx);
+	hw_frames_ctx->initial_pool_size = 20;
 
 
 	encoderContext->bit_rate = 3000000;
-	encoderContext->height = height;
-	encoderContext->width = width;
+	encoderContext->width = 1920;
+	encoderContext->height = 1080;
 	encoderContext->time_base.num = 1;
-	encoderContext->time_base.den = fps;
-	encoderContext->framerate.num = fps;
+	encoderContext->time_base.den = 60;
+	encoderContext->framerate.num = 60;
     encoderContext->framerate.den = 1;
-	encoderContext->pix_fmt = AV_PIX_FMT_NV12;
+	encoderContext->pix_fmt = AV_PIX_FMT_QSV;
 	//encoderContext->max_b_frames = 2;
 	//encoderContext->gop_size = 20;
 
@@ -89,13 +155,52 @@ void StreamCodec::initializeEncoder()
 	av_opt_set(encoderContext->priv_data, "crf", "26", 0);
 	av_opt_set(encoderContext->priv_data, "tune", "zerolatency", 0);
 	av_opt_set(encoderContext->priv_data, "forced_idr", "1", 0);
-	av_opt_set(encoderContext->priv_data, "hwaccel", "d3d11va", 0);
 
 	int err = avcodec_open2(encoderContext, encoder, nullptr);
 	if (err < 0) {
-		qDebug() << "Could not open codec";
+		std::cout << "Could not open codec" << std::endl;
 		exit(1);
 	}
+
+	// Allocate a hardware-backed AVFrame
+	AVFrame* frame = av_frame_alloc();
+	frame->width = 1920;
+	frame->height = 1080;
+	frame->format = AV_PIX_FMT_QSV; // QSV format
+	frame->hw_frames_ctx = av_buffer_ref(hw_frames_ref);
+
+	if (av_hwframe_get_buffer(hw_frames_ref, frame, 0) < 0) {
+		fprintf(stderr, "Failed to allocate HW frame\n");
+		exit(-1);
+	}
+	
+	// Create the NV12 texture
+	ID3D11Texture2D* source_texture = nullptr;
+	hr = CreateNV12Texture(d3d11_device, &source_texture);
+	if (SUCCEEDED(hr)) {
+		std::cout << "NV12 texture successfully created!" << std::endl;
+	}
+
+	// Copy your D3D11 texture into the QSV frame
+	ID3D11Texture2D* hw_texture = (ID3D11Texture2D*)frame->data[0];
+	d3d11_device_context->CopyResource(hw_texture, source_texture);
+	d3d11_device_context->Flush(); // Ensure synchronization
+
+	if (avcodec_send_frame(encoderContext, frame) < 0) {
+		fprintf(stderr, "Error sending frame to encoder\n");
+		exit(-1);
+	}
+
+	AVPacket pkt;
+	av_init_packet(&pkt);
+
+	while (avcodec_receive_packet(encoderContext, &pkt) == 0) {
+		// Write encoded packet to file or stream
+		av_packet_unref(&pkt);
+	}
+
+	std::cout << "Success" << std::endl;
+
 }
 
 void StreamCodec::initializeEncoderSWS()
@@ -233,19 +338,6 @@ void StreamCodec::initializeDecoder()
 	decoderContext->framerate.num = fps;
     decoderContext->framerate.den = 1;
 	decoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
-
-
-	auto desc = av_pix_fmt_desc_get(AV_PIX_FMT_BGRA);
-	if (!desc){
-		qDebug() << "Can't get descriptor for pixel format";
-		exit(1);
-	}
-	bytesPerPixel = av_get_bits_per_pixel(desc) / 8;
-	if(av_get_bits_per_pixel(desc) % 8 != 0){
-		qDebug() << "Unhandled bits per pixel, bad in pix fmt";
-		exit(1);
-	}
-
 	CoUninitialize();
 	int err = avcodec_open2(decoderContext, decoder, nullptr);
 	if (err < 0) {

@@ -4,9 +4,9 @@
     {
       "hidden": true,
       "name": "Qt",
-      "cacheVariables": {
-        "CMAKE_PREFIX_PATH": "$env{QTDIR}"
-      },
+        "cacheVariables": {
+            "CMAKE_PREFIX_PATH": "$env{QTDIR}"
+        },
       "vendor": {
         "qt-project.org/Qt": {
           "checksum": "wVa86FgEkvdCTVp1/nxvrkaemJc="

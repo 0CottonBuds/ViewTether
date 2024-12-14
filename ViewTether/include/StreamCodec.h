@@ -2,22 +2,27 @@
 #include <QObject>
 #include "Windows.h"
 
-#include <d3d12.h>
-#include <d3d12video.h>
-
 extern "C" {
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libavutil/opt.h>
-#include <libavutil/hwcontext.h>
-#include <libavutil/imgutils.h>
-#include <libswscale/swscale.h>
-#include <libavutil/error.h>
+	#include <libavcodec/avcodec.h>
+	#include <libavformat/avformat.h>
+	#include <libavutil/avutil.h>
+	#include <libavutil/hwcontext.h>
+	#include <libavutil/error.h>
+	#include <libavutil/opt.h>
+	#include <libavutil/avconfig.h>
+	#include <libswscale/swscale.h>
 }
 
-#include <libavutil/hwcontext_d3d12va.h>
+#include <iostream>
+#include <d3d11.h>
+#include <d3d11_4.h>
 
 #pragma comment(lib, "strmiids.lib")
+#pragma comment(lib, "d3d11.lib")
+
+#include <d3d11.h>
+#include <iostream>
+
 
 enum CodecType {
 	encode,
