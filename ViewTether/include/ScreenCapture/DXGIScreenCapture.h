@@ -14,8 +14,12 @@
 #include "ScreenCapture/DisplayInformation.h"
 #include"ScreenCapture/ScreenCapture.h"
 
+#include <wrl/client.h>
+
 #pragma comment(lib, "dxgi.lib")
 #pragma comment(lib,"d3d11.lib")
+
+using Microsoft::WRL::ComPtr;
 
 using namespace std;
 class DXGIScreenCapture : public ScreenCapture {

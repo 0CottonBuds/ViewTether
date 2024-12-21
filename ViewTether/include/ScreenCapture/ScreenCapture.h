@@ -5,6 +5,9 @@
 #include <QObject>
 #include <d3d11.h>
 #include "ScreenCapture/DisplayInformation.h"
+#include <wrl/client.h>
+
+using Microsoft::WRL::ComPtr;
 
 class ScreenCapture : public QObject {
 	Q_OBJECT
@@ -15,6 +18,7 @@ public slots:
 
 signals:
 	void frameReady(std::shared_ptr<UCHAR> pPixelData);
+	void hwframeReady(ComPtr<ID3D11Texture2D> desktopTexture);
 	void initializationFinished();
 
 public:

@@ -104,11 +104,11 @@ void App::initializeThreads()
 	connect(&screenCaptureThread, &QThread::finished, screenCaptureWorker, &QObject::deleteLater);
 
 	streamEncoder->moveToThread(&displayStreamServerThread);
-	connect(&displayStreamServerThread, &QThread::started, streamEncoder, &StreamCodec::run);
+	connect(&displayStreamServerThread, &QThread::started, streamEncoder, &StreamEncoder::initialize);
 	connect(&displayStreamServerThread, &QThread::finished, streamEncoder, &QObject::deleteLater);
 
 	displayStreamServerWorker->moveToThread(&displayStreamServerThread);
-	connect(&displayStreamServerThread, &QThread::started, displayStreamServerWorker, &DisplayStreamServer::run);
+	connect(&displayStreamServerThread, &QThread::started, displayStreamServerWorker, &DisplayStreamServer::initialize);
 	connect(&displayStreamServerThread, &QThread::finished, displayStreamServerWorker, &QObject::deleteLater);
 
 	displayStreamServerThread.start();
@@ -126,9 +126,17 @@ void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 void App::initializeMainEventLoop()
 {
 	connect(previewTimer, &QTimer::timeout, screenCaptureWorker, &ScreenCapture::getFrame);
-	connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamCodec::encodeFrame);
-	connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	connect(streamEncoder, &StreamCodec::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
+
+	// choose if you want to use software or hardware encoding
+	//connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamEncoder::encodeFrame);
+	connect(screenCaptureWorker, &ScreenCapture::hwframeReady, streamEncoder, &StreamEncoder::encodeHWFrame);
+
+	// choose the preview source. used for testing if the pixel data is correct
+	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
+	connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
+
+	connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
+
 }
 
 void App::initializeButtons()

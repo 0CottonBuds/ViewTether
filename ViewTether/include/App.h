@@ -8,7 +8,7 @@
 #include "VIdeoWidget.h"
 #include "ScreenCapture/DXGIScreenCapture.h"
 #include "StreamServer/TCPStreamServer.h"
-#include "StreamCodec.h"
+#include "StreamEncoder.h"
 #include "Helpers/VirtualScreenDriverHelper.h"
 
 class App : public QObject {
@@ -28,7 +28,7 @@ private:
 	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
-	StreamCodec* streamEncoder = new StreamCodec(1080, 1920, 60, CodecType::encode);
+	StreamEncoder* streamEncoder = new StreamEncoder(1200, 1920, 60, AV_HWDEVICE_TYPE_QSV);
 	VirtualScreenDriverHelper* driverHelper = new VirtualScreenDriverHelper();
 
 	Ui_MainWidget* mainWidget;

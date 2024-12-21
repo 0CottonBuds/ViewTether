@@ -42,7 +42,7 @@ HRESULT DXGIScreenCapture::getFrame()
 
 	HRESULT hr;
 	IDXGIResource* pDesktopResource = nullptr;
-	ID3D11Texture2D* pDesktopTexture = nullptr;
+	ComPtr<ID3D11Texture2D> pDesktopTexture = nullptr;
 	DXGI_OUTDUPL_FRAME_INFO frameInfo;
 	D3D11_TEXTURE2D_DESC desktopTextureDesc;
 
@@ -67,7 +67,6 @@ HRESULT DXGIScreenCapture::getFrame()
 		break;
 	}
 
-	// Get desktop texture 
 	hr = pDesktopResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&pDesktopTexture);
 	if (FAILED(hr)) {
 		std::cerr << "Failed to Query desktop texture" << std::endl;
@@ -75,8 +74,9 @@ HRESULT DXGIScreenCapture::getFrame()
 	}
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
 
+	emit hwframeReady(pDesktopTexture);
 
-	// create an empty texture that has CPU read and write access.
+	// Create a CPU read write abled texture
 	ID3D11Texture2D* pCPUTexture = nullptr;
 	desktopTextureDesc.Usage = D3D11_USAGE_STAGING;
 	desktopTextureDesc.BindFlags = 0;
@@ -89,9 +89,7 @@ HRESULT DXGIScreenCapture::getFrame()
 		return hr;
 	}
 
-	// Copy texture into CPU read write abled texture
-	pDeviceContext->CopyResource(pCPUTexture, pDesktopTexture);
-	pDesktopTexture->Release();
+	pDeviceContext->CopyResource(pCPUTexture, pDesktopTexture.Get());
 
 	// Copy GPU Resource to CPU
 	D3D11_MAPPED_SUBRESOURCE resource;

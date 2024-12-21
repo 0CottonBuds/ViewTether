@@ -21,3 +21,5 @@ This application relies on FFmpeg for compressing frames. Ensure you have it lin
 ## Development pains
 
 As of not when building this project I have to manually copy paste the ffmpeg libraries to the build directory and after that run the windeployqt.exe to ViewTether.exe I will explore how I can automate this but for now I will focus on development.
+
+https://stackoverflow.com/questions/28732602/qt-example-executables-wont-run-missing-qt5cored-dll

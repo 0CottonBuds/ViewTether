@@ -25,7 +25,7 @@ QString DisplayStreamServer::getServerPort()
     return serverPort;
 }
 
-void DisplayStreamServer::run()
+void DisplayStreamServer::initialize()
 {
     server = new QTcpServer();
 
