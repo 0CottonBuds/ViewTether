@@ -28,7 +28,7 @@ private:
 	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
 	QThread displayStreamServerThread;
 	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
-	StreamEncoder* streamEncoder = new StreamEncoder(1200, 1920, 60, AV_HWDEVICE_TYPE_QSV);
+	StreamEncoder* streamEncoder = new StreamEncoder(720, 1280, 60, AV_HWDEVICE_TYPE_QSV);
 	VirtualScreenDriverHelper* driverHelper = new VirtualScreenDriverHelper();
 
 	Ui_MainWidget* mainWidget;

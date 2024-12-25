@@ -117,7 +117,7 @@ void App::initializeThreads()
 
 void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 {
-	QImage* notSwappedImage = new QImage(pixelData.get(), 1920, 1080, QImage::Format_RGBA8888);
+	QImage* notSwappedImage = new QImage(pixelData.get(), 1280, 720, QImage::Format_RGBA8888);
 	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
 	delete notSwappedImage;
 	videoWidget->updateImage(image);
@@ -133,9 +133,9 @@ void App::initializeMainEventLoop()
 
 	// choose the preview source. used for testing if the pixel data is correct
 	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
+	//connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
 
-	//connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
+	connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
 
 }
 

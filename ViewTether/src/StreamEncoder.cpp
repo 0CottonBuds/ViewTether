@@ -346,6 +346,7 @@ void StreamEncoder::extractPixelData(ComPtr<ID3D11Texture2D> texture, uint8_t** 
 	
 	*pixelData = (uint8_t*)malloc(mappedResource.DepthPitch);
 	memcpy(*pixelData, mappedResource.pData, mappedResource.DepthPitch);
+
 }
 
 AVFrame* StreamEncoder::convertFrameToBGRA(AVFrame* yuvFrame)
@@ -404,8 +405,8 @@ void StreamEncoder::testD3D11Texture(ComPtr<ID3D11Texture2D> Texture)
 	if (SUCCEEDED(hr)) {
 		uint8_t* data = static_cast<uint8_t*>(mappedResource.pData);
 
-		AVFrame* yuv_frame = av_frame_alloc();
-		if (!yuv_frame) {
+		AVFrame* nv12_frame = av_frame_alloc();
+		if (!nv12_frame) {
 			std::cerr << "Could not allocate memory for YUV frame." << std::endl;
 			return;
 		}
@@ -413,7 +414,7 @@ void StreamEncoder::testD3D11Texture(ComPtr<ID3D11Texture2D> Texture)
 		int y_size = width * height;
 		int uv_size = (width / 2) * (height / 2);
 
-		av_image_fill_arrays(yuv_frame->data, yuv_frame->linesize, data, AV_PIX_FMT_NV12, width, height, 1);
+		av_image_fill_arrays(nv12_frame->data, nv12_frame->linesize, data, AV_PIX_FMT_NV12, width, height, 1);
 
 		AVFrame* rgba_frame = av_frame_alloc();
 		if (!rgba_frame) {
@@ -431,7 +432,7 @@ void StreamEncoder::testD3D11Texture(ComPtr<ID3D11Texture2D> Texture)
 			return;
 		}
 
-		sws_scale(sws_ctx, yuv_frame->data, yuv_frame->linesize, 0, height, rgba_frame->data, rgba_frame->linesize);
+		sws_scale(sws_ctx, nv12_frame->data, nv12_frame->linesize, 0, height, rgba_frame->data, rgba_frame->linesize);
 
 		emit frameReady(std::shared_ptr<UCHAR>(rgba_data, av_free));
 
@@ -579,12 +580,14 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 	}
 
 	convertBGRAtoNV12(desktopTexture);
-	//testD3D11Texture(d3d11OutputTexture);
+	testD3D11Texture(d3d11OutputTexture);
 
 	uint8_t* pixelData;
 	extractPixelData(d3d11OutputTexture, &pixelData);
 
 	av_image_fill_arrays(sw_frame->data, sw_frame->linesize, pixelData, AV_PIX_FMT_NV12, width, height, 1);
+
+	free(pixelData);
 
 	err = av_hwframe_transfer_data(hw_frame, sw_frame, 0);
 	if (err < 0) {
