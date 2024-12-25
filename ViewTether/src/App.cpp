@@ -135,7 +135,7 @@ void App::initializeMainEventLoop()
 	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
 	connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
 
-	connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
+	//connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
 
 }
 

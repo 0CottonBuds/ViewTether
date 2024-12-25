@@ -93,11 +93,13 @@ private:
 
 	// initializes d3d11 device and context for hardware acceleration
 	void initializeD3D11();
+	void destroyD3D11();
 
 	// initializes the decoder used for testing the AVPackets
 	void initializeTestDecoder();
 
 	void convertBGRAtoNV12(ComPtr<ID3D11Texture2D> desktopTexture);
+	void extractPixelData(ComPtr<ID3D11Texture2D> texture, uint8_t** pixelData);
 	AVFrame* convertFrameToBGRA(AVFrame* yuvFrame);
 
 	// test if the d3d11 texture is correct uses the signal
