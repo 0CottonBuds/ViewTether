@@ -570,24 +570,13 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 		exit(1);
 	}
 
-	err = av_hwframe_transfer_data(sw_frame, hw_frame, 0);
-	if (err < 0) {
-		fprintf(stderr, "Failed to transfer data to software frame\n");
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
-		exit(-1);
-	}
+	sw_frame->format = AV_PIX_FMT_NV12;
 
 	convertBGRAtoNV12(desktopTexture);
-	testD3D11Texture(d3d11OutputTexture);
 
 	uint8_t* pixelData;
 	extractPixelData(d3d11OutputTexture, &pixelData);
-
 	av_image_fill_arrays(sw_frame->data, sw_frame->linesize, pixelData, AV_PIX_FMT_NV12, width, height, 1);
-
-	free(pixelData);
 
 	err = av_hwframe_transfer_data(hw_frame, sw_frame, 0);
 	if (err < 0) {
@@ -598,6 +587,7 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 		exit(-1);
 	}
 
+	free(pixelData);
 	av_frame_free(&sw_frame);
 
 	err = avcodec_send_frame(encoderContext, hw_frame);
@@ -633,12 +623,7 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 			exit(1);
 		}
 
-		// this is commented our because we want to test if the packet is correct
-		// and if we sent it to the server it handles the deletion of the packet
-		// TODO: Make the packet a smart pointer
-		//emit encodeFinish(packet);
-
-		//testPacket(packet);
+		emit encodeFinish(packet);
 	}
 
 	av_frame_free(&sw_frame);

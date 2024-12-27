@@ -136,7 +136,6 @@ void App::initializeMainEventLoop()
 	//connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
 
 	connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
-
 }
 
 void App::initializeButtons()
