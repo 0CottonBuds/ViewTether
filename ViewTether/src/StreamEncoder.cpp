@@ -3,6 +3,12 @@
 #include "mfx/mfxvideo.h"
 #include "libavutil/hwcontext_qsv.h"
 
+void ffmpeg_debug_error(int err)
+{
+	char* errStr = new char;
+	av_make_error_string(errStr, 255, err);
+	qDebug() << "Error: " << err << ": " << errStr;
+}
 
 StreamEncoder::StreamEncoder(int height, int width, int fps, AVHWDeviceType hardwareAccelerationType)
 {
@@ -12,7 +18,6 @@ StreamEncoder::StreamEncoder(int height, int width, int fps, AVHWDeviceType hard
 	this->hardwareAccelerationType = hardwareAccelerationType;
 }
 
-
 void StreamEncoder::initialize()
 {
 	backPacket = av_packet_alloc();
@@ -20,7 +25,6 @@ void StreamEncoder::initialize()
 	initializeTestDecoder();
 
 	if (hardwareAccelerationType == AV_HWDEVICE_TYPE_QSV) {
-		initializeD3D11();
 		initializeHWEncoder();
 	}
 	else if (hardwareAccelerationType == AV_HWDEVICE_TYPE_NONE){
@@ -32,54 +36,10 @@ void StreamEncoder::initialize()
 	}
 }
 
-
-// Function to create a test NV12 texture
-HRESULT CreateNV12Texture(ID3D11Device* device, ID3D11Texture2D** texture) {
-	if (!device || !texture) return E_POINTER;
-
-	// Define the texture description
-	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = 1920;                         // Texture width
-	textureDesc.Height = 1080;                        // Texture height
-	textureDesc.MipLevels = 1;                        // Single mip level
-	textureDesc.ArraySize = 1;                        // Single array slice
-	textureDesc.Format = DXGI_FORMAT_NV12;            // NV12 format
-	textureDesc.SampleDesc.Count = 1;                 // No multisampling
-	textureDesc.Usage = D3D11_USAGE_DEFAULT;          // Default usage
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // Bind as a shader resource
-
-	// Calculate the size of the Y plane and UV plane
-	const size_t yPlaneSize = 1920 * 1080;            // Width * Height
-	const size_t uvPlaneSize = (1920 / 2) * (1080 / 2) * 2; // (Width/2 * Height/2) * 2 bytes per pixel (UV interleaved)
-
-	// Create test data for NV12 (all white)
-	std::vector<unsigned char> nv12Data(yPlaneSize + uvPlaneSize, 0);
-	std::fill(nv12Data.begin(), nv12Data.begin() + yPlaneSize, 255); // Y plane: white (255)
-	std::fill(nv12Data.begin() + yPlaneSize, nv12Data.end(), 128);   // UV plane: neutral chroma (128, 128)
-
-	// Define the subresource data
-	D3D11_SUBRESOURCE_DATA initData = {};
-	initData.pSysMem = nv12Data.data();
-	initData.SysMemPitch = 1920;                     // Pitch for Y plane
-	initData.SysMemSlicePitch = 0;                   // Only one slice in 2D textures
-
-	// Create the NV12 texture
-	HRESULT hr = device->CreateTexture2D(&textureDesc, &initData, texture);
-	if (FAILED(hr)) {
-		qDebug() << "Failed to create NV12 texture. HRESULT: " << hr;
-		return hr;
-	}
-
-	std::cout << "NV12 texture created successfully!";
-	return S_OK;
-}
-
 void StreamEncoder::initializeHWEncoder()
 {
 	av_log_set_level(AV_LOG_DEBUG);
 	av_log(NULL, AV_LOG_DEBUG, "Message\n");
-	//av_log_set_level(AV_LOG_VERBOSE);
-
 
 	encoder = avcodec_find_encoder_by_name("hevc_qsv");
 	if (!encoder) {
@@ -93,7 +53,6 @@ void StreamEncoder::initializeHWEncoder()
 		exit(1);
 	}
 
-	// create ffmpeg hardware device context
 	AVBufferRef* hw_device_ctx = nullptr;
 
 	AVDictionary* options = nullptr;
@@ -109,10 +68,9 @@ void StreamEncoder::initializeHWEncoder()
 		exit(-1);
 	}
 
-
 	AVHWFramesContext* hw_frames_ctx = (AVHWFramesContext*)hw_frames_ref->data;
 	hw_frames_ctx->format = AV_PIX_FMT_QSV;  
-	hw_frames_ctx->sw_format = AV_PIX_FMT_NV12;
+	hw_frames_ctx->sw_format = AV_PIX_FMT_BGRA;
 	hw_frames_ctx->width = width;  
 	hw_frames_ctx->height = height; 
 	hw_frames_ctx->device_ref = hw_device_ctx;
@@ -142,125 +100,10 @@ void StreamEncoder::initializeHWEncoder()
 	int err = avcodec_open2(encoderContext, encoder, nullptr);
 	if (err < 0) {
 		std::cout << "Could not open codec" << std::endl;
+		ffmpeg_debug_error(err);
 		exit(1);
 	}
-
 }
-
-void StreamEncoder::initializeD3D11()
-{
-	// Create a D3D11 device
-	D3D_FEATURE_LEVEL feature_levels[] = { D3D_FEATURE_LEVEL_11_0 };
-	D3D_FEATURE_LEVEL feature_level_out;
-	HRESULT hr = D3D11CreateDevice(
-		nullptr,                      // Adapter (use default)
-		D3D_DRIVER_TYPE_HARDWARE,     // Driver type
-		nullptr,                      // No software rasterizer
-		D3D11_CREATE_DEVICE_BGRA_SUPPORT, // Flags (required for video interop)
-		feature_levels,               // Feature levels
-		1,                            // Number of feature levels
-		D3D11_SDK_VERSION,            // SDK version
-		&d3d11Device,                // Output device
-		&feature_level_out,           // Output feature level
-		&d3d11DeviceContext         // Device context (can retrieve later)
-	);
-	if (FAILED(hr)) {
-		fprintf(stderr, "Failed to create D3D11 device\n");
-		exit(-1);
-	}
-
-	hr = d3d11Device->QueryInterface(IID_PPV_ARGS(&d3d11VideoDevice));
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	d3d11ContentDesc.InputFrameFormat = D3D11_VIDEO_FRAME_FORMAT_PROGRESSIVE;
-	d3d11ContentDesc.InputWidth = width;
-	d3d11ContentDesc.InputHeight = height;
-	d3d11ContentDesc.OutputWidth = width;
-	d3d11ContentDesc.OutputHeight = height;
-	d3d11ContentDesc.Usage = D3D11_VIDEO_USAGE_PLAYBACK_NORMAL;
-
-	hr = d3d11VideoDevice->CreateVideoProcessorEnumerator(&d3d11ContentDesc, &d3d11VideoProcessorEnumerator);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	hr = d3d11VideoDevice->CreateVideoProcessor(d3d11VideoProcessorEnumerator.Get(), 0, &d3d11VideoProcessor);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	D3D11_TEXTURE2D_DESC inputDesc = {};
-	inputDesc.Width = width;
-	inputDesc.Height = height;
-	inputDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
-	inputDesc.Usage = D3D11_USAGE_DEFAULT;
-	inputDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	inputDesc.MipLevels = 1;
-	inputDesc.ArraySize = 1;
-	inputDesc.SampleDesc.Count = 1;
-
-	hr = d3d11Device->CreateTexture2D(&inputDesc, nullptr, &d3d11InputTexture);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	D3D11_TEXTURE2D_DESC outputDesc = {};
-	outputDesc.Width = width;
-	outputDesc.Height = height;
-	outputDesc.Format = DXGI_FORMAT_NV12;
-	outputDesc.Usage = D3D11_USAGE_DEFAULT;
-	outputDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
-	outputDesc.MipLevels = 1;
-	outputDesc.ArraySize = 1;
-	outputDesc.SampleDesc.Count = 1;
-
-	hr = d3d11Device->CreateTexture2D(&outputDesc, nullptr, &d3d11OutputTexture);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	hr = d3d11DeviceContext->QueryInterface(IID_PPV_ARGS(&d3d11VideoContext));
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	D3D11_VIDEO_PROCESSOR_INPUT_VIEW_DESC inputViewDesc = {};
-	inputViewDesc.ViewDimension = D3D11_VPIV_DIMENSION_TEXTURE2D;
-	inputViewDesc.Texture2D.MipSlice = 0;
-
-	hr = d3d11VideoDevice->CreateVideoProcessorInputView(d3d11InputTexture.Get(), d3d11VideoProcessorEnumerator.Get(), &inputViewDesc, &d3d11InputView);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	D3D11_VIDEO_PROCESSOR_OUTPUT_VIEW_DESC outputViewDesc = {};
-	outputViewDesc.ViewDimension = D3D11_VPOV_DIMENSION_TEXTURE2D;
-
-	hr = d3d11VideoDevice->CreateVideoProcessorOutputView(d3d11OutputTexture.Get(), d3d11VideoProcessorEnumerator.Get(), &outputViewDesc, &d3d11OutputView);
-	if (FAILED(hr)) {
-		exit(-1);
-	}
-
-	d3d11VideoContext->VideoProcessorSetOutputTargetRect(d3d11VideoProcessor.Get(), TRUE, nullptr);
-
-}
-
-void StreamEncoder::destroyD3D11()
-{
-	d3d11InputView.Reset();
-	d3d11OutputView.Reset();
-	d3d11VideoProcessor.Reset();
-	d3d11VideoProcessorEnumerator.Reset();
-	d3d11VideoContext.Reset();
-	d3d11VideoDevice.Reset();
-	d3d11OutputTexture.Reset();
-	d3d11InputTexture.Reset();
-	d3d11DeviceContext.Reset();
-	d3d11Device.Reset();
-}
-
 
 void StreamEncoder::initializeTestDecoder()
 {
@@ -289,6 +132,7 @@ void StreamEncoder::initializeTestDecoder()
 	int err = avcodec_open2(testDecoderContext, testDecoder, nullptr);
 	if (err < 0) {
 		qDebug() << "Could not open codec";
+		ffmpeg_debug_error(err);
 		exit(1);
 	}
 
@@ -297,153 +141,6 @@ void StreamEncoder::initializeTestDecoder()
 		qDebug() << "Could not allocate SWS Context";
 		exit(1);
 	}
-}
-
-// Converted texture is in d3d11OutputTexture variable
-void StreamEncoder::convertBGRAtoNV12(ComPtr<ID3D11Texture2D> desktopTexture)
-{
-	d3d11DeviceContext->CopyResource(d3d11InputTexture.Get(), desktopTexture.Get());
-
-	D3D11_VIDEO_PROCESSOR_STREAM stream = {};
-	stream.Enable = TRUE;
-	stream.pInputSurface = d3d11InputView.Get();
-
-	HRESULT hr;
-
-	// Perform the conversion
-	hr = d3d11VideoContext->VideoProcessorBlt(d3d11VideoProcessor.Get(), d3d11OutputView.Get(), 0, 1, &stream);
-	if (FAILED(hr)) {
-		qDebug() << "Failed to perform video processor blit: 0x%x\n" << hr;
-		exit(-1);
-	}
-}
-
-void StreamEncoder::extractPixelData(ComPtr<ID3D11Texture2D> texture, uint8_t** pixelData)
-{
-	D3D11_TEXTURE2D_DESC desc = {};
-	texture->GetDesc(&desc);
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
-
-	ComPtr<ID3D11Texture2D> stagingTexture = nullptr;
-	HRESULT hr = d3d11Device->CreateTexture2D(&desc, nullptr, &stagingTexture);
-	if (FAILED(hr)) {
-		fprintf(stderr, "Failed to create staging texture.\n");
-		exit(-1);
-	}
-
-	d3d11DeviceContext->CopyResource(stagingTexture.Get(), texture.Get());
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource = {};
-	hr = d3d11DeviceContext->Map(stagingTexture.Get(), 0, D3D11_MAP_READ, 0, &mappedResource);
-	if (FAILED(hr)) {
-		fprintf(stderr, "Failed to map staging texture.\n");
-		stagingTexture->Release();
-		exit(-1);
-	}
-	
-	*pixelData = (uint8_t*)malloc(mappedResource.DepthPitch);
-	memcpy(*pixelData, mappedResource.pData, mappedResource.DepthPitch);
-
-}
-
-AVFrame* StreamEncoder::convertFrameToBGRA(AVFrame* yuvFrame)
-{
-	AVFrame* bgraFrame = av_frame_alloc();
-	if (!bgraFrame) {
-		qDebug() << "Unable to allocate memory for yuv frame";
-		av_frame_free(&yuvFrame);
-		exit(1);
-	}
-
-	bgraFrame->format = AV_PIX_FMT_BGRA;
-	bgraFrame->width = width;
-	bgraFrame->height = height;
-	bgraFrame->pts = pts;
-
-	if (av_frame_get_buffer(bgraFrame, 0) < 0) {
-		qDebug() << "Failed to get frame buffer";
-		exit(1);
-	}
-
-	if (av_frame_make_writable(bgraFrame) < 0) {
-		qDebug() << "Failed to make frame writable";
-		exit(1);
-	}
-
-	int err = sws_scale(testDecoderSwsContext, (const uint8_t* const*)yuvFrame->data, yuvFrame->linesize, 0, height, (uint8_t* const*)bgraFrame->data, bgraFrame->linesize);
-	if (err < 0) {
-		qDebug() << "Could not format frame to bgra";
-		exit(1);
-	}
-	return bgraFrame;
-}
-
-
-void StreamEncoder::testD3D11Texture(ComPtr<ID3D11Texture2D> Texture)
-{
-	D3D11_TEXTURE2D_DESC desc;
-	d3d11OutputTexture->GetDesc(&desc);
-
-	desc.Usage = D3D11_USAGE_STAGING;
-	desc.BindFlags = 0;
-	desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
-	desc.MiscFlags = 0;
-
-	ID3D11Texture2D* stagingTexture;
-	HRESULT hr = d3d11Device->CreateTexture2D(&desc, nullptr, &stagingTexture);
-	if (FAILED(hr)) {
-		qDebug() << "Failed to create staging texture: 0x%x\n" << hr;
-		exit(-1);
-	}
-	d3d11DeviceContext->CopyResource(stagingTexture, d3d11OutputTexture.Get());
-
-	D3D11_MAPPED_SUBRESOURCE mappedResource;
-	hr = d3d11DeviceContext->Map(stagingTexture, 0, D3D11_MAP_READ, 0, &mappedResource);
-	if (SUCCEEDED(hr)) {
-		uint8_t* data = static_cast<uint8_t*>(mappedResource.pData);
-
-		AVFrame* nv12_frame = av_frame_alloc();
-		if (!nv12_frame) {
-			std::cerr << "Could not allocate memory for YUV frame." << std::endl;
-			return;
-		}
-
-		int y_size = width * height;
-		int uv_size = (width / 2) * (height / 2);
-
-		av_image_fill_arrays(nv12_frame->data, nv12_frame->linesize, data, AV_PIX_FMT_NV12, width, height, 1);
-
-		AVFrame* rgba_frame = av_frame_alloc();
-		if (!rgba_frame) {
-			std::cerr << "Could not allocate memory for RGBA frame." << std::endl;
-			return;
-		}
-
-		int rgba_size = width * height * 4;  
-		uint8_t* rgba_data = (uint8_t*)av_malloc(rgba_size);
-		av_image_fill_arrays(rgba_frame->data, rgba_frame->linesize, rgba_data, AV_PIX_FMT_RGBA, width, height, 1);
-
-		SwsContext* sws_ctx = sws_getContext(width, height, AV_PIX_FMT_NV12, width, height, AV_PIX_FMT_RGBA, SWS_BICUBIC, nullptr, nullptr, nullptr);
-		if (!sws_ctx) {
-			std::cerr << "Could not initialize sws context." << std::endl;
-			return;
-		}
-
-		sws_scale(sws_ctx, nv12_frame->data, nv12_frame->linesize, 0, height, rgba_frame->data, rgba_frame->linesize);
-
-		emit frameReady(std::shared_ptr<UCHAR>(rgba_data, av_free));
-
-		d3d11DeviceContext->Unmap(stagingTexture, 0);
-		sws_freeContext(sws_ctx);
-	}
-	else {
-		printf("Failed to map the staging texture: 0x%x\n", hr);
-	}
-
-	stagingTexture->Release();
 }
 
 void StreamEncoder::initializeEncoder()
@@ -479,6 +176,7 @@ void StreamEncoder::initializeEncoder()
 	int err = avcodec_open2(encoderContext, encoder, nullptr);
 	if (err < 0) {
 		std::cout << "Could not open codec" << std::endl;
+		ffmpeg_debug_error(err);
 		exit(1);
 	}
 
@@ -503,18 +201,15 @@ void StreamEncoder::encodeFrame(std::shared_ptr<UCHAR> pData)
 	err = avcodec_send_frame(encoderContext, frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
-		av_frame_free(&frame);
+		ffmpeg_debug_error(err);
 		exit(1);
 	}
+	av_frame_free(&frame);
 
 	while (true) {
 		AVPacket* packet = av_packet_alloc();
 		if (!packet) {
 			qDebug() << "Could not allocate memory for packet";
-			av_frame_free(&frame);
 			exit(1);
 		}
 		
@@ -526,27 +221,16 @@ void StreamEncoder::encodeFrame(std::shared_ptr<UCHAR> pData)
 		}
 		if (err < 0) {
 			qDebug() << "Error recieving to codec";
-			char* errStr = new char;
-			av_make_error_string(errStr, 255, err);
-			qDebug() << errStr;
-			av_frame_free(&frame);
-			av_packet_free(&packet);
+			ffmpeg_debug_error(err);
 			exit(1);
 		}
 
-		// this is commented our because we want to test if the packet is correct
-		// and if we sent it to the server it handles the deletion of the packet
 		// TODO: Make the packet a smart pointer
-
-		//emit encodeFinish(packet);
-
-		testPacket(packet);
+		emit encodeFinish(packet);
 	}
-
-	av_frame_free(&frame);
 }
 
-void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
+void StreamEncoder::encodeHWFrame(std::shared_ptr<UCHAR> pData)
 {
 	AVFrame* hw_frame = av_frame_alloc();
 	if (!hw_frame) {
@@ -558,9 +242,7 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 	int err = 0;
 	if (err = av_hwframe_get_buffer(encoderContext->hw_frames_ctx, hw_frame, 0) < 0) {
 		fprintf(stderr, "Failed to allocate HW frame\n");
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
+		ffmpeg_debug_error(err);
 		exit(-1);
 	}
 
@@ -569,106 +251,57 @@ void StreamEncoder::encodeHWFrame(ComPtr<ID3D11Texture2D> desktopTexture)
 		qDebug() << "Could not allocate software frame";
 		exit(1);
 	}
+	sw_frame->format = AV_PIX_FMT_BGRA;
+	sw_frame->height = height;
+	sw_frame->width = width;
 
-	sw_frame->format = AV_PIX_FMT_NV12;
-
-	convertBGRAtoNV12(desktopTexture);
-
-	uint8_t* pixelData;
-	extractPixelData(d3d11OutputTexture, &pixelData);
-	av_image_fill_arrays(sw_frame->data, sw_frame->linesize, pixelData, AV_PIX_FMT_NV12, width, height, 1);
+	err = av_image_fill_arrays(sw_frame->data, sw_frame->linesize, pData.get(), AV_PIX_FMT_BGRA, width, height, 1);
+	if (err < 0) {
+		fprintf(stderr, "Failed to transfer data to hardware frame\n");
+		ffmpeg_debug_error(err);
+		exit(-1);
+	}
 
 	err = av_hwframe_transfer_data(hw_frame, sw_frame, 0);
 	if (err < 0) {
 		fprintf(stderr, "Failed to transfer data to hardware frame\n");
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
+		ffmpeg_debug_error(err);
 		exit(-1);
 	}
 
-	free(pixelData);
 	av_frame_free(&sw_frame);
 
 	err = avcodec_send_frame(encoderContext, hw_frame);
 	if (err < 0) {
 		qDebug() << "Error sending frame to codec";
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
+		ffmpeg_debug_error(err);
 		exit(1);
 	}
+
+	av_frame_free(&hw_frame);
 
 	while (true) {
 		AVPacket* packet = av_packet_alloc();
 		if (!packet) {
-			qDebug() << "Could not allocate memory for packet";
-			av_frame_free(&sw_frame);
+			qDebug() << "Could not allocate memory for packet.";
+			qDebug() << "Packet is null.";
 			exit(1);
 		}
 		
 		err = avcodec_receive_packet(encoderContext, packet);
-		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) {
+		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) { // packet not ready
 			av_packet_unref(packet);
 			av_packet_free(&packet);
 			break;
 		}
 		if (err < 0) {
 			qDebug() << "Error recieving to codec";
-			char* errStr = new char;
-			av_make_error_string(errStr, 255, err);
-			qDebug() << errStr;
-			av_frame_free(&sw_frame);
-			av_packet_free(&packet);
+			ffmpeg_debug_error(err);
 			exit(1);
 		}
 
-		emit encodeFinish(packet);
+		emit encodeFinish(packet); 
 	}
-
-	av_frame_free(&sw_frame);
-}
-
-void StreamEncoder::testPacket(AVPacket* packet)
-{
-	int err = 0;
-
-	err = avcodec_send_packet(testDecoderContext, packet);
-	if (err < 0) {
-		qDebug() << "Error sending packet to codec";
-		char* errStr = new char;
-		av_make_error_string(errStr, 255, err);
-		qDebug() << errStr;
-		exit(1);
-	}
-
-	AVFrame* frame;
-	int response = 0;
-	while (response >= 0) {
-		frame = av_frame_alloc();
-		response = avcodec_receive_frame(testDecoderContext, frame);
-
-		if (response == AVERROR(EAGAIN) || response == AVERROR_EOF) {
-			break;
-		}
-		else if (response < 0) {
-			qDebug() << "Error recieving frame from codec";
-			char* errStr = new char;
-			av_make_error_string(errStr, 255, err);
-			qDebug() << errStr;
-			exit(1);
-		}
-
-		AVFrame* bgraFrame = convertFrameToBGRA(frame);
-
-		emit frameReady(std::shared_ptr<UCHAR>(bgraFrame->data[0], av_free));
-		
-		av_frame_unref(frame);
-		av_frame_free(&frame);
-	}
-
-	av_frame_free(&frame);
-	av_packet_free(&packet);
 }
 
 AVFrame* StreamEncoder::allocateFrame(std::shared_ptr<UCHAR> pData)
@@ -711,4 +344,74 @@ AVFrame* StreamEncoder::allocateFrame(std::shared_ptr<UCHAR> pData)
 	}
 	
 	return yuvFrame;
+}
+
+AVFrame* StreamEncoder::convertFrameToBGRA(AVFrame* yuvFrame)
+{
+	AVFrame* bgraFrame = av_frame_alloc();
+	if (!bgraFrame) {
+		qDebug() << "Unable to allocate memory for yuv frame";
+		av_frame_free(&yuvFrame);
+		exit(1);
+	}
+
+	bgraFrame->format = AV_PIX_FMT_BGRA;
+	bgraFrame->width = width;
+	bgraFrame->height = height;
+	bgraFrame->pts = pts;
+
+	if (av_frame_get_buffer(bgraFrame, 0) < 0) {
+		qDebug() << "Failed to get frame buffer";
+		exit(1);
+	}
+
+	if (av_frame_make_writable(bgraFrame) < 0) {
+		qDebug() << "Failed to make frame writable";
+		exit(1);
+	}
+
+	int err = sws_scale(testDecoderSwsContext, (const uint8_t* const*)yuvFrame->data, yuvFrame->linesize, 0, height, (uint8_t* const*)bgraFrame->data, bgraFrame->linesize);
+	if (err < 0) {
+		qDebug() << "Could not format frame to bgra";
+		exit(1);
+	}
+	return bgraFrame;
+}
+
+void StreamEncoder::testPacket(AVPacket* packet)
+{
+	int err = 0;
+
+	err = avcodec_send_packet(testDecoderContext, packet);
+	if (err < 0) {
+		qDebug() << "Error sending packet to codec";
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	AVFrame* frame;
+	err = 0;
+	while (err >= 0) {
+		frame = av_frame_alloc();
+		err = avcodec_receive_frame(testDecoderContext, frame);
+
+		if (err == AVERROR(EAGAIN) || err == AVERROR_EOF) {
+			break;
+		}
+		else if (err < 0) {
+			qDebug() << "Error recieving frame from codec";
+			ffmpeg_debug_error(err);
+			exit(1);
+		}
+
+		AVFrame* bgraFrame = convertFrameToBGRA(frame);
+
+		emit frameReady(std::shared_ptr<UCHAR>(bgraFrame->data[0], av_free));
+		
+		av_frame_unref(frame);
+		av_frame_free(&frame);
+	}
+
+	av_frame_free(&frame);
+	av_packet_free(&packet);
 }

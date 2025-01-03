@@ -129,11 +129,12 @@ void App::initializeMainEventLoop()
 
 	// choose if you want to use software or hardware encoding
 	//connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamEncoder::encodeFrame);
-	connect(screenCaptureWorker, &ScreenCapture::hwframeReady, streamEncoder, &StreamEncoder::encodeHWFrame);
+	connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamEncoder::encodeHWFrame);
+	//connect(screenCaptureWorker, &ScreenCapture::hwframeReady, streamEncoder, &StreamEncoder::encodeHWFrame);
 
 	// choose the preview source. used for testing if the pixel data is correct
 	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	//connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
+	connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
 
 	connect(streamEncoder, &StreamEncoder::encodeFinish, displayStreamServerWorker, &DisplayStreamServer::write);
 }

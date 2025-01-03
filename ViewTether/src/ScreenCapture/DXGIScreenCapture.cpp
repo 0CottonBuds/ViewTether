@@ -74,8 +74,6 @@ HRESULT DXGIScreenCapture::getFrame()
 	}
 	pDesktopTexture->GetDesc(&desktopTextureDesc);
 
-	emit hwframeReady(pDesktopTexture);
-
 	// Create a CPU read write abled texture
 	// using the desktop texture description but with extra flags
 	ID3D11Texture2D* pCPUTexture = nullptr;
@@ -91,12 +89,10 @@ HRESULT DXGIScreenCapture::getFrame()
 	}
 
 	pDeviceContext->CopyResource(pCPUTexture, pDesktopTexture.Get());
-	pDesktopTexture->Release();
 
 	// Copy GPU Resource to CPU
 	D3D11_MAPPED_SUBRESOURCE resource;	
-	UINT subresource = D3D11CalcSubresource(0, 0, 0);
-	hr = pDeviceContext->Map(pCPUTexture, subresource, D3D11_MAP_READ_WRITE, NULL, &resource);
+	hr = pDeviceContext->Map(pCPUTexture, 0, D3D11_MAP_READ, NULL, &resource);
 	if (FAILED(hr)) {
 		cerr << "Failed to map desktop image to resource" << endl;
 		return hr;
