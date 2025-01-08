@@ -114,6 +114,7 @@ QByteArray DisplayStreamServer::serializeAvPacket(AVPacket* packet)
     return byteArray;
 }
 
+
 void DisplayStreamServer::read() {
 	QString data;
     while (client->bytesAvailable()) {

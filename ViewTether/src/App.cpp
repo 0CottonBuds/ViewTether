@@ -43,9 +43,9 @@ App::App(const App&)
 
 void App::setFps()
 {
-	int fps = mainWidget->frameRateComboBox->currentText().toInt();
-	while (previewTimer->interval() != fps) {
-		previewTimer->setInterval(fps);
+	int m_fps = mainWidget->frameRateComboBox->currentText().toInt();
+	while (previewTimer->interval() != m_fps) {
+		previewTimer->setInterval(m_fps);
 	}
 }
 

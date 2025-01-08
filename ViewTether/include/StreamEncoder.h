@@ -1,7 +1,5 @@
 #pragma once
 #include <QObject>
-#include <QImage>
-#include <Windows.h>
 #include <iostream>
 
 extern "C" {
@@ -27,41 +25,41 @@ public slots:
 
 	// encodes pixel data and emits encode finish when a packet is ready.
 	// remember to free the frame on the reciever of packet 
-	void encodeFrame(std::shared_ptr<UCHAR> pData);
-	void encodeHWFrame(std::shared_ptr<UCHAR> pData);
+	void encodeFrame(std::shared_ptr<uint8_t> pixelData);
+	void encodeHWFrame(std::shared_ptr<uint8_t> pixelData);
 
 signals:
 	void encodeFinish(AVPacket* packet);
-	void frameReady(std::shared_ptr<UCHAR> pData);
+	void frameReady(std::shared_ptr<uint8_t> pData);
 
 private:
-	AVPacket* backPacket;
+	AVPacket* m_backPacket;
 
-	const AVCodec* encoder;
-	AVCodecContext* encoderContext;
-	SwsContext *encoderSwsContext;
+	const AVCodec* m_encoder;
+	AVCodecContext* m_encoderContext;
+	SwsContext* m_encoderSwsContext;
 
-	const AVCodec* testDecoder;
-	AVCodecContext* testDecoderContext;
-	SwsContext *testDecoderSwsContext;
+	const AVCodec* m_testDecoder;
+	AVCodecContext* m_testDecoderContext;
+	SwsContext *m_testDecoderSwsContext;
 
-	int width;
-	int height;
-	int fps;
-	int bitrate = 3000000;
-	int pts = 0;
+	int m_width;
+	int m_height;
+	int m_fps;
+	int m_bitrate = 3000000;
+	int m_pts = 0;
 
 	// set to anything but none for hardware acceleration. As of now
 	// only qsv is supported
-	AVHWDeviceType hardwareAccelerationType = AV_HWDEVICE_TYPE_NONE;
+	AVHWDeviceType m_hardwareAccelerationType = AV_HWDEVICE_TYPE_NONE;
 
 private:
 	void initializeEncoder();
 	void initializeHWEncoder();
 	void initializeTestDecoder();
 
-	AVFrame* allocateFrame(std::shared_ptr<UCHAR> pData);
-	AVFrame* convertFrameToBGRA(AVFrame* yuvFrame);
+	AVFrame* allocateFrame(std::shared_ptr<uint8_t> pixelData);
+	AVFrame* convertYUVFrameToBGRA(AVFrame* yuvFrame);
 
 	// emits frameReady signal with the frame data
 	// for testing avpackets. the initializeTestDecoder
