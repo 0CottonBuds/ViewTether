@@ -25,11 +25,11 @@ public slots:
 
 private:
 	QThread screenCaptureThread;
-	ScreenCapture* screenCaptureWorker = new DXGIScreenCapture();
+	ScreenCapture* screenCaptureWorker;
 	QThread displayStreamServerThread;
-	DisplayStreamServer* displayStreamServerWorker = new DisplayStreamServer();
-	StreamEncoder* streamEncoder = new StreamEncoder(720, 1280, 60, AV_HWDEVICE_TYPE_QSV);
-	VirtualScreenDriverHelper* driverHelper = new VirtualScreenDriverHelper();
+	DisplayStreamServer* displayStreamServerWorker;
+	StreamEncoder* streamEncoder;
+	VirtualScreenDriverHelper* driverHelper;
 
 	Ui_MainWidget* mainWidget;
 	VideoWidget* videoWidget;

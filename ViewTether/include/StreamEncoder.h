@@ -1,6 +1,10 @@
 #pragma once
+
+//#define _WRITE_PACKET_TO_FILE
+
 #include <QObject>
 #include <iostream>
+#include <fstream>
 
 extern "C" {
 	#include <libavcodec/avcodec.h>
@@ -46,12 +50,19 @@ private:
 	int m_width;
 	int m_height;
 	int m_fps;
-	int m_bitrate = 3000000;
+	int m_bitrate = 1000000;
 	int m_pts = 0;
+
+	int frameCount = 0;
 
 	// set to anything but none for hardware acceleration. As of now
 	// only qsv is supported
 	AVHWDeviceType m_hardwareAccelerationType = AV_HWDEVICE_TYPE_NONE;
+
+#ifdef _WRITE_PACKET_TO_FILE 
+	const char* m_pathToOutputFile = "./output.hevc";
+	std::ofstream m_outputFileWriter;
+#endif
 
 private:
 	void initializeEncoder();
@@ -65,6 +76,11 @@ private:
 	// for testing avpackets. the initializeTestDecoder
 	// must be called before using tihs.
 	void testPacket(AVPacket* packet);
+
+#ifdef _WRITE_PACKET_TO_FILE 
+	void writeToFile(AVPacket* packet);
+#endif  
+
 	
 };
 

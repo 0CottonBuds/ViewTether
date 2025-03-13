@@ -12,8 +12,8 @@ static void ffmpeg_debug_error(int err)
 
 StreamEncoder::StreamEncoder(int height, int width, int fps, AVHWDeviceType hardwareAccelerationType)
 {
-	this->m_height = height;
 	this->m_width = width;
+	this->m_height = height;
 	this->m_fps = fps;
 	this->m_hardwareAccelerationType = hardwareAccelerationType;
 }
@@ -25,6 +25,11 @@ void StreamEncoder::initialize()
 		qDebug() << "Could not allocate memory for packet";
 		exit(1);
 	}
+
+#ifdef _WRITE_PACKET_TO_FILE
+	m_outputFileWriter.open(m_pathToOutputFile, std::ios::out | std::ios::binary);
+	qDebug() << "Initialized file writer for output";
+#endif
 
 	initializeTestDecoder();
 
@@ -38,6 +43,7 @@ void StreamEncoder::initialize()
 		qDebug() << "Hardware acceleration type not supported";
 		exit(1);
 	}
+
 }
 
 void StreamEncoder::encodeFrame(std::shared_ptr<uint8_t> pixelData)
@@ -106,6 +112,7 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 	swFrame->format = AV_PIX_FMT_BGRA;
 	swFrame->m_height = m_height;
 	swFrame->m_width = m_width;
+	swFrame->m_pts = frameCount;
 
 	err = av_frame_get_buffer(swFrame, 0);
 	if (err < 0) {
@@ -132,6 +139,8 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 	}
 
 	av_frame_free(&swFrame);
+	hwFrame->m_pts = frameCount;
+	frameCount += 1;
 
 	err = avcodec_send_frame(m_encoderContext, hwFrame);
 	if (err < 0) {
@@ -162,33 +171,39 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 			exit(1);
 		}
 
-		emit encodeFinish(packet); 
+#ifdef _WRITE_PACKET_TO_FILE
+		writeToFile(packet);
+		qDebug() << "Writing packet to file";
+#endif
+
 		//testPacket(packet);
+		emit encodeFinish(packet); 
 	}
 }
 
 void StreamEncoder::initializeHWEncoder()
 {
-	//av_log_set_level(AV_LOG_DEBUG);
-	//av_log(NULL, AV_LOG_DEBUG, "Message\n");
+	int err = 0;
+	av_log_set_level(AV_LOG_DEBUG);
+	av_log(NULL, AV_LOG_DEBUG, "Message\n");
 
 	m_encoder = avcodec_find_encoder_by_name("hevc_qsv");
 	if (!m_encoder) {
 		std::cout << "Codec not found" << std::endl;
 		exit(1);
 	}
-	 
+
 	m_encoderContext = avcodec_alloc_context3(m_encoder);
 	if (!m_encoderContext) {
 		std::cout << "Could not allocate codec context" << std::endl;
 		exit(1);
-	}
+	} 
 
 	AVBufferRef* hwDeviceContext = nullptr;
 
-	AVDictionary* hwDeviceContextOptions = nullptr;
-	av_dict_set(&hwDeviceContextOptions, "child_device_type", "d3d11va", 0);
-	if (av_hwdevice_ctx_create(&hwDeviceContext, AV_HWDEVICE_TYPE_QSV, nullptr, hwDeviceContextOptions, 0) < 0) {
+	//AVDictionary* hwDeviceContextOptions = nullptr;
+	//av_dict_set(&hwDeviceContextOptions, "child_device_type", "d3d11va", 0);
+	if (av_hwdevice_ctx_create(&hwDeviceContext, AV_HWDEVICE_TYPE_QSV, nullptr, nullptr, 0) < 0) {
 		fprintf(stderr, "Failed to create hardware device context.\n");
 		exit(-1);
 	}
@@ -206,35 +221,84 @@ void StreamEncoder::initializeHWEncoder()
 	hwFramesContext->m_height = m_height; 
 	hwFramesContext->device_ref = hwDeviceContext;
 	hwFramesContext->device_ctx =(AVHWDeviceContext*) hwDeviceContext->data;
+	hwFramesContext->initial_pool_size = 20;
 
 
-	m_encoderContext->bit_rate = m_bitrate;
+	//m_encoderContext->bit_rate = m_bitrate; // use QCP isntead of VBR
 	m_encoderContext->m_width = m_width;
 	m_encoderContext->m_height = m_height;
 
 	m_encoderContext->time_base.num = 1;
 	m_encoderContext->time_base.den = m_fps;
-    m_encoderContext->framerate.den = 1;
-	m_encoderContext->framerate.num = m_fps;
+    m_encoderContext->framerate.num = m_fps;
+	m_encoderContext->framerate.den = 1;
+
+	m_encoderContext->gop_size = 30;
 
 	m_encoderContext->pix_fmt = AV_PIX_FMT_QSV;
+	m_encoderContext->profile = FF_PROFILE_HEVC_MAIN;
+	m_encoderContext->level = 10;
 
 	m_encoderContext->hw_device_ctx = hwDeviceContext;
 	m_encoderContext->hw_frames_ctx = hwFramesRef;
+
+
 
 	if (av_hwframe_ctx_init(m_encoderContext->hw_frames_ctx) < 0) {
 		fprintf(stderr, "Failed to initialize hardware frame context.\n");
 		exit(-1);
 	}
 
-	int err = avcodec_open2(m_encoderContext, m_encoder, nullptr);
+	//err = av_opt_set(m_encoderContext->priv_data, "preset", "4", AV_OPT_SEARCH_CHILDREN);
+	//	if (err < 0) {
+	//	std::cout << "Could not set preset" << std::endl;
+	//	ffmpeg_debug_error(err);
+	//	exit(1);
+	//}
+
+	err = av_opt_set(m_encoderContext->priv_data, "profile", "main", AV_OPT_SEARCH_CHILDREN);
+	if (err < 0) {
+		std::cout << "Could not set profile" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	err = av_opt_set(m_encoderContext->priv_data, "tier", "0", AV_OPT_SEARCH_CHILDREN);
+	if (err < 0) {
+		std::cout << "Could not set profile" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	err = av_opt_set(m_encoderContext->priv_data, "pic_timing_sei", "false", AV_OPT_SEARCH_CHILDREN);
+	if (err < 0) {
+		std::cout << "Could not set pic timing sei" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	//AVDictionary* options = nullptr;
+	//av_dict_set(&options, "pic_timing_sei", "false", 0); 
+
+	err = avcodec_open2(m_encoderContext, m_encoder, nullptr);
 	if (err < 0) {
 		std::cout << "Could not open codec" << std::endl;
 		ffmpeg_debug_error(err);
 		exit(1);
 	}
-}
 
+	char* picTimingSeiValue = nullptr;
+	err = av_opt_get(m_encoderContext->priv_data, "pic_timing_sei", AV_OPT_SEARCH_CHILDREN, (uint8_t**)&picTimingSeiValue);
+	if (err < 0) {
+		std::cout << "Failed to retrieve pic_timing_sei value" << std::endl;
+		ffmpeg_debug_error(err);
+	}
+	else {
+		std::cout << "pic_timing_sei value: " << (picTimingSeiValue ? picTimingSeiValue : "null") << std::endl;
+		av_free(picTimingSeiValue); // Free the allocated memory
+	}
+
+}
 void StreamEncoder::initializeTestDecoder()
 {
 	m_testDecoder = avcodec_find_decoder_by_name("hevc");
@@ -255,8 +319,8 @@ void StreamEncoder::initializeTestDecoder()
 
 	m_testDecoderContext->time_base.num = 1;
 	m_testDecoderContext->time_base.den = m_fps;
-	m_testDecoderContext->framerate.num = m_fps;
-	m_testDecoderContext->framerate.den = 1;
+	m_testDecoderContext->framerate.num = 1;
+	m_testDecoderContext->framerate.den = m_fps;
 	m_testDecoderContext->pix_fmt = AV_PIX_FMT_YUV420P;
 
 	//testDecoderContext->thread_count = 2;
@@ -268,7 +332,7 @@ void StreamEncoder::initializeTestDecoder()
 		exit(1);
 	}
 
-	m_testDecoderSwsContext = sws_getContext(m_width, m_height, AV_PIX_FMT_YUV420P, m_width, m_height, AV_PIX_FMT_BGRA, NULL, NULL, NULL, NULL);
+	m_testDecoderSwsContext = sws_getContext(m_width, m_height, AV_PIX_FMT_YUV444P, m_width, m_height, AV_PIX_FMT_BGRA, NULL, NULL, NULL, NULL);
 	if (!m_testDecoderSwsContext) {
 		qDebug() << "Could not allocate SWS Context";
 		exit(1);
@@ -298,8 +362,12 @@ void StreamEncoder::initializeEncoder()
     m_encoderContext->framerate.den = 1;
 	m_encoderContext->framerate.num = m_fps;
 
+	m_encoderContext->gop_size = 30;
+	m_encoderContext->max_b_frames = 0;
+
 	m_encoderContext->pix_fmt = AV_PIX_FMT_NV12;
 
+	av_opt_set(m_encoderContext, "force_idr", "1", 0);
 	av_opt_set(m_encoderContext->priv_data, "preset", "veryfast", 0);
 	av_opt_set(m_encoderContext->priv_data, "crf", "26", 0);
 	av_opt_set(m_encoderContext->priv_data, "tune", "zerolatency", 0);
@@ -411,6 +479,7 @@ void StreamEncoder::testPacket(AVPacket* packet)
 	while (err >= 0) {
 		frame = av_frame_alloc();
 		err = avcodec_receive_frame(m_testDecoderContext, frame);
+		frame->format = AV_PIX_FMT_YUV444P;
 
 		if (err == AVERROR(EAGAIN) || err == AVERROR_EOF) {
 			break;
@@ -423,7 +492,11 @@ void StreamEncoder::testPacket(AVPacket* packet)
 
 		AVFrame* bgraFrame = convertYUVFrameToBGRA(frame);
 
-		emit frameReady(std::shared_ptr<uint8_t>(bgraFrame->data[0], av_free));
+		uint8_t* pixelData = new uint8_t[bgraFrame->linesize[0] * m_height];
+
+		memcpy(pixelData, bgraFrame->data[0], bgraFrame->linesize[0] * m_height);
+
+		emit frameReady(std::shared_ptr<uint8_t>(pixelData));
 		
 		av_frame_unref(frame);
 		av_frame_free(&frame);
@@ -432,3 +505,11 @@ void StreamEncoder::testPacket(AVPacket* packet)
 	av_frame_free(&frame);
 	av_packet_free(&packet);
 }
+
+
+#ifdef _WRITE_PACKET_TO_FILE 
+	void StreamEncoder::writeToFile(AVPacket* packet)
+	{
+		m_outputFileWriter.write((char*)packet->data, packet->size);
+	}
+#endif

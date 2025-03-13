@@ -10,8 +10,27 @@
 #include "Helpers/MiscHelpers.h"
 #include "ScreenCapture/ScreenCapture.h"
 
+void GetDesktopResolution(int& height, int& width)
+{
+	RECT desktop;
+	const HWND hDesktop = GetDesktopWindow();
+
+	GetWindowRect(hDesktop, &desktop);
+
+	height = desktop.right;
+	width = desktop.bottom;
+}
+
 App::App(int argc, char** argv)
 {
+	screenCaptureWorker = new DXGIScreenCapture();	
+	displayStreamServerWorker = new DisplayStreamServer();
+	driverHelper = new VirtualScreenDriverHelper();
+
+	int height, width;
+	GetDesktopResolution(height, width);
+	streamEncoder = new StreamEncoder(720, 1080, 60, AV_HWDEVICE_TYPE_QSV);
+
 	mainWidget = new Ui_MainWidget();
 	QApplication app(argc, argv);
 	QWidget* widget = new QWidget();
@@ -117,7 +136,7 @@ void App::initializeThreads()
 
 void App::onFrameReady(shared_ptr<UCHAR> pixelData)
 {
-	QImage* notSwappedImage = new QImage(pixelData.get(), 1280, 720, QImage::Format_RGBA8888);
+	QImage* notSwappedImage = new QImage(pixelData.get(), 1920, 1200, QImage::Format_RGBA8888);
 	shared_ptr<QImage> image = shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
 	delete notSwappedImage;
 	videoWidget->updateImage(image);
