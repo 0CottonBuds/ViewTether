@@ -45,20 +45,20 @@ HRESULT DXGIScreenCapture::getFrame()
 	DXGI_OUTDUPL_FRAME_INFO frameInfo;
 	D3D11_TEXTURE2D_DESC desktopTextureDesc;
 
-	// release frame incase previous frame is still there;
-	m_outputDuplication->ReleaseFrame();
-
 	// Sometimes ActuireNextFrame() fails so we try until we get a frame. 
 	while (true) {
 		hr = m_outputDuplication->AcquireNextFrame(0 ,&frameInfo, &desktopTextureResource);
-		if (FAILED(hr)) {
+
+		if (hr == DXGI_ERROR_WAIT_TIMEOUT) {
 			emit frameReady(m_backFrame);
 			return hr;
 		}
-		if (frameInfo.LastPresentTime.QuadPart == 0) {
+		if (hr == DXGI_ERROR_ACCESS_LOST) {
+			cerr << "Access Lost" << endl;
+			return hr;
+		}
+		else if (frameInfo.LastPresentTime.QuadPart == 0) {
 			emit frameReady(m_backFrame);
-			desktopTextureResource->Release();
-			m_outputDuplication->ReleaseFrame();
 			continue;
 		}
 		break;
@@ -67,7 +67,7 @@ HRESULT DXGIScreenCapture::getFrame()
 	hr = desktopTextureResource->QueryInterface(__uuidof(ID3D11Texture2D), (void**)&desktopTexture);
 	if (FAILED(hr)) {
 		std::cerr << "Failed to Query desktop texture" << std::endl;
-		m_outputDuplication->ReleaseFrame();
+		return hr;
 	}
 	desktopTexture->GetDesc(&desktopTextureDesc);
 
@@ -81,7 +81,6 @@ HRESULT DXGIScreenCapture::getFrame()
 	hr = m_device->CreateTexture2D(&desktopTextureDesc, nullptr, &stagingTexture);
 	if (FAILED(hr)) {
 		cerr << "Failed to create empty texture" << endl;
-		destroyD3D11();
 		return hr;
 	}
 
@@ -106,6 +105,7 @@ HRESULT DXGIScreenCapture::getFrame()
 	frameCount++;
 	emit frameReady(pixelData);
 
+	m_outputDuplication->ReleaseFrame();
 	return S_OK;
 }
 

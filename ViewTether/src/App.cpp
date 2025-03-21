@@ -1,10 +1,13 @@
 #include "App.h"
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
+#include <QGuiApplication>
+#include <QScreen>
 #include <QtWidgets/QLabel>
 #include <QImage>
 #include <QObject>
 #include <QLayout>
+#include <QList>
 #include <QTimer>
 
 #include "Helpers/MiscHelpers.h"
@@ -12,13 +15,15 @@
 
 void GetDesktopResolution(int& height, int& width)
 {
+	SetProcessDPIAware();
+
 	RECT desktop;
 	const HWND hDesktop = GetDesktopWindow();
-
 	GetWindowRect(hDesktop, &desktop);
 
-	height = desktop.right;
-	width = desktop.bottom;
+	width = desktop.right;
+	height = desktop.bottom;
+
 }
 
 App::App(int argc, char** argv)
@@ -27,9 +32,8 @@ App::App(int argc, char** argv)
 	displayStreamServerWorker = new DisplayStreamServer();
 	driverHelper = new VirtualScreenDriverHelper();
 
-	int height, width;
-	GetDesktopResolution(height, width);
-	streamEncoder = new StreamEncoder(720, 1080, 60, AV_HWDEVICE_TYPE_QSV);
+	GetDesktopResolution(m_primaryScreenHeight, m_primaryScreenWidth);
+	streamEncoder = new StreamEncoder(m_primaryScreenHeight, m_primaryScreenWidth, m_defaultFps, AV_HWDEVICE_TYPE_QSV);
 
 	mainWidget = new Ui_MainWidget();
 	QApplication app(argc, argv);

@@ -24,6 +24,11 @@ public slots:
 	void streamSwitch();
 
 private:
+	int m_primaryScreenHeight;
+	int m_primaryScreenWidth;
+	int m_defaultFps = 60; // if you change this change the default displahy on fps dropdown
+
+
 	QThread screenCaptureThread;
 	ScreenCapture* screenCaptureWorker;
 	QThread displayStreamServerThread;

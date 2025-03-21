@@ -31,7 +31,6 @@ void StreamEncoder::initialize()
 	qDebug() << "Initialized file writer for output";
 #endif
 
-	initializeTestDecoder();
 
 	if (m_hardwareAccelerationType == AV_HWDEVICE_TYPE_QSV) {
 		initializeHWEncoder();
@@ -138,7 +137,6 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 		exit(-1);
 	}
 
-	av_frame_free(&swFrame);
 	hwFrame->m_pts = frameCount;
 	frameCount += 1;
 
@@ -149,6 +147,7 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 		exit(1);
 	}
 
+	av_frame_free(&swFrame);
 	av_frame_free(&hwFrame);
 
 	while (true) {
@@ -163,7 +162,7 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 		if (err == AVERROR_EOF || err == AVERROR(EAGAIN) ) { // packet not ready
 			av_packet_unref(packet);
 			av_packet_free(&packet);
-			break;
+			return;
 		}
 		if (err < 0) {
 			qDebug() << "Error recieving to codec";
@@ -201,9 +200,9 @@ void StreamEncoder::initializeHWEncoder()
 
 	AVBufferRef* hwDeviceContext = nullptr;
 
-	//AVDictionary* hwDeviceContextOptions = nullptr;
-	//av_dict_set(&hwDeviceContextOptions, "child_device_type", "d3d11va", 0);
-	if (av_hwdevice_ctx_create(&hwDeviceContext, AV_HWDEVICE_TYPE_QSV, nullptr, nullptr, 0) < 0) {
+	AVDictionary* hwDeviceContextOptions = nullptr;
+	av_dict_set(&hwDeviceContextOptions, "child_device_type", "d3d11va", 0);
+	if (av_hwdevice_ctx_create(&hwDeviceContext, AV_HWDEVICE_TYPE_QSV, nullptr, hwDeviceContextOptions, 0) < 0) {
 		fprintf(stderr, "Failed to create hardware device context.\n");
 		exit(-1);
 	}
@@ -221,23 +220,32 @@ void StreamEncoder::initializeHWEncoder()
 	hwFramesContext->m_height = m_height; 
 	hwFramesContext->device_ref = hwDeviceContext;
 	hwFramesContext->device_ctx =(AVHWDeviceContext*) hwDeviceContext->data;
-	hwFramesContext->initial_pool_size = 20;
+	hwFramesContext->initial_pool_size = 10;
 
 
-	//m_encoderContext->bit_rate = m_bitrate; // use QCP isntead of VBR
+	//m_encoderContext->bit_rate = m_bitrate; // use QCP isntead of VBR 
+	m_encoderContext->qmin = 5;
+	m_encoderContext->qmax = 20;
+	m_encoderContext->global_quality = 10;
+
+	m_encoderContext->refs = 10;
+
+
 	m_encoderContext->m_width = m_width;
 	m_encoderContext->m_height = m_height;
+
 
 	m_encoderContext->time_base.num = 1;
 	m_encoderContext->time_base.den = m_fps;
     m_encoderContext->framerate.num = m_fps;
 	m_encoderContext->framerate.den = 1;
 
-	m_encoderContext->gop_size = 30;
+	m_encoderContext->gop_size = 10;
+	m_encoderContext->max_b_frames = 0;
 
 	m_encoderContext->pix_fmt = AV_PIX_FMT_QSV;
 	m_encoderContext->profile = FF_PROFILE_HEVC_MAIN;
-	m_encoderContext->level = 10;
+	m_encoderContext->level = 51;
 
 	m_encoderContext->hw_device_ctx = hwDeviceContext;
 	m_encoderContext->hw_frames_ctx = hwFramesRef;
@@ -249,12 +257,33 @@ void StreamEncoder::initializeHWEncoder()
 		exit(-1);
 	}
 
-	//err = av_opt_set(m_encoderContext->priv_data, "preset", "4", AV_OPT_SEARCH_CHILDREN);
-	//	if (err < 0) {
-	//	std::cout << "Could not set preset" << std::endl;
-	//	ffmpeg_debug_error(err);
-	//	exit(1);
-	//}
+	err = av_opt_set(m_encoderContext->priv_data, "low_delay_brc", "1", AV_OPT_SEARCH_CHILDREN);
+	if (err < 0) {
+		std::cout << "Could not set brc" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	err = av_opt_set_int(m_encoderContext->priv_data, "look_ahead_depth", 0, AV_OPT_SEARCH_CHILDREN);
+	if (err < 0) {
+		std::cout << "Could not set look ahead depth" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+	err = av_opt_set(m_encoderContext->priv_data, "preset", "veryfast", 0);
+	if (err < 0) {
+		std::cout << "Could not set preset" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+	err = av_opt_set(m_encoderContext->priv_data, "scenario", "livestreaming", 0);
+	if (err < 0) {
+		std::cout << "Could not set preset" << std::endl;
+		ffmpeg_debug_error(err);
+		exit(1);
+	}
+
+	
 
 	err = av_opt_set(m_encoderContext->priv_data, "profile", "main", AV_OPT_SEARCH_CHILDREN);
 	if (err < 0) {
@@ -263,6 +292,7 @@ void StreamEncoder::initializeHWEncoder()
 		exit(1);
 	}
 
+	// tier is very important on android
 	err = av_opt_set(m_encoderContext->priv_data, "tier", "0", AV_OPT_SEARCH_CHILDREN);
 	if (err < 0) {
 		std::cout << "Could not set profile" << std::endl;
@@ -277,28 +307,15 @@ void StreamEncoder::initializeHWEncoder()
 		exit(1);
 	}
 
-	//AVDictionary* options = nullptr;
-	//av_dict_set(&options, "pic_timing_sei", "false", 0); 
-
 	err = avcodec_open2(m_encoderContext, m_encoder, nullptr);
 	if (err < 0) {
 		std::cout << "Could not open codec" << std::endl;
 		ffmpeg_debug_error(err);
 		exit(1);
 	}
-
-	char* picTimingSeiValue = nullptr;
-	err = av_opt_get(m_encoderContext->priv_data, "pic_timing_sei", AV_OPT_SEARCH_CHILDREN, (uint8_t**)&picTimingSeiValue);
-	if (err < 0) {
-		std::cout << "Failed to retrieve pic_timing_sei value" << std::endl;
-		ffmpeg_debug_error(err);
-	}
-	else {
-		std::cout << "pic_timing_sei value: " << (picTimingSeiValue ? picTimingSeiValue : "null") << std::endl;
-		av_free(picTimingSeiValue); // Free the allocated memory
-	}
-
 }
+
+// This function leaks memory when calling avcodec_open
 void StreamEncoder::initializeTestDecoder()
 {
 	m_testDecoder = avcodec_find_decoder_by_name("hevc");
