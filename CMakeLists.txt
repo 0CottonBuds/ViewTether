@@ -6,13 +6,13 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 set(DEVICE_INSTALLER_64_PATH "${CMAKE_SOURCE_DIR}/thirdparty/usbmmidd_v2/deviceinstaller64.exe")
 add_definitions(-DDEVICE_INSTALLER_64_PATH=\"${DEVICE_INSTALLER_64_PATH}\")
-
+ 
 set(FFMPEG_INSTALLATION_PATH "${CMAKE_SOURCE_DIR}/thirdparty/ffmpeg")
 set(CMAKE_PREFIX_PATH "C:/Qt/6.8.1/msvc2022_64")
-
+  
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Network)
 qt_standard_project_setup()
- 
+  
 # Include headers so that moc can be generated
 file(GLOB_RECURSE SOURCES "./ViewTether/src/*.cpp" "./ViewTether/include/*.h" "./ViewTether/form/*.ui")
 include_directories(./ViewTether/include)
@@ -23,7 +23,7 @@ link_directories(${OUT_DIR}/lib)
 qt_add_executable(ViewTether ${SOURCES} "main.cpp")
  
 set(OUT_DIR "${CMAKE_BINARY_DIR}")
-
+ 
 add_custom_target(copy_ffmpeg_libs ALL
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FFMPEG_INSTALLATION_PATH}/lib" "${OUT_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_directory "${FFMPEG_INSTALLATION_PATH}/bin" "${OUT_DIR}"

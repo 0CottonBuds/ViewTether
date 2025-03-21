@@ -1,15 +1,18 @@
 #pragma once
-#include <iostream>
-#include <QObject>
-#include <QLabel>
+
+#include "UIManager.h"
+#include "VIdeoWidget.h"
+#include "StreamEncoder.h"
+#include "ScreenCapture/ScreenCapture.h"
+#include "StreamServer/TCPStreamServer.h"
+#include "ScreenCapture/DXGIScreenCapture.h"
+#include "Helpers/VirtualScreenDriverHelper.h"
+
+#include <QtWidgets/QApplication>
+#include <QGuiApplication>
 #include <QThread>
 
-#include "ui_MainWindow.h"
-#include "VIdeoWidget.h"
-#include "ScreenCapture/DXGIScreenCapture.h"
-#include "StreamServer/TCPStreamServer.h"
-#include "StreamEncoder.h"
-#include "Helpers/VirtualScreenDriverHelper.h"
+
 
 class App : public QObject {
 	Q_OBJECT;
@@ -17,46 +20,26 @@ public:
 	App(int argc, char** argv);
 	App(const App&);
 	~App();
-	void setFps();
-
-public slots:
-	// switches the screen on or off
-	void streamSwitch();
 
 private:
+	// TODO: currently this is taken by looking at primary screen, need to change this to use DisplayInformationManager
 	int m_primaryScreenHeight;
 	int m_primaryScreenWidth;
-	int m_defaultFps = 60; // if you change this change the default displahy on fps dropdown
+
+	UIManager* m_uiManager;
+
+	QThread m_screenCaptureThread;
+	ScreenCapture* m_screenCapture;
 
 
-	QThread screenCaptureThread;
-	ScreenCapture* screenCaptureWorker;
-	QThread displayStreamServerThread;
-	DisplayStreamServer* displayStreamServerWorker;
+	// TODO: this share threads figure out if we should create a thread for streamEncoder
+	QThread m_displayStreamServerThread;
+	DisplayStreamServer* m_displayStreamServer;
 	StreamEncoder* streamEncoder;
+
 	VirtualScreenDriverHelper* driverHelper;
 
-	Ui_MainWidget* mainWidget;
-	VideoWidget* videoWidget;
-	QTimer* previewTimer;
-
-	// sets what screen to be duplicated based on adapter and output combo boxes.
-	void setScreen();
-
-	void initializePreviewTimer(); // initializes a QTimer used for timing the fps of streaming. By default this is set to 60 fps
-	void initializeVideoWidget();
 	void initializeThreads();
-
-	void onFrameReady(shared_ptr<UCHAR> pixelData);
-
-	// Handles event loop of..
-	// 1: getting the frame encoding and streaming.  
-	// 2: getting the image and updating video widget
 	void initializeMainEventLoop();
 
-	void initializeButtons();
-	void initializeConnectionInformation();
-	void initializeComboBoxes();
-	void initializeAdapterComboBox();
-	void initializeOutputComboBox();
 };

@@ -33,6 +33,7 @@ signals:
 	void connected();
 	void disconnected();
 	void initializationFinished();
+	void addressReady(QString ip, QString port);
 
 private slots:
 	void newConnection();

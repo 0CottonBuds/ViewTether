@@ -27,7 +27,7 @@ public:
 	~DXGIScreenCapture();
 
 	DisplayInformationManager getDisplayInformationManager() override { return informationManager; }
-	HRESULT changeDisplay(int providerIndex = 0, int displayIndex = 0) override;
+	HRESULT changeScreen(int providerIndex = 0, int displayIndex = 0) override;
 
 public slots:
 	HRESULT getFrame() override;

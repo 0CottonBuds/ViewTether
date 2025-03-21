@@ -11,6 +11,8 @@ DXGIScreenCapture::~DXGIScreenCapture()
 
 HRESULT DXGIScreenCapture::Initialize()
 {
+	setupFrameTimer();
+
 	destroyD3D11();
 	HRESULT hr;
 	if (FAILED(hr = initializeFactory()))
@@ -25,9 +27,10 @@ HRESULT DXGIScreenCapture::Initialize()
 		return hr;
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
-	if (FAILED(hr = changeDisplay()))
+	if (FAILED(hr = changeScreen()))
 		return hr;
 	emit initializationFinished();
+	emit displayInformationReady(informationManager);
 	return S_OK;
 }
 
@@ -233,9 +236,13 @@ HRESULT DXGIScreenCapture::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT DXGIScreenCapture::changeDisplay(int adapterIndex, int outputIndex)
+HRESULT DXGIScreenCapture::changeScreen(int adapterIndex, int outputIndex)
 {
-	if (m_outputDuplication != nullptr) {
+	if (adapterIndex < 0 || outputIndex < 0) {
+		return E_FAIL;
+	}
+
+	if (m_outputDuplication!= nullptr) {
 		m_outputDuplication->ReleaseFrame();
 		m_outputDuplication->Release();
 	}

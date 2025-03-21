@@ -50,6 +50,7 @@ void DisplayStreamServer::initialize()
         qDebug() << "Port: " << serverPort;
     }
     emit initializationFinished();
+    emit addressReady(serverIp, serverPort);
 }
 
 void DisplayStreamServer::newConnection()
