@@ -20,7 +20,7 @@ App::App(int argc, char** argv)
 	m_screenCapture = new DXGIScreenCapture();	
 	m_displayStreamServer = new DisplayStreamServer();
 	driverHelper = new VirtualScreenDriverHelper();
-	streamEncoder = new StreamEncoder(m_primaryScreenHeight, m_primaryScreenWidth, 60, AV_HWDEVICE_TYPE_QSV);
+	streamEncoder = new StreamEncoder(m_primaryScreenHeight, m_primaryScreenWidth, 16, AV_HWDEVICE_TYPE_QSV);
 	m_uiManager = new UIManager();
 
 	initializeThreads();
@@ -61,24 +61,21 @@ void App::initializeThreads()
 	connect(&m_displayStreamServerThread, &QThread::started, m_displayStreamServer, &DisplayStreamServer::initialize);
 	connect(&m_displayStreamServerThread, &QThread::finished, m_displayStreamServer, &QObject::deleteLater);
 
-	m_displayStreamServerThread.start();
 	m_screenCaptureThread.start();
+	m_displayStreamServerThread.start();
 }
 
-void App::initializeMainEventLoop()
-{
+void App::initializeMainEventLoop(){
 	// choose if you want to use software or hardware encoding
 	//connect(screenCaptureWorker, &ScreenCapture::frameReady, streamEncoder, &StreamEncoder::encodeFrame);
 	connect(m_screenCapture, &ScreenCapture::frameReady, streamEncoder, &StreamEncoder::encodeHWFrame);
 	//connect(screenCaptureWorker, &ScreenCapture::hwframeReady, streamEncoder, &StreamEncoder::encodeHWFrame);
 
 	// choose the preview source. used for testing if the pixel data is correct
-	//connect(screenCaptureWorker, &ScreenCapture::frameReady, this, &App::onFrameReady);
-	//connect(streamEncoder, &StreamEncoder::frameReady, this, &App::onFrameReady);
+	//connect(streamEncoder, &StreamEncoder::frameReady, m_uiManager, &UIManager::setVideoFrame);
+	connect(m_screenCapture, &ScreenCapture::frameReady, m_uiManager, &UIManager::setVideoFrame);
 
 	connect(streamEncoder, &StreamEncoder::encodeFinish, m_displayStreamServer, &DisplayStreamServer::write);
-
-	connect(m_screenCapture, &ScreenCapture::frameReady, m_uiManager, &UIManager::setVideoFrame);
 	connect(m_screenCapture, &ScreenCapture::displayInformationReady, m_uiManager, &UIManager::setDisplayInformation);
 
 	connect(m_displayStreamServer, &DisplayStreamServer::addressReady, m_uiManager, &UIManager::setAddress);

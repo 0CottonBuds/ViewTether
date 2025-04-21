@@ -14,18 +14,23 @@ public slots:
     }
 
     void updateImage(std::shared_ptr<QImage> image) {
-        currentImage = *image.get();
+        currentImage = std::move(image);
         update();
     }
 
 protected:
     void paintEvent(QPaintEvent *event) override {
 		QPainter painter = QPainter(this);
-        painter.drawImage(rect(), currentImage, currentImage.rect());
+        if (currentImage && !currentImage->isNull()) {
+			painter.drawImage(rect(), *currentImage, currentImage->rect());
+        }
+        else {
+			painter.drawImage(rect(), *blankImage, blankImage->rect());
+        }
     }
 
 private:
-    QImage currentImage;
-    QImage blankImage = QImage();
+    std::shared_ptr<QImage> currentImage;
+    std::shared_ptr<QImage> blankImage = std::shared_ptr<QImage>(new QImage());
 };
 

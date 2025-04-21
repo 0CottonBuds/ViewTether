@@ -41,7 +41,7 @@ public:
 	virtual HRESULT changeScreen(int providerIndex = 0, int displayIndex = 0) = 0;
 
 	QTimer* frameTimer;
-	int fps = 60;
+	int fps = 15;
 	int frameCount = 0;
 
 protected: 

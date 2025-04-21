@@ -13,7 +13,7 @@ HRESULT DXGIScreenCapture::Initialize()
 {
 	setupFrameTimer();
 
-	destroyD3D11();
+	//destroyD3D11();
 	HRESULT hr;
 	if (FAILED(hr = initializeFactory()))
 		return hr;
@@ -27,7 +27,7 @@ HRESULT DXGIScreenCapture::Initialize()
 		return hr;
 	if (FAILED(hr = initializeD3D11Device()))
 		return hr;
-	if (FAILED(hr = changeScreen()))
+	if (FAILED(hr = DXGIScreenCapture::changeScreen(0, 0)))
 		return hr;
 	emit initializationFinished();
 	emit displayInformationReady(informationManager);
@@ -98,15 +98,14 @@ HRESULT DXGIScreenCapture::getFrame()
 	}
 	stagingTexture->Release();
 	
-	uint8_t* pixelDataBuffer = new uint8_t[cpuResource.DepthPitch];
-	memcpy(pixelDataBuffer, cpuResource.pData, cpuResource.DepthPitch);
-	shared_ptr<uint8_t> pixelData = shared_ptr<uint8_t>(pixelDataBuffer);
+	shared_ptr<UCHAR> pixelDataBuffer = shared_ptr<uint8_t>(new uint8_t[cpuResource.DepthPitch]);
+	memcpy(pixelDataBuffer.get(), cpuResource.pData, cpuResource.DepthPitch);
 
 	m_backFrame.reset();
-	m_backFrame = pixelData;
+	m_backFrame = pixelDataBuffer;
 
 	frameCount++;
-	emit frameReady(pixelData);
+	emit frameReady(pixelDataBuffer);
 
 	m_outputDuplication->ReleaseFrame();
 	return S_OK;
@@ -166,8 +165,10 @@ HRESULT DXGIScreenCapture::initualizeOutputs()
 		IDXGIOutput* tpOutput = nullptr;
 		IDXGIOutput1* tpOutput1 = nullptr;
 		vector<IDXGIOutput1*> tvOutputs;
+		DXGI_OUTPUT_DESC outputDesc;
 		while (hr = m_adapters[i]->EnumOutputs(j, &tpOutput) != DXGI_ERROR_NOT_FOUND) {
 			hr = tpOutput->QueryInterface(__uuidof(IDXGIOutput1), (void**)& tpOutput1);
+			hr = tpOutput->GetDesc(&outputDesc);
 			if (FAILED(hr)) {
 				cerr << "Failed to get " << i << "," << j << " output" << endl;
 				return hr;
@@ -219,15 +220,12 @@ HRESULT DXGIScreenCapture::initializeD3D11Device()
 	HRESULT hr;
 
 	D3D_FEATURE_LEVEL D3DFeatureLevel[] = {
+		D3D_FEATURE_LEVEL_12_0,
 		D3D_FEATURE_LEVEL_11_1,
-		D3D_FEATURE_LEVEL_10_1,
-		D3D_FEATURE_LEVEL_10_0,
-		D3D_FEATURE_LEVEL_9_3,
-		D3D_FEATURE_LEVEL_9_2,
-		D3D_FEATURE_LEVEL_9_1,
+		D3D_FEATURE_LEVEL_11_0,
 	};
 
-	hr = D3D11CreateDevice(m_adapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, D3DFeatureLevel, 6, D3D11_SDK_VERSION, &m_device, &m_D3DFeatureLevel, &m_DeviceContext);
+	hr = D3D11CreateDevice(m_adapters[0], D3D_DRIVER_TYPE_UNKNOWN, NULL, 0, D3DFeatureLevel, 3, D3D11_SDK_VERSION, &m_device, &m_D3DFeatureLevel, &m_DeviceContext);
 	if (FAILED(hr)) {
 		cerr << "failed to initialize D3D device" << endl;
 		destroyD3D11();
@@ -236,17 +234,18 @@ HRESULT DXGIScreenCapture::initializeD3D11Device()
 	return S_OK;
 }
 
-HRESULT DXGIScreenCapture::changeScreen(int adapterIndex, int outputIndex)
+HRESULT DXGIScreenCapture::changeScreen(int adapterIndex , int outputIndex)
 {
 	if (adapterIndex < 0 || outputIndex < 0) {
 		return E_FAIL;
 	}
 
+
 	if (m_outputDuplication!= nullptr) {
 		m_outputDuplication->ReleaseFrame();
 		m_outputDuplication->Release();
 	}
-	
+
 	HRESULT hr;
 	hr = m_outputs[adapterIndex][outputIndex]->DuplicateOutput(m_device.Get(), &m_outputDuplication);
 	if (FAILED(hr)) {
@@ -264,6 +263,7 @@ HRESULT DXGIScreenCapture::changeScreen(int adapterIndex, int outputIndex)
 
 	return S_OK;
 }
+
 
 HRESULT DXGIScreenCapture::destroyD3D11()
 {

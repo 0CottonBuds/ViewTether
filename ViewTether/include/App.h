@@ -29,7 +29,7 @@ private:
 	UIManager* m_uiManager;
 
 	QThread m_screenCaptureThread;
-	ScreenCapture* m_screenCapture;
+	DXGIScreenCapture* m_screenCapture;
 
 
 	// TODO: this share threads figure out if we should create a thread for streamEncoder

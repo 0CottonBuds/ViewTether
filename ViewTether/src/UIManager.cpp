@@ -19,7 +19,7 @@ UIManager::UIManager() {
 	widget->show();
 }
 
-UIManager::UIManager(const UIManager&) {
+UIManager::UIManager(const UIManager&) {	
 
 }
 
@@ -28,10 +28,10 @@ UIManager::~UIManager() {
 }
 
 void UIManager::setVideoFrame(std::shared_ptr<unsigned char> pixeldata) {
-	QImage* notSwappedImage = new QImage(pixeldata.get(), 1920, 1080, QImage::Format_RGBA8888);
-	std::shared_ptr<QImage> image = std::shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
-	delete notSwappedImage;
-	m_videoWidget->updateImage(image);
+	std::shared_ptr<QImage> notSwappedImage = std::shared_ptr<QImage>(new QImage(pixeldata.get(), 1920, 1080, QImage::Format_RGBA8888));
+	//std::shared_ptr<QImage> image = std::shared_ptr<QImage>(new QImage(notSwappedImage->rgbSwapped()));
+	m_videoWidget->updateImage(notSwappedImage);
+
 }
 
 void UIManager::setAddress(QString ip, QString port) {

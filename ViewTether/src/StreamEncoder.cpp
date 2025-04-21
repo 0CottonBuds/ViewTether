@@ -109,9 +109,9 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 		exit(1);
 	}
 	swFrame->format = AV_PIX_FMT_BGRA;
-	swFrame->m_height = m_height;
-	swFrame->m_width = m_width;
-	swFrame->m_pts = frameCount;
+	swFrame->height = m_height;
+	swFrame->width = m_width;
+	swFrame->pts = frameCount;
 
 	err = av_frame_get_buffer(swFrame, 0);
 	if (err < 0) {
@@ -137,7 +137,7 @@ void StreamEncoder::encodeHWFrame(std::shared_ptr<uint8_t> pixelData)
 		exit(-1);
 	}
 
-	hwFrame->m_pts = frameCount;
+	hwFrame->pts = frameCount;
 	frameCount += 1;
 
 	err = avcodec_send_frame(m_encoderContext, hwFrame);
@@ -216,8 +216,8 @@ void StreamEncoder::initializeHWEncoder()
 	AVHWFramesContext* hwFramesContext = (AVHWFramesContext*)hwFramesRef->data;
 	hwFramesContext->format = AV_PIX_FMT_QSV;  
 	hwFramesContext->sw_format = AV_PIX_FMT_BGRA;
-	hwFramesContext->m_width = m_width;  
-	hwFramesContext->m_height = m_height; 
+	hwFramesContext->width = m_width;  
+	hwFramesContext->height = m_height; 
 	hwFramesContext->device_ref = hwDeviceContext;
 	hwFramesContext->device_ctx =(AVHWDeviceContext*) hwDeviceContext->data;
 	hwFramesContext->initial_pool_size = 10;
@@ -231,8 +231,8 @@ void StreamEncoder::initializeHWEncoder()
 	m_encoderContext->refs = 10;
 
 
-	m_encoderContext->m_width = m_width;
-	m_encoderContext->m_height = m_height;
+	m_encoderContext->width = m_width;
+	m_encoderContext->height = m_height;
 
 
 	m_encoderContext->time_base.num = 1;
@@ -283,8 +283,6 @@ void StreamEncoder::initializeHWEncoder()
 		exit(1);
 	}
 
-	
-
 	err = av_opt_set(m_encoderContext->priv_data, "profile", "main", AV_OPT_SEARCH_CHILDREN);
 	if (err < 0) {
 		std::cout << "Could not set profile" << std::endl;
@@ -330,8 +328,8 @@ void StreamEncoder::initializeTestDecoder()
 		exit(1);
 	}
 
-	m_testDecoderContext->m_height = m_height;
-	m_testDecoderContext->m_width = m_width;
+	m_testDecoderContext->height = m_height;
+	m_testDecoderContext->width = m_width;
 	m_testDecoderContext->bit_rate = m_bitrate;
 
 	m_testDecoderContext->time_base.num = 1;
@@ -371,8 +369,8 @@ void StreamEncoder::initializeEncoder()
 	}
 
 	m_encoderContext->bit_rate = m_bitrate;
-	m_encoderContext->m_width = m_width;
-	m_encoderContext->m_height = m_height;
+	m_encoderContext->width = m_width;
+	m_encoderContext->height = m_height;
 
 	m_encoderContext->time_base.num = 1;
 	m_encoderContext->time_base.den = m_fps;
@@ -420,9 +418,9 @@ AVFrame* StreamEncoder::allocateFrame(std::shared_ptr<uint8_t> pixelData)
 	}
 
 	yuvFrame->format = m_encoderContext->pix_fmt;
-	yuvFrame->m_width = m_width;
-	yuvFrame->m_height = m_height;
-	yuvFrame->m_pts = m_pts;
+	yuvFrame->width = m_width;
+	yuvFrame->height = m_height;
+	yuvFrame->pts = m_pts;
 	//yuvFrame->pict_type = AV_PICTURE_TYPE_I;
 
 	m_pts += 1;
@@ -457,9 +455,9 @@ AVFrame* StreamEncoder::convertYUVFrameToBGRA(AVFrame* yuvFrame)
 	}
 
 	bgraFrame->format = AV_PIX_FMT_BGRA;
-	bgraFrame->m_width = m_width;
-	bgraFrame->m_height = m_height;
-	bgraFrame->m_pts = m_pts;
+	bgraFrame->width = m_width;
+	bgraFrame->height = m_height;
+	bgraFrame->pts = m_pts;
 
 	if (av_frame_get_buffer(bgraFrame, 0) < 0) {
 		qDebug() << "Failed to get frame buffer";
